@@ -11,6 +11,8 @@ CONFIG += debug
 OBJECTS_DIR = generated_files
 MOC_DIR = generated_files
 
+RESOURCES = resources.qrc
+
 INCLUDEPATH += .
 
 # You can make your code fail to compile if you use deprecated APIs.

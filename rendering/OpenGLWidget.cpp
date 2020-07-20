@@ -1,7 +1,9 @@
 #include "OpenGLWidget.hpp"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QOpenGLDebugLogger>
+#include <QDir>
 
 
 OpenGLWidget::OpenGLWidget(QWidget* parent) : QOpenGLWidget(parent) {
@@ -77,15 +79,15 @@ void OpenGLWidget::initializeGL() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     ShaderStage shaders[] = {
-        ShaderStage{GL_VERTEX_SHADER, "rendering/shaders/framebuffer_vs.glsl"},
-        ShaderStage{GL_FRAGMENT_SHADER, "rendering/shaders/framebuffer_fs.glsl"}
+        ShaderStage{GL_VERTEX_SHADER, ":/rendering/shaders/framebuffer_vs.glsl"},
+        ShaderStage{GL_FRAGMENT_SHADER, ":/rendering/shaders/framebuffer_fs.glsl"}
     };
 
     frame_shader.load_shaders(shaders, 2);
     frame_shader.validate();
 
     render_result = new Texture(this);
-    render_result->load("textures/awesomeface.png");
+    render_result->load(":/textures/awesomeface.png");
 }
 
 void OpenGLWidget::resizeGL(int w, int h) {

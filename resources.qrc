@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>textures/awesomeface.png</file>
+    <file>rendering/shaders/framebuffer_fs.glsl</file>
+    <file>rendering/shaders/framebuffer_vs.glsl</file>
+    <file>rendering/shaders/equirectangular_to_cube_map.glsl</file>
+</qresource>
+</RCC>
