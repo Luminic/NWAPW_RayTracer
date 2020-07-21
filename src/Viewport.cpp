@@ -53,8 +53,8 @@ void Viewport::mouseMoveEvent(QMouseEvent* event) {
     event->accept();
 }
 
-void Viewport::main_loop() {
-    cam_controller.main_loop();
+void Viewport::main_loop(float dt) {
+    cam_controller.main_loop(dt);
     gl_widget.main_loop();
 }
 

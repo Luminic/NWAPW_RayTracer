@@ -11,10 +11,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     connect(&timer, &QTimer::timeout, this, &MainWindow::main_loop);
     timer.start(16);
+    elapsedTimer.start();
 }
 
 MainWindow::~MainWindow() {}
 
 void MainWindow::main_loop() {
-    viewport.main_loop();
+    float dt = elapsedTimer.restart() / 1000.0f;
+    viewport.main_loop(dt);
 }

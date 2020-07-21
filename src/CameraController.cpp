@@ -10,9 +10,9 @@ CameraController::CameraController(float mouse_sensitivity, float speed, QObject
     camera_3D = nullptr;
 }
 
-void CameraController::main_loop() {
-    camera_3D->yaw_pitch_roll[0] += mouse_movement[0]*mouse_sensitivity;
-    camera_3D->yaw_pitch_roll[1] -= mouse_movement[1]*mouse_sensitivity;
+void CameraController::main_loop(float dt) {
+    camera_3D->yaw_pitch_roll[0] += mouse_movement[0]*mouse_sensitivity*dt;
+    camera_3D->yaw_pitch_roll[1] -= mouse_movement[1]*mouse_sensitivity*dt;
     camera_3D->yaw_pitch_roll[1] = glm::clamp(camera_3D->yaw_pitch_roll[1], -89.0f, 89.0f);
     mouse_movement[0] = 0.0f;
     mouse_movement[1] = 0.0f;
@@ -37,7 +37,7 @@ void CameraController::main_loop() {
     if (movement.down) {
         current_movement.y -= 1.0f;
     }
-    camera_3D->position += current_movement*speed;
+    camera_3D->position += current_movement*speed*dt;
 }
 
 void CameraController::mouse_moved(float dx, float dy) {

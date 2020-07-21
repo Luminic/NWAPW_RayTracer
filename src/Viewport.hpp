@@ -14,7 +14,7 @@ public:
     Viewport(QWidget* parent=nullptr);
     ~Viewport();
 
-    void main_loop();
+    void main_loop(float dt);
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;

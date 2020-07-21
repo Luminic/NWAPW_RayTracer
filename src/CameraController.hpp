@@ -30,9 +30,9 @@ class CameraController : public QObject{
     Q_OBJECT;
 
 public:
-    CameraController(float mouse_sensitivity=0.1f, float speed=0.3f, QObject* parent=nullptr);
+    CameraController(float mouse_sensitivity=3.0f, float speed=3.0f, QObject* parent=nullptr);
 
-    void main_loop();
+    void main_loop(float dt);
 
     void mouse_moved(float dx, float dy);
     void key_event(QKeyEvent* key);

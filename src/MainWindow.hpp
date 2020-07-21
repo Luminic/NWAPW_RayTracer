@@ -2,6 +2,7 @@
 #define MAIN_WINDOW_HPP
 
 #include <QMainWindow>
+#include <QElapsedTimer>
 #include <QTimer>
 
 #include "Viewport.hpp"
@@ -17,6 +18,7 @@ private:
     void main_loop();
 
     QTimer timer;
+    QElapsedTimer elapsedTimer;
 
     Viewport viewport;
 };
