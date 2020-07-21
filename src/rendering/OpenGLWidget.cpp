@@ -88,7 +88,7 @@ void OpenGLWidget::initializeGL() {
     frame_shader.validate();
 
     render_result = new Texture(this);
-    render_result->load(":/textures/awesomeface.png");
+    render_result->load(":/resources/textures/awesomeface.png");
 }
 
 void OpenGLWidget::resizeGL(int w, int h) {
