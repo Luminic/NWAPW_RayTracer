@@ -8,7 +8,7 @@ Camera3D::Camera3D(float aspect_ratio, float fov, QObject* parent) :
     aspect_ratio(aspect_ratio),
     fov(fov)
 {
-    position = glm::vec3(0.0f);
+    position = glm::vec3(0.0f,0.0f,5.0f);
     yaw_pitch_roll = glm::vec3(0.0f);
 
     perspective = glm::infinitePerspective(fov, aspect_ratio, 0.1f);
