@@ -28,7 +28,9 @@ uint32_t round_up_to_pow_2(uint32_t x) {
 }
 Texture::Texture(QObject* parent) : QObject(parent) {}
 
-Texture::~Texture() {}
+Texture::~Texture() {
+    glDeleteTextures(1, &id);
+}
 
 void Texture::load(const char* path) {
     QImage img = QImage(path).convertToFormat(QImage::Format_RGBA8888).mirrored(false, true);
