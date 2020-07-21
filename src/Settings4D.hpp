@@ -11,7 +11,7 @@ class SETTINGS_4D : public QDockWidget {
     Q_OBJECT;
 
 public:
-    SETTINGS_4D(Qwidget* parent = nullptr);
+    SETTINGS_4D(Qwidget* parent);
     ~SETTINGS_4D();
 };
 

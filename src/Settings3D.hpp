@@ -11,7 +11,7 @@ class Settings3DWindow : public QDockWidget {
     Q_OBJECT;
 
 public:
-    Settings3DWindow(QWidget* parent = nullptr);
+    Settings3DWindow(QWidget* parent);
     ~Settings3DWindow();
 };
 
