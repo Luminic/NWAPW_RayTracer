@@ -20,6 +20,8 @@ INCLUDEPATH += .
 INCLUDEPATH += libraries/glm-0.9.9.8/glm/
 INCLUDEPATH += libraries/stb_image/
 
+QMAKE_CXXFLAGS += /std:c++17
+
 # You can make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
 # Please consult the documentation of the deprecated API in order to know
