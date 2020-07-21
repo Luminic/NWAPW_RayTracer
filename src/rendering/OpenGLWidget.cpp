@@ -80,8 +80,8 @@ void OpenGLWidget::initializeGL() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     ShaderStage shaders[] = {
-        ShaderStage{GL_VERTEX_SHADER, ":/rendering/shaders/framebuffer_vs.glsl"},
-        ShaderStage{GL_FRAGMENT_SHADER, ":/rendering/shaders/framebuffer_fs.glsl"}
+        ShaderStage{GL_VERTEX_SHADER, ":/src/rendering/shaders/framebuffer_vs.glsl"},
+        ShaderStage{GL_FRAGMENT_SHADER, ":/src/rendering/shaders/framebuffer_fs.glsl"}
     };
 
     frame_shader.load_shaders(shaders, 2);
