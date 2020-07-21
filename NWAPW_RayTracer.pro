@@ -14,6 +14,10 @@ MOC_DIR = generated_files
 RESOURCES = resources.qrc
 
 INCLUDEPATH += .
+# Lucas, is it possible to include this only if on windows, so that I and Loius could use this?
+# another option is to include this in yours and have glm and stb local to the project.
+INCLUDEPATH += libraries/glm-0.9.9.8/glm/
+INCLUDEPATH += libraries/stb_image/
 
 # You can make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
