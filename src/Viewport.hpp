@@ -19,6 +19,8 @@ public:
     OpenGLWidget gl_widget;
     Renderer3D renderer_3D;
 
+    Camera3D camera_3D;
+
     // CameraController cam_controller;
     // bool mouse_captured;
 };

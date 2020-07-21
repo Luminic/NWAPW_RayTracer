@@ -11,6 +11,7 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
     layout->addWidget(&gl_widget, 0, 0);
     setFocusPolicy(Qt::StrongFocus);
 
+    renderer_3D.set_camera(&camera_3D);
     gl_widget.set_renderer(&renderer_3D);
 }
 
