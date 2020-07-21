@@ -23,5 +23,5 @@ void main() {
 
     vec3 col = tex_coords.xyx;
 
-    imageStore(framebuffer, pix, vec4(ray, 1.0f));
+    imageStore(framebuffer, pix, vec4(abs(normalize(ray)), 1.0f));
 }
