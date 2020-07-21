@@ -8,6 +8,8 @@ TARGET = NWAPW_RayTracer
 QT += core gui widgets
 CONFIG += debug
 
+CONFIG += C++17
+
 OBJECTS_DIR = generated_files
 MOC_DIR = generated_files
 
@@ -17,6 +19,8 @@ INCLUDEPATH += .
 
 INCLUDEPATH += libraries/glm-0.9.9.8/glm/
 INCLUDEPATH += libraries/stb_image/
+
+QMAKE_CXXFLAGS += /std:c++17
 
 # You can make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
