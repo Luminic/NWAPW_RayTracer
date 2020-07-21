@@ -14,8 +14,7 @@ MOC_DIR = generated_files
 RESOURCES = resources.qrc
 
 INCLUDEPATH += .
-# Lucas, is it possible to include this only if on windows, so that I and Loius could use this?
-# another option is to include this in yours and have glm and stb local to the project.
+
 INCLUDEPATH += libraries/glm-0.9.9.8/glm/
 INCLUDEPATH += libraries/stb_image/
 
@@ -29,13 +28,19 @@ INCLUDEPATH += libraries/stb_image/
 # Input
 HEADERS += src/MainWindow.hpp \
            src/Viewport.hpp \
+           src/CameraController.hpp \
            src/rendering/OpenGLWidget.hpp \
            src/rendering/Shader.hpp \
-           src/rendering/Texture.hpp
+           src/rendering/Texture.hpp \
+           src/rendering/Renderer3D.hpp \
+           src/rendering/Camera3D.hpp
 
 SOURCES += src/main.cpp \
            src/MainWindow.cpp \
            src/Viewport.cpp \
+           src/CameraController.cpp \
            src/rendering/OpenGLWidget.cpp \
            src/rendering/Shader.cpp \
-           src/rendering/Texture.cpp
+           src/rendering/Texture.cpp \
+           src/rendering/Renderer3D.cpp \
+           src/rendering/Camera3D.cpp
