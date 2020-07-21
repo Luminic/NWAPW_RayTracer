@@ -6,6 +6,7 @@
 
 #include <vector>
 
+#include "Renderer3D.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
 
@@ -16,6 +17,11 @@ public:
     OpenGLWidget(QWidget* parent=nullptr);
     ~OpenGLWidget();
 
+    void main_loop();
+
+    void set_renderer(Renderer3D* renderer);
+
+protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
     void paintGL() override;
@@ -25,6 +31,7 @@ private:
     unsigned int frame_vao;
     Shader frame_shader;
 
+    Renderer3D* renderer;
     Texture* render_result;
 };
 

@@ -12,11 +12,12 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) : QOpenGLWidget(parent) {
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setOption(QSurfaceFormat::DebugContext);
     setFormat(format);
+
+    renderer = nullptr;
 }
 
 OpenGLWidget::~OpenGLWidget() {
     makeCurrent();
-    delete render_result;
     glDeleteVertexArrays(1, &frame_vao);
     glDeleteBuffers(1, &frame_vbo);
 }
@@ -87,8 +88,21 @@ void OpenGLWidget::initializeGL() {
     frame_shader.load_shaders(shaders, 2);
     frame_shader.validate();
 
-    render_result = new Texture(this);
-    render_result->load(":/resources/textures/awesomeface.png");
+    if (renderer) {
+        render_result = renderer->initialize(width(), height());
+    } else {
+        // render_result = new Texture(this);
+        // render_result->load(":/resources/textures/awesomeface.png");
+    }
+}
+
+void OpenGLWidget::set_renderer(Renderer3D* renderer) {
+    this->renderer = renderer;
+    if (context()) {
+        makeCurrent();
+        render_result = renderer->initialize(width(), height());
+        doneCurrent();
+    }
 }
 
 void OpenGLWidget::resizeGL(int w, int h) {
@@ -108,4 +122,13 @@ void OpenGLWidget::paintGL() {
     // Clean up
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
+}
+
+void OpenGLWidget::main_loop() {
+    makeCurrent();
+    if (renderer)
+        render_result = renderer->render();
+    doneCurrent();
+
+    update();
 }

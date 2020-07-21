@@ -4,7 +4,7 @@
 #include <QWidget>
 
 #include "rendering/OpenGLWidget.hpp"
-// #include "rendering/Renderer3D.hpp"
+#include "rendering/Renderer3D.hpp"
 // #include "CameraController.hpp"
 
 class Viewport : public QWidget {
@@ -17,7 +17,7 @@ public:
     void main_loop();
 
     OpenGLWidget gl_widget;
-    // Renderer* renderer;
+    Renderer3D renderer_3D;
 
     // CameraController cam_controller;
     // bool mouse_captured;
