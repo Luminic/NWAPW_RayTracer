@@ -22,6 +22,7 @@ Texture* Renderer3D::initialize(int width, int height) {
     glGetProgramiv(render_shader.get_id(), GL_COMPUTE_WORK_GROUP_SIZE, work_group_size);
     render_result.create(width, height);
 
+    resize(width, height);
     return &render_result;
 }
 
