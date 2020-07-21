@@ -8,6 +8,8 @@ TARGET = NWAPW_RayTracer
 QT += core gui widgets
 CONFIG += debug
 
+CONFIG += C++17
+
 OBJECTS_DIR = generated_files
 MOC_DIR = generated_files
 
