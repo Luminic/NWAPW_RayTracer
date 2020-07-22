@@ -13,9 +13,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         Vertex(glm::vec4(-1.0f,-1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
 
         // Ceiling
-        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f, 1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4( 1.0f, 1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
         Vertex(glm::vec4(-1.0f, 1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f))
     };
 
@@ -28,7 +28,24 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     };
 
     StaticMesh<8, 12>* mesh = new StaticMesh<8, 12>(verts, inds, this);
+
+    Vertex verts2[4] = {
+        // Floor 2
+        Vertex(glm::vec4(-1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4(-1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
+    };
+
+    Index inds2[6] = {
+        8, 9, 10,
+        10, 11, 8
+    };
+
+    StaticMesh<4, 6>* mesh2 = new StaticMesh<4, 6>(verts2, inds2, this);
+
     scene.add_static_mesh((VirtualStaticMesh*)mesh);
+    scene.add_static_mesh((VirtualStaticMesh*)mesh2);
 
     viewport.set_scene(&scene);
     setCentralWidget(&viewport);

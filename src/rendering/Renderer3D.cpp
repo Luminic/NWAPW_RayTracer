@@ -119,7 +119,7 @@ void Renderer3D::add_static_meshes_to_buffer() {
     for (VirtualStaticMesh* v_mesh : static_meshes) {
         unsigned int nr_mesh_indices = v_mesh->size_indices();
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, current_indices*sizeof(Index), nr_mesh_indices*sizeof(Index), v_mesh->get_indices());
-        current_vertices += nr_mesh_indices;
+        current_indices += nr_mesh_indices;
     }
 
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
