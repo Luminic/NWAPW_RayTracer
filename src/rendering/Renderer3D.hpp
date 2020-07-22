@@ -8,6 +8,7 @@
 #include "Texture.hpp"
 #include "Camera3D.hpp"
 #include "objects/Vertex.hpp"
+#include "objects/Scene.hpp"
 
 class Renderer3D : public QObject, protected QOpenGLFunctions_4_5_Core{
     Q_OBJECT;
@@ -19,6 +20,8 @@ public:
     void resize(int width, int height);
 
     Texture* render();
+
+    void set_scene(Scene* scene);
 
     void set_camera(Camera3D* camera);
     Camera3D* get_camera();
@@ -35,6 +38,9 @@ private:
 
     int width;
     int height;
+
+    Scene* scene;
+    void add_static_meshes_to_buffer();
 
     Camera3D* camera;
 };

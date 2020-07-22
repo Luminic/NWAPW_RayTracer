@@ -6,6 +6,7 @@ uint32_t round_up_to_pow_2(uint32_t x);
 
 Renderer3D::Renderer3D(QObject* parent) : QObject(parent) {
     camera = nullptr;
+    scene = nullptr;
 }
 
 Texture* Renderer3D::initialize(int width, int height) {
@@ -31,48 +32,16 @@ Texture* Renderer3D::initialize(int width, int height) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, vertex_ssbo);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, vertex_ssbo);
 
-    Vertex verts[] = {
-        // Floor
-        Vertex(glm::vec4(-1.0f,-1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 1.0f)),
-        Vertex(glm::vec4(-1.0f,-1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
-
-        // Ceiling
-        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f, 1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 1.0f)),
-        Vertex(glm::vec4(-1.0f, 1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f))
-    };
-
-    vertices.insert(vertices.begin(), std::begin(verts), std::end(verts));
-
-    if (vertex_is_opengl_compatible) {
-        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(vertices[0])*vertices.size(), vertices.data(), GL_STATIC_DRAW);
-    } else {
-        std::vector<unsigned char> vertex_data(VERTEX_STRUCT_SIZE_IN_OPENGL*vertices.size());
-        for (unsigned int i=0; i<vertices.size(); i++) {
-            vertices[i].as_byte_array(&vertex_data[i*VERTEX_STRUCT_SIZE_IN_OPENGL]);
-        }
-        glBufferData(GL_SHADER_STORAGE_BUFFER, vertex_data.size(), vertex_data.data(), GL_STATIC_DRAW);
-    }
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 
     // Set up the Index SSBO
     glGenBuffers(1, &index_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, index_ssbo);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, index_ssbo);
 
-    unsigned int inds[] = {
-        0, 1, 2,
-        2, 3, 0,
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 
-        4, 5, 6,
-        6, 7, 4
-    };
-
-    indices.insert(indices.begin(), std::begin(inds), std::end(inds));
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(indices[0])*indices.size(), indices.data(), GL_STATIC_DRAW);
-
+    // Clean up
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT); // Not 100% sure if necessary but just in case
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
@@ -93,6 +62,11 @@ Texture* Renderer3D::render() {
     camera->update_view_matrix();
     CornerRays eye_rays = camera->get_corner_rays();
 
+    if (scene) {
+        if (scene->static_meshes_modified(true))
+            add_static_meshes_to_buffer();
+    }
+
     glUseProgram(render_shader.get_id());
     render_shader.set_vec3("eye", camera->position);
     render_shader.set_vec3("ray00", eye_rays.r00);
@@ -112,6 +86,48 @@ Texture* Renderer3D::render() {
     glUseProgram(0);
 
     return &render_result;
+}
+
+void Renderer3D::add_static_meshes_to_buffer() {
+    const std::vector<VirtualStaticMesh*>& static_meshes = scene->get_static_meshes();
+    unsigned int nr_vertices = 0;
+    unsigned int nr_indices = 0;
+    for (VirtualStaticMesh* v_mesh : static_meshes) {
+        nr_vertices += v_mesh->size_vertices();
+        nr_indices += v_mesh->size_indices();
+    }
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, vertex_ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, nr_vertices*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
+    unsigned int current_vertices = 0;
+    for (VirtualStaticMesh* v_mesh : static_meshes) {
+        unsigned int nr_mesh_vertices = v_mesh->size_vertices();
+        if (vertex_is_opengl_compatible) {
+            glBufferSubData(GL_SHADER_STORAGE_BUFFER, current_vertices*sizeof(Vertex), nr_mesh_vertices*sizeof(Vertex), v_mesh->get_vertices());
+        } else {
+            std::vector<unsigned char> vertex_data(VERTEX_STRUCT_SIZE_IN_OPENGL*vertices.size());
+            for (unsigned int i=0; i<vertices.size(); i++) {
+                vertices[i].as_byte_array(&vertex_data[i*VERTEX_STRUCT_SIZE_IN_OPENGL]);
+            }
+            glBufferData(GL_SHADER_STORAGE_BUFFER, vertex_data.size(), vertex_data.data(), GL_STATIC_DRAW);
+        }
+        current_vertices += nr_mesh_vertices;
+    }
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, index_ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, nr_indices*sizeof(Index), nullptr, GL_DYNAMIC_DRAW);
+    unsigned int current_indices = 0;
+    for (VirtualStaticMesh* v_mesh : static_meshes) {
+        unsigned int nr_mesh_indices = v_mesh->size_indices();
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, current_indices*sizeof(Index), nr_mesh_indices*sizeof(Index), v_mesh->get_indices());
+        current_vertices += nr_mesh_indices;
+    }
+
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+void Renderer3D::set_scene(Scene* scene) {
+    this->scene = scene;
 }
 
 void Renderer3D::set_camera(Camera3D* camera) {
