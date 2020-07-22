@@ -18,6 +18,16 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
 
 Viewport::~Viewport() {}
 
+void Viewport::main_loop(float dt) {
+    cam_controller.main_loop(dt);
+    gl_widget.main_loop();
+}
+
+void Viewport::set_scene(Scene* scene) {
+    this->scene = scene;
+    renderer_3D.set_scene(scene);
+}
+
 void Viewport::keyPressEvent(QKeyEvent* event) {
     switch (event->key()) {
         case Qt::Key_Home:
@@ -51,11 +61,6 @@ void Viewport::mouseMoveEvent(QMouseEvent* event) {
         QCursor::setPos(screen_center);
     }
     event->accept();
-}
-
-void Viewport::main_loop(float dt) {
-    cam_controller.main_loop(dt);
-    gl_widget.main_loop();
 }
 
 void Viewport::capture_mouse() {

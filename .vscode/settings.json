@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "qopenglfunctions_4_5_core": "cpp"
+        "qopenglfunctions_4_5_core": "cpp",
+        "*.tpp": "cpp",
+        "algorithm": "cpp"
     }
 }

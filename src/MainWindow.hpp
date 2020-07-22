@@ -6,6 +6,7 @@
 #include <QTimer>
 
 #include "Viewport.hpp"
+#include "rendering/objects/Scene.hpp"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT;
@@ -20,6 +21,7 @@ private:
     QTimer timer;
     QElapsedTimer elapsedTimer;
 
+    Scene scene;
     Viewport viewport;
 };
 
