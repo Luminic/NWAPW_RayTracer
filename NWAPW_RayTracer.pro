@@ -38,8 +38,10 @@ HEADERS += src/MainWindow.hpp \
            src/rendering/Camera3D.hpp \
            src/rendering/objects/Vertex.hpp \
            src/rendering/objects/StaticMesh.hpp \
-           src/rendering/objects/StaticMesh.tpp \
-           src/rendering/objects/Scene.hpp
+           src/rendering/objects/StaticMesh.tpp \         
+           src/rendering/objects/Scene.hpp \
+           src/Settings3D.hpp \
+           src/Settings4D.hpp
 
 SOURCES += src/main.cpp \
            src/MainWindow.cpp \
@@ -51,4 +53,6 @@ SOURCES += src/main.cpp \
            src/rendering/Renderer3D.cpp \
            src/rendering/Camera3D.cpp \
            src/rendering/objects/Vertex.cpp \
-           src/rendering/objects/Scene.cpp
+           src/rendering/objects/Scene.cpp \
+           src/Settings3D.cpp \
+           src/Settings4D.cpp
