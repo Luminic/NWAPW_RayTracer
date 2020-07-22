@@ -4,15 +4,17 @@
 #include <QDockWidget>
 #include <QString>
 
-class SETTINGS_4D : public QDockWidget {
+class Settings4dWindow : public QDockWidget {
     // TODO: add list of useful settings
-    // TODO: add GUI for said settings
+    // TODO: setup .ui file
 
     Q_OBJECT;
 
 public:
-    SETTINGS_4D(Qwidget* parent);
-    ~SETTINGS_4D();
+    QDockWidget* settings4d;
+
+    Settings4dWindow(QWidget* parent);
+    ~Settings4dWindow();
 };
 
 #endif
