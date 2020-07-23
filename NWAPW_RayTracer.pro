@@ -6,6 +6,8 @@ TEMPLATE = app
 TARGET = NWAPW_RayTracer
 
 QT += core gui widgets
+QT += uitools
+
 CONFIG += debug
 
 CONFIG += C++17

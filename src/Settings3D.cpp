@@ -1,6 +1,7 @@
 #include "Settings3D.hpp"
+#include "ui_Settings3D.h"
 
-Settings3dWindow::Settings3dWindow(QWidget* parent) {
+Settings3dWindow::Settings3dWindow(QWidget* parent) : QDockWidget(parent) {
     settings3d = new QDockWidget(tr("3D Rendering Settings"), parent);
     settings3d->setAllowedAreas(Qt::RightDockWidgetArea);
     QListWidget* list = new QListWidget(settings3d);
