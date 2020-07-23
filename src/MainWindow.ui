@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>50</y>
+      <width>461</width>
+      <height>401</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuNWAPW_Ray_Tracer">
+    <property name="title">
+     <string>Viewport</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuEpic">
+    <property name="title">
+     <string>3D Settings</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu4D_Settings">
+    <property name="title">
+     <string>4D Settings</string>
+    </property>
+   </widget>
+   <addaction name="menuNWAPW_Ray_Tracer"/>
+   <addaction name="menuEpic"/>
+   <addaction name="menu4D_Settings"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

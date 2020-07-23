@@ -1,9 +1,29 @@
 #include "MainWindow.hpp"
 #include <QApplication>
 
+static QWidget *loadUiFile(QWidget *parent)
+{
+    QFile file(":/forms/textfinder.ui");
+    file.open(QIODevice::ReadOnly);
+
+    QUiLoader loader;
+    return loader.load(&file, parent);
+}
+
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Raytracer");
     resize(800, 600);
+
+    loadUiFile(parent);
+    Ui::MainWindow ui;
+    ui.setupUi(this);
+
+    // Load viewport into UI
+    QWidget *ui_viewport;
+    ui_viewport = findChild<QWidget*>("viewportWidget");
+
+    viewport = new Viewport(ui_viewport);
+
 
     Vertex verts[8] = {
         // Floor
@@ -47,8 +67,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     scene.add_static_mesh((AbstractMesh*)mesh);
     scene.add_dynamic_mesh((AbstractMesh*)mesh2);
 
-    viewport.set_scene(&scene);
-    setCentralWidget(&viewport);
+    viewport->set_scene(&scene);
+    setCentralWidget(viewport);
 
     show();
 
@@ -61,5 +81,5 @@ MainWindow::~MainWindow() {}
 
 void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
-    viewport.main_loop(dt);
+    viewport->main_loop(dt);
 }
