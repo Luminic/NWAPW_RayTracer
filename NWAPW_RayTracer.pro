@@ -41,7 +41,9 @@ HEADERS += src/MainWindow.hpp \
            src/rendering/objects/Vertex.hpp \
            src/rendering/objects/AbstractMesh.hpp \
            src/rendering/objects/StaticMesh.hpp \
-           src/rendering/objects/StaticMesh.tpp \  
+           src/rendering/objects/StaticMesh.tpp \
+           src/rendering/objects/DynamicMesh.hpp \
+           src/rendering/objects/DynamicMesh.tpp \
            src/rendering/objects/Node.hpp \
            src/rendering/objects/Scene.hpp \
            src/Settings3D.hpp \

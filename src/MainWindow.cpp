@@ -42,10 +42,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         10, 11, 8
     };
 
-    StaticMesh<4, 6>* mesh2 = new StaticMesh<4, 6>(verts2, inds2, this);
+    DynamicMesh<4, 6>* mesh2 = new DynamicMesh<4, 6>(verts2, inds2, this);
 
     scene.add_static_mesh((AbstractMesh*)mesh);
-    scene.add_static_mesh((AbstractMesh*)mesh2);
+    scene.add_dynamic_mesh((AbstractMesh*)mesh2);
 
     viewport.set_scene(&scene);
     setCentralWidget(&viewport);
