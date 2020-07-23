@@ -62,4 +62,5 @@ SOURCES += src/main.cpp \
            src/rendering/objects/Scene.cpp \
            src/rendering/objects/Node.cpp \
            src/Settings3D.cpp \
-           src/Settings4D.cpp
+           src/Settings4D.cpp \
+           src/MainWindow.ui

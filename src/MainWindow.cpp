@@ -3,7 +3,7 @@
 
 static QWidget *loadUiFile(QWidget *parent)
 {
-    QFile file(":/forms/textfinder.ui");
+    QFile file("C:/Users/LouisSSD/Documents/GitHub/NWAPW_RayTracer/src/MainWindow.ui");
     file.open(QIODevice::ReadOnly);
 
     QUiLoader loader;
@@ -14,15 +14,15 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Raytracer");
     resize(800, 600);
 
-    loadUiFile(parent);
+    loadUiFile(this);
     Ui::MainWindow ui;
     ui.setupUi(this);
 
     // Load viewport into UI
-    QWidget *ui_viewport;
-    ui_viewport = findChild<QWidget*>("viewportWidget");
+    QWidget *viewportWidget;
+    viewportWidget = findChild<QWidget*>("viewportWidget");
 
-    viewport = new Viewport(ui_viewport);
+    viewport = new Viewport(viewportWidget);
 
 
     Vertex verts[8] = {
