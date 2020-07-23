@@ -13,7 +13,6 @@
 #include "Settings4D.hpp"
 #include "ui_MainWindow.h"
 
-
 class MainWindow : public QMainWindow {
     Q_OBJECT;
 

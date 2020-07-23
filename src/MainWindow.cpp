@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Raytracer");
     resize(800, 600);
 
-    loadUiFile(this);
+    loadUiFile(parent);
     Ui::MainWindow ui;
     ui.setupUi(this);
 
