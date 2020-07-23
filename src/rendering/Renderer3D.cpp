@@ -104,11 +104,13 @@ void Renderer3D::add_static_meshes_to_buffer() {
         if (vertex_is_opengl_compatible) {
             glBufferSubData(GL_SHADER_STORAGE_BUFFER, current_vertices*sizeof(Vertex), nr_mesh_vertices*sizeof(Vertex), v_mesh->get_vertices());
         } else {
-            std::vector<unsigned char> vertex_data(VERTEX_STRUCT_SIZE_IN_OPENGL*vertices.size());
-            for (unsigned int i=0; i<vertices.size(); i++) {
-                vertices[i].as_byte_array(&vertex_data[i*VERTEX_STRUCT_SIZE_IN_OPENGL]);
+
+            std::vector<unsigned char> vertex_data(VERTEX_STRUCT_SIZE_IN_OPENGL*nr_mesh_vertices);
+            const Vertex* mesh_vertices = v_mesh->get_vertices();
+            for (unsigned int i=0; i<nr_mesh_vertices; i++) {
+                mesh_vertices[i].as_byte_array(&vertex_data[i*VERTEX_STRUCT_SIZE_IN_OPENGL]);
             }
-            glBufferData(GL_SHADER_STORAGE_BUFFER, vertex_data.size(), vertex_data.data(), GL_STATIC_DRAW);
+            glBufferSubData(GL_SHADER_STORAGE_BUFFER, current_vertices*VERTEX_STRUCT_SIZE_IN_OPENGL, nr_mesh_vertices*VERTEX_STRUCT_SIZE_IN_OPENGL, vertex_data.data());
         }
         current_vertices += nr_mesh_vertices;
     }

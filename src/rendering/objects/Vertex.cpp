@@ -9,7 +9,7 @@ Vertex::Vertex(glm::vec4 position, glm::vec4 normal, glm::vec2 tex_coords, int m
     mesh_index(mesh_index)
 {}
 
-void Vertex::as_byte_array(unsigned char byte_array[48]) {
+void Vertex::as_byte_array(unsigned char byte_array[48]) const {
     static_assert(sizeof(glm::vec4) == 16, "Vertex overflow");
     static_assert(sizeof(glm::vec2) == 8, "Vertex overflow");
 

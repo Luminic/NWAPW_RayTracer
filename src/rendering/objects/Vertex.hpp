@@ -30,7 +30,7 @@ struct Vertex {
     Vertex() = default;
 
 
-    void as_byte_array(unsigned char byte_array[48]);
+    void as_byte_array(unsigned char byte_array[48]) const;
 };
 
 /*
