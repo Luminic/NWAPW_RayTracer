@@ -1,7 +1,7 @@
 #include "algorithm"
 
 template <size_t S_verts, size_t S_inds>
-StaticMesh<S_verts, S_inds>::StaticMesh(Vertex verts[S_verts], Index inds[S_inds], QObject* parent) : VirtualStaticMesh(parent) {
+StaticMesh<S_verts, S_inds>::StaticMesh(Vertex verts[S_verts], Index inds[S_inds], QObject* parent) : AbstractMesh(parent) {
     std::copy(verts, verts+S_verts, vertices);
     std::copy(inds, inds+S_inds, indices);
 }

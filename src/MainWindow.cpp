@@ -44,8 +44,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     StaticMesh<4, 6>* mesh2 = new StaticMesh<4, 6>(verts2, inds2, this);
 
-    scene.add_static_mesh((VirtualStaticMesh*)mesh);
-    scene.add_static_mesh((VirtualStaticMesh*)mesh2);
+    scene.add_static_mesh((AbstractMesh*)mesh);
+    scene.add_static_mesh((AbstractMesh*)mesh2);
 
     viewport.set_scene(&scene);
     setCentralWidget(&viewport);

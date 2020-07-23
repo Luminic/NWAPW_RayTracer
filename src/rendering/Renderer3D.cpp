@@ -89,17 +89,17 @@ Texture* Renderer3D::render() {
 }
 
 void Renderer3D::add_static_meshes_to_buffer() {
-    const std::vector<VirtualStaticMesh*>& static_meshes = scene->get_static_meshes();
+    const std::vector<AbstractMesh*>& static_meshes = scene->get_static_meshes();
     unsigned int nr_vertices = 0;
     unsigned int nr_indices = 0;
-    for (VirtualStaticMesh* v_mesh : static_meshes) {
+    for (AbstractMesh* v_mesh : static_meshes) {
         nr_vertices += v_mesh->size_vertices();
         nr_indices += v_mesh->size_indices();
     }
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, vertex_ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, nr_vertices*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
     unsigned int current_vertices = 0;
-    for (VirtualStaticMesh* v_mesh : static_meshes) {
+    for (AbstractMesh* v_mesh : static_meshes) {
         unsigned int nr_mesh_vertices = v_mesh->size_vertices();
         if (vertex_is_opengl_compatible) {
             glBufferSubData(GL_SHADER_STORAGE_BUFFER, current_vertices*sizeof(Vertex), nr_mesh_vertices*sizeof(Vertex), v_mesh->get_vertices());
@@ -116,7 +116,7 @@ void Renderer3D::add_static_meshes_to_buffer() {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, index_ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, nr_indices*sizeof(Index), nullptr, GL_DYNAMIC_DRAW);
     unsigned int current_indices = 0;
-    for (VirtualStaticMesh* v_mesh : static_meshes) {
+    for (AbstractMesh* v_mesh : static_meshes) {
         unsigned int nr_mesh_indices = v_mesh->size_indices();
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, current_indices*sizeof(Index), nr_mesh_indices*sizeof(Index), v_mesh->get_indices());
         current_indices += nr_mesh_indices;

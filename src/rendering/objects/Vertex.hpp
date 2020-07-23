@@ -19,12 +19,14 @@ struct Vertex {
     glm::vec2 tex_coords;   // 4                  32
                             // 4                  36
 
-    char padding[8];        // 8                  40
+    int mesh_index;         // 4                  40
+
+    char padding[4];        // 4                  44
 
     // Total Size: 48
     // Alignment : 4
 
-    Vertex(glm::vec4 position, glm::vec4 normal=glm::vec4(0.0f), glm::vec2 tex_coords=glm::vec2(0.0f));
+    Vertex(glm::vec4 position, glm::vec4 normal=glm::vec4(0.0f), glm::vec2 tex_coords=glm::vec2(0.0f), int mesh_index=0);
     Vertex() = default;
 
 

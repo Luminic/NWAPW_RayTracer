@@ -4,16 +4,16 @@ Scene::Scene(QObject* parent) : QObject(parent) {
     modified_static_meshes = false;
 }
 
-void Scene::add_static_mesh(VirtualStaticMesh* static_mesh) {
+void Scene::add_static_mesh(AbstractMesh* static_mesh) {
     static_meshes.push_back(static_mesh);
     modified_static_meshes = true;
 }
 
-const std::vector<VirtualStaticMesh*>& Scene::get_static_meshes() {
+const std::vector<AbstractMesh*>& Scene::get_static_meshes() {
     return static_meshes;
 }
 
-std::vector<VirtualStaticMesh*>& Scene::get_static_meshes_modifiable() {
+std::vector<AbstractMesh*>& Scene::get_static_meshes_modifiable() {
     modified_static_meshes = true;
     return static_meshes;
 }

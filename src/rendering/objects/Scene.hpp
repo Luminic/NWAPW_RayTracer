@@ -10,15 +10,15 @@ class Scene : public QObject {
 public:
     Scene(QObject* parent=nullptr);
 
-    void add_static_mesh(VirtualStaticMesh* static_mesh);
-    const std::vector<VirtualStaticMesh*>& get_static_meshes();
-    std::vector<VirtualStaticMesh*>& get_static_meshes_modifiable();
+    void add_static_mesh(AbstractMesh* static_mesh);
+    const std::vector<AbstractMesh*>& get_static_meshes();
+    std::vector<AbstractMesh*>& get_static_meshes_modifiable();
 
     bool static_meshes_modified(bool set_to_false=false);
 
 private:
-    // All VirtualStaticMeshes must be a converted StaticMesh*
-    std::vector<VirtualStaticMesh*> static_meshes;
+    // All AbstractMeshes* must be a converted StaticMesh*
+    std::vector<AbstractMesh*> static_meshes;
     bool modified_static_meshes;
 };
 

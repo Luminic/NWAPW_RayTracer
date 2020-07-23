@@ -2,10 +2,11 @@
 
 #include <algorithm>
 
-Vertex::Vertex(glm::vec4 position, glm::vec4 normal, glm::vec2 tex_coords) : 
+Vertex::Vertex(glm::vec4 position, glm::vec4 normal, glm::vec2 tex_coords, int mesh_index) : 
     position(position),
     normal(normal),
-    tex_coords(tex_coords)
+    tex_coords(tex_coords),
+    mesh_index(mesh_index)
 {}
 
 void Vertex::as_byte_array(unsigned char byte_array[48]) {
@@ -20,4 +21,7 @@ void Vertex::as_byte_array(unsigned char byte_array[48]) {
 
     tmp = reinterpret_cast<unsigned char const*>(&tex_coords);
     std::copy(tmp, tmp+8, byte_array+32);
+
+    tmp = reinterpret_cast<unsigned char const*>(&mesh_index);
+    std::copy(tmp, tmp+4, byte_array+40);
 }

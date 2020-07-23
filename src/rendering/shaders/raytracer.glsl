@@ -15,8 +15,10 @@ struct Vertex {
     vec2 tex_coord; // 4                  32 
                     // 4 (total:8)        36
 
-    // (PADDING)    // 8                  40
-    // (8 bytes of padding to pad out struct to a multiple of the size of a vec4 because it will be used in an array)
+    int mesh_index; // 4                  40
+
+    // (PADDING)    // 4                  44
+    // (4 bytes of padding to pad out struct to a multiple of the size of a vec4 because it will be used in an array)
 
     // Total Size: 48
 };
@@ -108,7 +110,8 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = Vertex(
         vec4(0.0f,0.0f,0.0f,-1.0f),
         vec4(0.0f),
-        vec2(0.0f)
+        vec2(0.0f),
+        0
     );
     for (int i=0; i<indices.length()/3; i++) {
         Vertex v0 = vertices[indices[i*3]];
@@ -129,6 +132,7 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
                 vert.position = vec4(intersection_point, 1.0f);
                 vert.normal = bc.x*v0.normal + bc.y*v1.normal + bc.z*v2.normal;
                 vert.tex_coord = bc.x*v0.tex_coord + bc.y*v1.tex_coord + bc.z*v2.tex_coord;
+                vert.mesh_index = v0.mesh_index;
             }
         }
     }
