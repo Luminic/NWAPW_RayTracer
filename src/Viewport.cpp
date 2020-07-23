@@ -14,6 +14,8 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
     renderer_3D.set_camera(&camera_3D);
     cam_controller.set_camera_3D(&camera_3D);
     gl_widget.set_renderer(&renderer_3D);
+
+    mouse_captured = false;
 }
 
 Viewport::~Viewport() {}
