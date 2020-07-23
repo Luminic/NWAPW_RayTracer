@@ -4,13 +4,15 @@
 #include <QMainWindow>
 #include <QElapsedTimer>
 #include <QTimer>
-//#include <QPushButton>
+#include <QtUiTools>
+#include <QPushButton>
 
 #include "Viewport.hpp"
 #include "rendering/objects/Scene.hpp"
 
 #include "Settings3D.hpp"
 #include "Settings4D.hpp"
+#include "ui_MainWindow.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT;
@@ -26,8 +28,9 @@ private:
     QElapsedTimer elapsedTimer;
 
     Scene scene;
-    Viewport viewport;
-    //QPushButton *3DSettings = QPushButton("3D Settings");
+    Viewport* viewport;
+
+
 };
 
 #endif

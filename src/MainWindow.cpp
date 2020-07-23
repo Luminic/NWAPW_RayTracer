@@ -1,9 +1,25 @@
 #include "MainWindow.hpp"
 #include <QApplication>
 
+static QWidget *loadUiFile(QWidget *parent)
+{
+    QFile file("C:/Users/LouisSSD/Documents/GitHub/NWAPW_RayTracer/src/MainWindow.ui");
+    file.open(QIODevice::ReadOnly);
+
+    QUiLoader loader;
+    return loader.load(&file, parent);
+}
+
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Raytracer");
     resize(800, 600);
+
+    loadUiFile(parent);
+
+    // Load viewport into UI
+    QOpenGLWidget *ui_viewport;
+    ui_viewport = findChild<QOpenGLWidget*>("viewportWidget");
+    viewport = new Viewport(ui_viewport);
 
     Vertex verts[8] = {
         // Floor
@@ -47,19 +63,21 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     scene.add_static_mesh((AbstractMesh*)mesh);
     scene.add_static_mesh((AbstractMesh*)mesh2);
 
-    viewport.set_scene(&scene);
-    setCentralWidget(&viewport);
+    viewport->set_scene(&scene);
+    // setCentralWidget(viewport);
 
     show();
 
+    // Update main window every 16 ms (60 fps)
     connect(&timer, &QTimer::timeout, this, &MainWindow::main_loop);
     timer.start(16);
     elapsedTimer.start();
 }
 
+
 MainWindow::~MainWindow() {}
 
 void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
-    viewport.main_loop(dt);
+    viewport->main_loop(dt);
 }

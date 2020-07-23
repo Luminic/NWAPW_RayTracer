@@ -61,3 +61,6 @@ SOURCES += src/main.cpp \
            src/rendering/objects/Node.cpp \
            src/Settings3D.cpp \
            src/Settings4D.cpp
+
+FORMS += \
+    src/MainWindow.ui

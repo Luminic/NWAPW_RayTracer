@@ -12,7 +12,7 @@ class Viewport : public QWidget {
     Q_OBJECT;
 
 public:
-    Viewport(QWidget* parent=nullptr);
+    Viewport(QWidget* parent);
     ~Viewport();
 
     void main_loop(float dt);
