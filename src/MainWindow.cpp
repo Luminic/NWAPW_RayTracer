@@ -5,6 +5,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Raytracer");
     resize(800, 600);
 
+    // TEMP
+    loader.load_model("C:/dev/NWAPW_RayTracer/resources/models/cube.obj");
+
     Vertex verts[8] = {
         // Floor
         Vertex(glm::vec4(-1.0f,-1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 0.0f)),

@@ -21,6 +21,13 @@ INCLUDEPATH += .
 
 INCLUDEPATH += libraries/glm-0.9.9.8/glm/
 INCLUDEPATH += libraries/stb_image/
+INCLUDEPATH += libraries/assimp-5.0.1/include/
+
+win32: LIBS += -L$$PWD/libraries/assimp-5.0.1/lib/ -lassimp-vc142-mt
+unix:!macx: LIBS += -L$$PWD/libraries/assimp-5.0.1/lib/ -lassimp
+
+INCLUDEPATH += $$PWD/libraries/assimp-5.0.1/include
+DEPENDPATH += $$PWD/libraries/assimp-5.0.1/include
 
 # You can make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -44,6 +51,7 @@ HEADERS += src/MainWindow.hpp \
            src/rendering/objects/StaticMesh.tpp \  
            src/rendering/objects/Node.hpp \
            src/rendering/objects/Scene.hpp \
+           src/rendering/ModelLoader3D.hpp \
            src/Settings3D.hpp \
            src/Settings4D.hpp
 
@@ -59,5 +67,6 @@ SOURCES += src/main.cpp \
            src/rendering/objects/Vertex.cpp \
            src/rendering/objects/Scene.cpp \
            src/rendering/objects/Node.cpp \
+           src/rendering/ModelLoader3D.cpp \
            src/Settings3D.cpp \
            src/Settings4D.cpp
