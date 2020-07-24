@@ -33,6 +33,7 @@ private:
 
     Renderer3D* renderer;
     Texture* render_result;
+    bool needs_resizing;
 };
 
 #endif

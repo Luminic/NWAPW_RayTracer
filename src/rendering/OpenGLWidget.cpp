@@ -14,6 +14,7 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) : QOpenGLWidget(parent) {
     setFormat(format);
 
     renderer = nullptr;
+    needs_resizing = false;
 }
 
 OpenGLWidget::~OpenGLWidget() {
@@ -106,6 +107,7 @@ void OpenGLWidget::set_renderer(Renderer3D* renderer) {
 }
 
 void OpenGLWidget::resizeGL(int w, int h) {
+    needs_resizing = true;
 }
 
 void OpenGLWidget::paintGL() {
@@ -125,6 +127,10 @@ void OpenGLWidget::paintGL() {
 
 void OpenGLWidget::main_loop() {
     makeCurrent();
+    if (needs_resizing) {
+        renderer->resize(width(), height());
+        needs_resizing = false;
+    }
     if (renderer)
         render_result = renderer->render();
     doneCurrent();
