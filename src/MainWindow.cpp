@@ -19,11 +19,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     loader = new ModelLoader3D(this);
     QDir fileInfo;
     constexpr const char* file_name = "resources/models/monkey.obj";
-    #ifdef _WIN64
-    std::string model_path = (fileInfo.absoluteFilePath("./../../") + file_name).toStdString();
-    #else
+    // #ifdef _WIN64
+    // std::string model_path = (fileInfo.absoluteFilePath("./../../") + file_name).toStdString();
+    // #else
     std::string model_path = (fileInfo.absoluteFilePath("./") + file_name).toStdString();
-    #endif
+    // #endif
 
 //    QFileInfo model_file("./../../resources/models/dodecahedron.obj");
 //    std::string model_path = model_file.absoluteFilePath().toStdString();
