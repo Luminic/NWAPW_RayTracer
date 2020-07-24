@@ -22,7 +22,7 @@ struct Vertex {
 
     // Total Size: 48
 };
-#define DEFUALT_VERTEX Vertex(vec4(0.0f,0.0f,0.0f,-1.0f), vec4(0.0f), vec2(0.0f), 0)
+#define DEFUALT_VERTEX Vertex(vec4(0.0f,0.0f,0.0f,-1.0f), vec4(0.0f), vec2(0.0f), -1)
 
 layout (std140, binding=0) buffer VertexBuffer {
     Vertex vertices[];
@@ -57,12 +57,27 @@ layout (std430, binding=2) buffer DynamicIndexBuffer {
 // The number of static vertices
 uniform int dynamic_indices_offset;
 
+
+struct Material {
+    vec3 albedo;
+    vec3 F0;
+    float roughness;
+    float metalness;
+    float AO;
+};
+#define DEFAULT_MATERIAL Material(vec3(1.0f), vec3(0.05f), 0.3f, 1.0f, 0.5f)
+#define MATERIAL(x) Material(x, vec3(0.05f), 0.3f, 1.0f, 0.5f)
+
+
 uniform vec3 eye;
 uniform vec3 ray00;
 uniform vec3 ray10;
 uniform vec3 ray01;
 uniform vec3 ray11;
 
+
+
+// Ray-Triangle Intersection
 
 #define EPSILON 0.000001f
 #define NEAR_PLANE 0.1f
@@ -163,9 +178,88 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
     return vert;
 }
 
+// PBR Shading
+
+#define PI 3.1415926535f
+
+float NDF_trowbridge_reitz_GGX(vec3 view, vec3 normal, vec3 light, float alpha) {
+    vec3 halfway = normalize(view + light);
+    float a2 = alpha * alpha;
+
+    return a2 / ( PI * pow( pow(max(dot(normal, halfway), 0.0f), 2) * (a2 - 1) + 1, 2) );
+}
+
+float GF_schlick_GGX(float n_dot_v, float alpha) {
+    // Schlick approximation
+    float k = alpha / 2.0f;
+
+    return n_dot_v / ( n_dot_v * (1-k) + k );
+}
+
+float GF_smith(vec3 view, vec3 normal, vec3 light, float alpha) {
+    float n_dot_v = max(dot(normal, view), 0.0f);
+    float n_dot_l = max(dot(normal, light), 0.0f);
+    
+    return GF_schlick_GGX(n_dot_v, alpha) * GF_schlick_GGX(n_dot_l, alpha);
+}
+
+vec3 F_schlick(vec3 view, vec3 normal, vec3 F0) {
+    // F0 is the reflectivity at normal incidence
+    return F0 + (1.0f - F0) * pow((1.0f - dot(view, normal)), 5);
+}
+
+vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, Material material) {
+    vec3 lambertian_diffuse = material.albedo / PI;
+
+    float alpha = material.roughness * material.roughness;
+    vec3 F0 = material.F0;
+    F0 = mix(F0, material.albedo, material.metalness);
+
+    float NDF = NDF_trowbridge_reitz_GGX(view, normal, light, alpha);
+    float GF = GF_smith(view, normal, light, alpha);
+    vec3 F = F_schlick(view, normal, F0);
+
+    vec3 kD = (1.0f.xxx - F) * (1.0f - material.metalness);
+
+    vec3 numer = NDF * GF * F;
+    float denom = 4.0f * max(dot(normal, view), 0.0f) * max(dot(normal, light), 0.0f);
+
+    return kD*lambertian_diffuse + numer/max(denom, 0.001f);
+}
+
+#define OFFSET 0.0001f
+#define SUN_DIR  normalize(vec3(-0.5f, 1.0f, 0.5f))
+#define SUN_RADIANCE vec3(2.0f);
+#define SHADOWS 1
+#define AMBIENT_MULTIPLIER 0.03
+vec4 shade(Vertex vert, vec3 ray_dir, Material material) {
+    Material tmp;
+    bool tmp2;
+    vec3 normal = vert.normal.xyz;
+    // Make the normal always facing the camera
+    normal = normalize(normal) * sign(dot(normal, -ray_dir));
+
+    vec3 diffuse = 0.0f.xxx;
+
+    vec3 radiance = vec3(0.0f);
+    radiance += SUN_RADIANCE;
+    // #if SHADOWS
+    //     radiance *= shadow_ray(point, SUN_DIR, FAR_PLANE, 32);
+    // #endif
+
+    vec3 color = cook_torrance_BRDF(-ray_dir, normal, SUN_DIR, material);
+    color *= radiance * max(dot(normal, SUN_DIR), 0.0f);
+    
+    color += material.albedo * material.AO * AMBIENT_MULTIPLIER;
+    return vec4(color, 1.0f);
+}
+
 vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
-    return vert.normal;
+    if (vert.mesh_index == -1) {
+        return vec4(0.0f.xxx,1.0f);
+    }
+    return shade(vert, ray_dir, MATERIAL(vec3(1.0f,0.0f,0.0f)));
 }
 
 
