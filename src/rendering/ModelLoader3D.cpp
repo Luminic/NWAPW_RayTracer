@@ -28,7 +28,7 @@ Node* ModelLoader3D::load_model(const char* file_path) {
         aiMesh* mesh = scene->mMeshes[i];
 
         qDebug() << "Mesh" << i << "has" << mesh->mNumVertices << "vertices.";
-        qDebug() << "Mesh" << i << "has" << (mesh->mNumFaces * 3) << "indices.";
+        qDebug() << "Mesh" << i << "has" << mesh->mNumFaces << "faces.";
 
         // Get material info
         aiMaterial* meshMaterial = scene->mMaterials[mesh->mMaterialIndex];
@@ -74,6 +74,7 @@ Node* ModelLoader3D::load_model(const char* file_path) {
         qDebug() << "Mesh" << i << (mesh->HasTextureCoords(0) ? "has" : "doesn't have") << "texture coordinates.";
 
         // Get indices
+        // NOTE: Assumes that faces are triangles
         std::vector<Index> indices;
         indices.reserve(mesh->mNumFaces * 3 /* 3 indices per triangle */);
         for (unsigned int j = 0; j < mesh->mNumFaces; ++j) {
@@ -86,7 +87,7 @@ Node* ModelLoader3D::load_model(const char* file_path) {
         }
 
         // Form DynamicMesh
-        meshes.push_back(new DynamicMesh(vertices, indices));
+        meshes.push_back(new DynamicMesh(vertices, indices, this));
     }
 
     aiReleaseImport(scene);
