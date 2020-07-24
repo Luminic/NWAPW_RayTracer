@@ -2,14 +2,16 @@
 #define SCENE_HPP
 
 #include <QObject>
-#include "StaticMesh.hpp"
-#include "DynamicMesh.hpp"
+#include "Node.hpp"
+#include "AbstractMesh.hpp"
 
 class Scene : public QObject {
     Q_OBJECT;
 
 public:
     Scene(QObject* parent=nullptr);
+
+    void add_static_root_node(Node* root_node);
 
     void add_static_mesh(AbstractMesh* static_mesh);
     const std::vector<AbstractMesh*>& get_static_meshes();
@@ -25,7 +27,9 @@ public:
     int get_nr_dynamic_indices();
 
 private:
-    // All AbstractMeshes* in static_meshes must be a converted StaticMesh*
+    std::vector<Node*> root_nodes;
+    void add_static_node_meshes(Node* node);
+
     std::vector<AbstractMesh*> static_meshes;
     bool modified_static_meshes;
     int nr_static_vertices;
