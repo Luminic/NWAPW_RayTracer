@@ -14,6 +14,9 @@ class StaticMesh : public AbstractMesh {
 public:
     StaticMesh(Vertex verts[S_verts], Index inds[S_inds], QObject* parent=nullptr);
 
+    void set_mesh_index(int mesh_index) override;
+    int get_mesh_index() override;
+
     size_t size_vertices() override;
     size_t size_indices() override;
     // constexpr functions cannot be virtual until c++20

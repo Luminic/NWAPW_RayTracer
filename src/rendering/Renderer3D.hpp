@@ -63,7 +63,7 @@ private:
     void add_meshes_to_buffer();
 
     // This functionality might be added to AbstractMesh if i can figure out a clean way to pass ogl functions
-    void add_mesh_vertices_to_buffer(const std::vector<AbstractMesh*>& meshes, unsigned int vert_ssbo);
+    void add_mesh_vertices_to_buffer(const std::vector<AbstractMesh*>& meshes, unsigned int vert_ssbo, int mesh_index_offset=0);
     void add_mesh_indices_to_buffer(const std::vector<AbstractMesh*>& meshes, unsigned int ind_ssbo);
 
     Camera3D* camera;

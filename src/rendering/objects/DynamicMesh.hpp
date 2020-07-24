@@ -14,6 +14,9 @@ class DynamicMesh : public AbstractMesh {
 public:
     DynamicMesh(const std::vector<Vertex>& vertices, const std::vector<Index>& indices, QObject* parent=nullptr);
 
+    void set_mesh_index(int mesh_index) override;
+    int get_mesh_index() override;
+
     size_t size_vertices() override;
     size_t size_indices() override;
     

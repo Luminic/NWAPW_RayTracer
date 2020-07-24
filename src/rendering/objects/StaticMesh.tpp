@@ -1,6 +1,22 @@
 #include "algorithm"
 
 template <size_t S_verts, size_t S_inds>
+void StaticMesh<S_verts, S_inds>::set_mesh_index(int mesh_index) {
+    if (this->mesh_index != mesh_index) {
+        this->mesh_index = mesh_index;
+
+        for (size_t i=0; i<S_verts; i++) {
+            vertices[i].mesh_index = mesh_index;
+        }
+    }
+}
+
+template <size_t S_verts, size_t S_inds>
+int StaticMesh<S_verts, S_inds>::get_mesh_index() {
+    return mesh_index;
+}
+
+template <size_t S_verts, size_t S_inds>
 StaticMesh<S_verts, S_inds>::StaticMesh(Vertex verts[S_verts], Index inds[S_inds], QObject* parent) : AbstractMesh(parent) {
     std::copy(verts, verts+S_verts, vertices);
     std::copy(inds, inds+S_inds, indices);

@@ -147,16 +147,16 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
     float depth = FAR_PLANE;
     Vertex vert = DEFUALT_VERTEX;
     for (int i=0; i<static_indices.length()/3; i++) {
-        Vertex v0 = static_vertices[static_indices[i*3]];
-        Vertex v1 = static_vertices[static_indices[i*3+1]];
-        Vertex v2 = static_vertices[static_indices[i*3+2]];
+        Vertex v0 = vertices[static_indices[i*3]];
+        Vertex v1 = vertices[static_indices[i*3+1]];
+        Vertex v2 = vertices[static_indices[i*3+2]];
 
         triangle_intersection(v0, v1, v2, ray_origin, ray_dir, depth, vert);
     }
     for (int i=0; i<dynamic_indices.length()/3; i++) {
-        Vertex v0 = dynamic_vertices[dynamic_indices[i*3]   ];
-        Vertex v1 = dynamic_vertices[dynamic_indices[i*3+1] ];
-        Vertex v2 = dynamic_vertices[dynamic_indices[i*3+2] ];
+        Vertex v0 = vertices[dynamic_indices[i*3]   + static_vertices.length()];
+        Vertex v1 = vertices[dynamic_indices[i*3+1] + static_vertices.length()];
+        Vertex v2 = vertices[dynamic_indices[i*3+2] + static_vertices.length()];
 
         triangle_intersection(v0, v1, v2, ray_origin, ray_dir, depth, vert);
     }
@@ -165,7 +165,7 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
 
 vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
-    return vec4(vert.normal.xyz, 1.0f);
+    return vert.normal;
 }
 
 
@@ -186,7 +186,7 @@ void main() {
     vec4 col = trace(eye, ray);
     // vec4 col;
     // if (pix.x >= 300)
-    //     col = vec4(0.0f);
+    //     col = trace(eye, ray);
     // else
     //     col = vec4(1.0f);
 

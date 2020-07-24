@@ -68,6 +68,6 @@ void main() {
     if (index < static_vertices.length()) {
         vertices[index] = static_vertices[index];
     } else {
-        vertices[index + static_vertices.length()] = dynamic_vertices[index];
+        vertices[index] = dynamic_vertices[index - static_vertices.length()];
     }
 }

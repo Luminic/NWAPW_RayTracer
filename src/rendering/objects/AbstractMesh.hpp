@@ -11,8 +11,10 @@ public:
     AbstractMesh(QObject* parent=nullptr) : QObject(parent) {}
     virtual ~AbstractMesh() {}
 
-    // virtual void set_mesh_index() = 0;
     int vertex_offset;
+
+    virtual void set_mesh_index(int mesh_index) = 0;
+    virtual int get_mesh_index() = 0;
 
     virtual size_t size_vertices() = 0;
     virtual size_t size_indices() = 0;
