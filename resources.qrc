@@ -4,6 +4,7 @@
     <file>src/rendering/shaders/framebuffer_fs.glsl</file>
     <file>src/rendering/shaders/framebuffer_vs.glsl</file>
     <file>src/rendering/shaders/raytracer.glsl</file>
+    <file>src/rendering/shaders/vertex_shader.glsl</file>
     <file>src/rendering/shaders/equirectangular_to_cube_map.glsl</file>
     <file>src/rendering/shaders/dimension_dropper.glsl</file>
 </qresource>

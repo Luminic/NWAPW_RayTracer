@@ -22,6 +22,7 @@ struct Vertex {
 
     // Total Size: 48
 };
+#define DEFUALT_VERTEX Vertex(vec4(0.0f,0.0f,0.0f,-1.0f), vec4(0.0f), vec2(0.0f), 0)
 
 layout (std140, binding=0) buffer VertexBuffer {
     Vertex vertices[];
@@ -33,11 +34,28 @@ layout (std140, binding=0) buffer VertexBuffer {
     // Maximum of 2,666,666 Vertices (128 MB / 48 B)
 };
 
-layout (std430, binding=1) buffer IndexBuffer {
-    // Memory layout should exactly match that of a C++ int array
-    int indices[];
+layout (std140, binding=3) buffer StaticVertexBuffer {
+    // Same memory layout as VertexBuffer
+    Vertex static_vertices[];
 };
 
+layout (std140, binding=4) buffer DynamicVertexBuffer {
+    Vertex dynamic_vertices[];
+};
+
+layout (std430, binding=1) buffer StaticIndexBuffer {
+    // Memory layout should exactly match that of a C++ int array
+    int static_indices[];
+};
+
+layout (std430, binding=2) buffer DynamicIndexBuffer {
+    // Same as StaticIndexBuffer
+    // Indices correspond to vertices[dynamic_indices[i] + dynamic_indices_offset]
+    int dynamic_indices[];
+};
+
+// The number of static vertices
+uniform int dynamic_indices_offset;
 
 uniform vec3 eye;
 uniform vec3 ray00;
@@ -98,6 +116,26 @@ vec4 barycentric_coordinates(vec3 point, vec3 tri0, vec3 tri1, vec3 tri2) {
     }
 }
 
+void triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec3 ray_dir, inout float depth, inout Vertex vert) {
+    vec3 normal = cross(vec3(v1.position-v0.position), vec3(v2.position-v0.position));
+    float rpi = ray_plane_int(ray_origin, ray_dir, v0.position.xyz, normalize(normal));
+
+    // If the ray intersects the triangle
+    float dist = rpi*length(ray_dir);
+    if (dist >= NEAR_PLANE && dist <= depth) {
+        vec3 intersection_point = ray_origin + rpi*ray_dir;
+        vec4 bc = barycentric_coordinates(intersection_point, v0.position.xyz, v1.position.xyz, v2.position.xyz);
+        // If the point is inside of the triangle
+        if (bc.w > 0.0f) {
+            depth = dist;
+            vert.position = vec4(intersection_point, 1.0f);
+            vert.normal = bc.x*v0.normal + bc.y*v1.normal + bc.z*v2.normal;
+            vert.tex_coord = bc.x*v0.tex_coord + bc.y*v1.tex_coord + bc.z*v2.tex_coord;
+            vert.mesh_index = v0.mesh_index;
+        }
+    }
+}
+
 Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
     /*
     Returns an interpolated vertex from the intersection between the ray and the
@@ -107,34 +145,20 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
     otherwise the w component will be 1.0f
     */
     float depth = FAR_PLANE;
-    Vertex vert = Vertex(
-        vec4(0.0f,0.0f,0.0f,-1.0f),
-        vec4(0.0f),
-        vec2(0.0f),
-        0
-    );
-    for (int i=0; i<indices.length()/3; i++) {
-        Vertex v0 = vertices[indices[i*3]];
-        Vertex v1 = vertices[indices[i*3+1]];
-        Vertex v2 = vertices[indices[i*3+2]];
+    Vertex vert = DEFUALT_VERTEX;
+    for (int i=0; i<static_indices.length()/3; i++) {
+        Vertex v0 = static_vertices[static_indices[i*3]];
+        Vertex v1 = static_vertices[static_indices[i*3+1]];
+        Vertex v2 = static_vertices[static_indices[i*3+2]];
 
-        vec3 normal = cross(vec3(v1.position-v0.position), vec3(v2.position-v0.position));
-        float rpi = ray_plane_int(ray_origin, ray_dir, v0.position.xyz, normalize(normal));
+        triangle_intersection(v0, v1, v2, ray_origin, ray_dir, depth, vert);
+    }
+    for (int i=0; i<dynamic_indices.length()/3; i++) {
+        Vertex v0 = dynamic_vertices[dynamic_indices[i*3]   ];
+        Vertex v1 = dynamic_vertices[dynamic_indices[i*3+1] ];
+        Vertex v2 = dynamic_vertices[dynamic_indices[i*3+2] ];
 
-        // If the ray intersects the triangle
-        float dist = rpi*length(ray_dir);
-        if (dist >= NEAR_PLANE && dist <= depth) {
-            vec3 intersection_point = ray_origin + rpi*ray_dir;
-            vec4 bc = barycentric_coordinates(intersection_point, v0.position.xyz, v1.position.xyz, v2.position.xyz);
-            // If the point is inside of the triangle
-            if (bc.w > 0.0f) {
-                depth = dist;
-                vert.position = vec4(intersection_point, 1.0f);
-                vert.normal = bc.x*v0.normal + bc.y*v1.normal + bc.z*v2.normal;
-                vert.tex_coord = bc.x*v0.tex_coord + bc.y*v1.tex_coord + bc.z*v2.tex_coord;
-                vert.mesh_index = v0.mesh_index;
-            }
-        }
+        triangle_intersection(v0, v1, v2, ray_origin, ray_dir, depth, vert);
     }
     return vert;
 }
@@ -160,6 +184,11 @@ void main() {
     vec3 ray = mix(mix(ray00, ray10, tex_coords.x), mix(ray01, ray11, tex_coords.x), tex_coords.y);
 
     vec4 col = trace(eye, ray);
+    // vec4 col;
+    // if (pix.x >= 300)
+    //     col = vec4(static_vertices[6].position.xyzz);
+    // else
+    //     col = vec4(1.0f);
 
     imageStore(framebuffer, pix, col);
 }

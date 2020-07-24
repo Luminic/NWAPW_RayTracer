@@ -3,7 +3,7 @@
 
 static QWidget *loadUiFile(QWidget *parent)
 {
-    QFile file("C:/Users/LouisSSD/Documents/GitHub/NWAPW_RayTracer/src/MainWindow.ui");
+    QFile file("src/MainWindow.ui");
     file.open(QIODevice::ReadOnly);
 
     QUiLoader loader;
@@ -27,16 +27,16 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     Vertex verts[8] = {
         // Floor
-        Vertex(glm::vec4(-1.0f,-1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 1.0f)),
-        Vertex(glm::vec4(-1.0f,-1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec4(-1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
 
         // Ceiling
-        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec4( 1.0f, 1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec4(-1.0f, 1.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f))
+        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4(-1.0f, 1.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f))
     };
 
     Index inds[12] = {
@@ -49,23 +49,52 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     StaticMesh<8, 12>* mesh = new StaticMesh<8, 12>(verts, inds, this);
 
-    Vertex verts2[4] = {
-        // Floor 2
-        Vertex(glm::vec4(-1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4(-1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
+    Vertex verts1[4] = {
+        Vertex{glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f)},
+        Vertex{glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f,0.0f)},
+        Vertex{glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f,0.0f)},
+        Vertex{glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f)}
     };
 
-    Index inds2[6] = {
+    Index inds1[6] = {
         8, 9, 10,
         10, 11, 8
     };
 
-    DynamicMesh<4, 6>* mesh2 = new DynamicMesh<4, 6>(verts2, inds2, this);
+    int inds1_size = 5;
+    inds1_size++;
+
+    StaticMesh<4, 6>* mesh1 = new StaticMesh<4, 6>(verts1, inds1, this);
+
+    std::vector<Vertex> verts2 {
+        // Floor 2
+        Vertex(glm::vec4(-1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
+    };
+
+    std::vector<Index> inds2 { 0, 1, 2 };
+
+    DynamicMesh* mesh2 = new DynamicMesh(verts2, inds2, this);
+
+    std::vector<Vertex> verts3 {
+       Vertex(glm::vec4( 1.0f,-2.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f)),
+       Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f)),
+       Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f)),
+       Vertex(glm::vec4( 1.0f,-2.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f))
+    };
+
+    std::vector<Index> inds3 {
+        3, 4, 5,
+        5, 6, 3
+    };
+
+    DynamicMesh* mesh3 = new DynamicMesh(verts3, inds3);
 
     scene.add_static_mesh((AbstractMesh*)mesh);
+    scene.add_static_mesh((AbstractMesh*)mesh1);
     scene.add_dynamic_mesh((AbstractMesh*)mesh2);
+    scene.add_dynamic_mesh((AbstractMesh*)mesh3);
 
     viewport->set_scene(&scene);
     setCentralWidget(viewport);

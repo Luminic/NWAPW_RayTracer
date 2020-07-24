@@ -11,9 +11,6 @@ class Scene : public QObject {
 public:
     Scene(QObject* parent=nullptr);
 
-    int get_nr_vertices();
-    int get_nr_indices();
-
     void add_static_mesh(AbstractMesh* static_mesh);
     const std::vector<AbstractMesh*>& get_static_meshes();
     std::vector<AbstractMesh*>& get_static_meshes_modifiable();
@@ -33,12 +30,8 @@ private:
     bool modified_static_meshes;
     int nr_static_vertices;
     int nr_static_indices;
-    void update_nr_static_vi();
 
     std::vector<AbstractMesh*> dynamic_meshes;
-    int nr_dynamic_vertices;
-    int nr_dynamic_indices;
-    void update_nr_dynamic_vi();
 };
 
 #endif

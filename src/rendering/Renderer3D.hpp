@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QOpenGLFunctions_4_5_Core>
+#include <vector>
 
 #include "Shader.hpp"
 #include "Texture.hpp"
@@ -31,20 +32,39 @@ private:
     int work_group_size[3];
     Texture render_result;
 
+    // Note: not a "real" opengl vertex shader; rather, this is a compute
+    // shader carrying out the function of a vertex shader
+    Shader vertex_shader;
+    int vertex_shader_work_group_size[3];
+    // This MUST match the Y_SIZE in vertex_shader.glsl
+    // See definition there for explanation
+    static const int Y_SIZE = 64;
+
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
+
     unsigned int vertex_ssbo;
-    unsigned int index_ssbo;
-    unsigned int vertex_ssbo_size;
-    unsigned int index_ssbo_size;
+    int vertex_ssbo_size;
+
+    unsigned int static_vertex_ssbo;
+    int static_vertex_ssbo_size;
+    unsigned int static_index_ssbo;
+    int static_index_ssbo_size;
+
+    unsigned int dynamic_vertex_ssbo;
+    int dynamic_vertex_ssbo_size;
+    unsigned int dynamic_index_ssbo;
+    int dynamic_index_ssbo_size;
 
     int width;
     int height;
 
     Scene* scene;
     void add_meshes_to_buffer();
-    void add_static_meshes_to_buffer();
-    void add_dynamic_meshes_to_buffer();
+
+    // This functionality might be added to AbstractMesh if i can figure out a clean way to pass ogl functions
+    void add_mesh_vertices_to_buffer(const std::vector<AbstractMesh*>& meshes, unsigned int vert_ssbo);
+    void add_mesh_indices_to_buffer(const std::vector<AbstractMesh*>& meshes, unsigned int ind_ssbo);
 
     Camera3D* camera;
 };

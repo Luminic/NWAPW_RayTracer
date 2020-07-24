@@ -26,7 +26,7 @@ struct Vertex {
     // Total Size: 48
 };
 
-layout (std140, binding=2) buffer VertexBuffer {
+layout (std140, binding=0) buffer VertexBuffer {
     Vertex vertices[];
     //             // Base Alignment  // Aligned Offset
     // vertex[0]      48                 0
@@ -36,18 +36,38 @@ layout (std140, binding=2) buffer VertexBuffer {
     // Maximum of 2,666,666 Vertices (128 MB / 48 B)
 };
 
-layout (std140, binding=0) buffer VertexBufferGlobalPos {
+layout (std140, binding=3) buffer StaticVertexBuffer {
     // Same memory layout as VertexBuffer
-    Vertex vertices_global[];
+    Vertex static_vertices[];
 };
 
-layout (std140, binding=3) buffer MatrixBuffer {
-    // Same memory layout as a c++ mat4 array
-    mat4 transformation_matrix;
-}
+layout (std140, binding=4) buffer DynamicVertexBuffer {
+    Vertex dynamic_vertices[];
+};
 
+// layout (std140, binding=3) buffer MatrixBuffer {
+//     // Same memory layout as a c++ mat4 array
+//     mat4 transformation_matrix;
+// }
+
+#define Y_SIZE 64
 layout (local_size_x = 8, local_size_y = 8) in;
 
 void main() {
-    // vertices_global = vertices
+    // The OGL spec says the minimum possible invocations for x, y, and z is 65535
+    // The maximum number of elements in VertexBuffer far exceeds this number
+    // so a second axis must be used to augment the size of index
+
+    // The corresponding ogl code calling dispatchcompute MUST know this Y_SIZE value and
+    // take it into account when dispatching compute
+    uint index = gl_GlobalInvocationID.x*Y_SIZE + gl_GlobalInvocationID.y;
+    if (index >= vertices.length() || gl_GlobalInvocationID.y >= Y_SIZE) {
+        return;
+    }
+
+    if (index < static_vertices.length()) {
+        vertices[index] = static_vertices[index];
+    } else {
+        vertices[index + static_vertices.length()] = dynamic_vertices[index];
+    }
 }
