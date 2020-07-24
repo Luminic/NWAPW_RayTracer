@@ -77,3 +77,8 @@ SOURCES += src/main.cpp \
 
 
 FORMS +=   src/MainWindow.ui
+
+win32: LIBS += -L$$PWD/libraries/assimp-5.0.1/lib/ -lassimp-vc142-mt
+
+INCLUDEPATH += $$PWD/libraries/assimp-5.0.1/include
+DEPENDPATH += $$PWD/libraries/assimp-5.0.1/include
