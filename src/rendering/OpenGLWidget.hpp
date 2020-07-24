@@ -12,20 +12,17 @@
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core {
     Q_OBJECT;
-
 public:
     OpenGLWidget(QWidget* parent=nullptr);
-    ~OpenGLWidget();
+    virtual ~OpenGLWidget();
 
     void main_loop();
 
     void set_renderer(Renderer3D* renderer);
-
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
     void paintGL() override;
-
 private:
     unsigned int frame_vbo;
     unsigned int frame_vao;

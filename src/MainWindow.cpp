@@ -1,10 +1,9 @@
 #include "MainWindow.hpp"
 #include <QApplication>
-
 #include <QTextStream>
 
 static QWidget* loadUiFile(QWidget* parent) {
-    QFile file(":/src/MainWindow.ui");
+    QFile file("src/MainWindow.ui");
     file.open(QIODevice::ReadOnly);
 
     QUiLoader loader;
@@ -12,12 +11,13 @@ static QWidget* loadUiFile(QWidget* parent) {
 }
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    setWindowTitle("Raytracer");
+    setWindowTitle("Ray Tracer");
     resize(800, 600);
 
+    // load the model
     loader = new ModelLoader3D(this);
-    Node* model_root_node = loader->load_model("resources/models/monkey.obj");
-    scene.add_static_root_node(model_root_node);
+    Node* model_root_node = loader->load_model("resources/models/dodecahedron.obj");
+    scene.add_root_node(model_root_node);
 
     loadUiFile(parent);
     Ui::MainWindow ui;
@@ -109,8 +109,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     timer.start(16);
     elapsedTimer.start();
 }
-
-MainWindow::~MainWindow() {}
 
 void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;

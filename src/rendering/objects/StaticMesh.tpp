@@ -1,5 +1,3 @@
-#include "algorithm"
-
 template <size_t S_verts, size_t S_inds>
 void StaticMesh<S_verts, S_inds>::set_mesh_index(int mesh_index) {
     if (this->mesh_index != mesh_index) {

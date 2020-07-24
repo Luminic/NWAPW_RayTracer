@@ -28,9 +28,9 @@ struct Movement {
 
 class CameraController : public QObject{
     Q_OBJECT;
-
 public:
     CameraController(float mouse_sensitivity=3.0f, float speed=3.0f, QObject* parent=nullptr);
+    virtual ~CameraController() {}
 
     void main_loop(float dt);
 
@@ -38,7 +38,6 @@ public:
     void key_event(QKeyEvent* key);
 
     void set_camera_3D(Camera3D* camera_3D);
-
 private:
     Camera3D* camera_3D;
 

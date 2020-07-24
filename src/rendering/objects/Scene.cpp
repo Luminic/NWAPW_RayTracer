@@ -1,6 +1,5 @@
 #include "Scene.hpp"
-
-#include <QDebug>
+#include "DynamicMesh.hpp"
 
 Scene::Scene(QObject* parent) : QObject(parent) {
     modified_static_meshes = false;
@@ -8,18 +7,20 @@ Scene::Scene(QObject* parent) : QObject(parent) {
     nr_static_indices = 0;
 }
 
-void Scene::add_static_root_node(Node* root_node) {
-    add_static_node_meshes(root_node);
+void Scene::add_root_node(Node* root_node) {
+    add_node_meshes(root_node);
 
     QList<Node*> child_nodes = root_node->findChildren<Node*>();
     for (auto node : child_nodes) {
-        add_static_node_meshes(node);
+        add_node_meshes(node);
     }
 }
 
-void Scene::add_static_node_meshes(Node* node) {
+void Scene::add_node_meshes(Node* node) {
     for (auto mesh : node->meshes) {
-        if (mesh) {
+        if (dynamic_cast<DynamicMesh*>(mesh)) {
+            add_dynamic_mesh(mesh);
+        } else if (mesh) {
             add_static_mesh(mesh);
         }
     }
@@ -55,7 +56,7 @@ bool Scene::static_meshes_modified(bool set_to_false) {
 int Scene::get_nr_static_vertices() {
     if (nr_static_vertices == -1) {
         nr_static_vertices = 0;
-        for (auto& mesh : static_meshes) {
+        for (auto mesh : static_meshes) {
             nr_static_vertices += mesh->size_vertices();
         }
     }
@@ -65,7 +66,7 @@ int Scene::get_nr_static_vertices() {
 int Scene::get_nr_static_indices() {
     if (nr_static_indices == -1) {
         nr_static_indices = 0;
-        for (auto& mesh : static_meshes) {
+        for (auto mesh : static_meshes) {
             nr_static_indices += mesh->size_indices();
         }
     }
@@ -86,7 +87,7 @@ std::vector<AbstractMesh*>& Scene::get_dynamic_meshes_modifiable() {
 
 int Scene::get_nr_dynamic_vertices() {
     int nr_dynamic_vertices = 0;
-    for (auto& mesh : dynamic_meshes) {
+    for (auto mesh : dynamic_meshes) {
         nr_dynamic_vertices += mesh->size_vertices();
     }
     return nr_dynamic_vertices;
@@ -94,18 +95,8 @@ int Scene::get_nr_dynamic_vertices() {
 
 int Scene::get_nr_dynamic_indices() {
     int nr_dynamic_indices = 0;
-    for (auto& mesh : dynamic_meshes) {
+    for (auto mesh : dynamic_meshes) {
         nr_dynamic_indices += mesh->size_indices();
     }
     return nr_dynamic_indices;
 }
-
-//void Scene::add_node_meshes(Node* node) {
-//    for (auto& mesh : node->meshes) {
-//        if (dynamic_cast<DynamicMesh*>(mesh)) {
-//            add_dynamic_mesh(mesh);
-//        } else if (mesh) {
-//            add_static_mesh(mesh);
-//        }
-//    }
-//}

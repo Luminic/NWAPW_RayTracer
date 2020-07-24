@@ -1,5 +1,4 @@
 #include "Viewport.hpp"
-
 #include <QApplication>
 #include <QKeyEvent>
 #include <QGridLayout>
@@ -17,8 +16,6 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
 
     mouse_captured = false;
 }
-
-Viewport::~Viewport() {}
 
 void Viewport::main_loop(float dt) {
     cam_controller.main_loop(dt);
@@ -50,7 +47,7 @@ void Viewport::keyPressEvent(QKeyEvent* event) {
     event->accept();
 }
 
-void Viewport::keyReleaseEvent(QKeyEvent *event) {
+void Viewport::keyReleaseEvent(QKeyEvent* event) {
     cam_controller.key_event(event);
     event->accept();
 }

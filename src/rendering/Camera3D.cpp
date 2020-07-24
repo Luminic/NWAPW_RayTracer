@@ -1,13 +1,8 @@
 #include "Camera3D.hpp"
-
 #include <QDebug>
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera3D::Camera3D(float aspect_ratio, float fov, QObject* parent) :
-    QObject(parent),
-    aspect_ratio(aspect_ratio),
-    fov(fov)
-{
+Camera3D::Camera3D(float aspect_ratio, float fov, QObject* parent) : QObject(parent), aspect_ratio(aspect_ratio), fov(fov) {
     position = glm::vec3(0.0f,0.0f,5.0f);
     yaw_pitch_roll = glm::vec3(0.0f);
 

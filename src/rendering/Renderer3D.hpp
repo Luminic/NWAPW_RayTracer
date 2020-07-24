@@ -13,9 +13,9 @@
 
 class Renderer3D : public QObject, protected QOpenGLFunctions_4_5_Core{
     Q_OBJECT;
-
 public:
     Renderer3D(QObject* parent=nullptr);
+    virtual ~Renderer3D() {}
 
     Texture* initialize(int width, int height);
     void resize(int width, int height);
@@ -26,7 +26,6 @@ public:
 
     void set_camera(Camera3D* camera);
     Camera3D* get_camera();
-
 private:
     Shader render_shader;
     int work_group_size[3];

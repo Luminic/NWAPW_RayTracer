@@ -9,7 +9,6 @@
 
 class Node : public QObject {
     Q_OBJECT;
-
 public:
     Node(const std::vector<AbstractMesh*>& meshes, QObject* parent=nullptr);
     Node(glm::mat4 transformation=glm::mat4(1.0f), QObject* parent=nullptr);

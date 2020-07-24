@@ -7,12 +7,10 @@
 class Settings_4D : public QDockWidget {
     // TODO: add list of useful settings
     // TODO: add GUI for said settings
-
     Q_OBJECT;
-
 public:
     Settings_4D(QWidget* parent=nullptr);
-    ~Settings_4D();
+    virtual ~Settings_4D();
 };
 
 #endif

@@ -4,13 +4,11 @@
 #include <QObject>
 #include <QOpenGLFunctions_4_5_Core>
 
-
 class Texture : public QObject, protected QOpenGLFunctions_4_5_Core {
     Q_OBJECT;
-
 public:
     Texture(QObject* parent=nullptr);
-    ~Texture();
+    virtual ~Texture();
 
     void load(const char* path);
     void load(QImage img);
@@ -23,7 +21,6 @@ public:
     void resize(unsigned int width, unsigned int height);
 
     unsigned int get_id();
-
 private:
     void set_params(unsigned int tex_id=0); // TODO: add sampler options and make public
 

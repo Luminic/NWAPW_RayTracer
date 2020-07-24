@@ -18,21 +18,19 @@
 
 class MainWindow : public QMainWindow {
     Q_OBJECT;
-
 public:
     MainWindow(QWidget* parent=nullptr);
-    ~MainWindow();
-
+    virtual ~MainWindow() {}
 private:
     void main_loop();
 
     QTimer timer;
     QElapsedTimer elapsedTimer;
 
-    Scene scene;
-    Viewport *viewport;
-    //QPushButton *3DSettings = QPushButton("3D Settings");
-    ModelLoader3D *loader;
+    Scene scene; // if viewport and loader are pointers, should this?
+    Viewport* viewport;
+    //QPushButton* 3DSettings = QPushButton("3D Settings");
+    ModelLoader3D* loader;
 };
 
 #endif

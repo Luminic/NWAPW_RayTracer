@@ -1,14 +1,10 @@
 #include "Texture.hpp"
-
 #include "Shader.hpp"
-
 #include <QImage>
 #include <QFile>
 #include <QDebug>
-
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
-
 
 uint32_t round_up_to_pow_2(uint32_t x) {
     /*
@@ -26,6 +22,7 @@ uint32_t round_up_to_pow_2(uint32_t x) {
     x++;
     return x;
 }
+
 Texture::Texture(QObject* parent) : QObject(parent) {}
 
 Texture::~Texture() {
@@ -117,7 +114,6 @@ void Texture::load_cube_map(const char* equirectangular_path, unsigned int size)
 
     glActiveTexture(GL_TEXTURE0);
 }
-
 
 void Texture::set_params(unsigned int tex_id) {
     if (tex_id == 0) {

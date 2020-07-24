@@ -1,5 +1,4 @@
 #include "Vertex.hpp"
-
 #include <algorithm>
 
 Vertex::Vertex(glm::vec4 position, glm::vec4 normal, glm::vec2 tex_coords, int mesh_index) : 

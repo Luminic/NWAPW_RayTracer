@@ -3,7 +3,6 @@
 
 #include <glm/glm.hpp>
 
-
 struct Vertex {
                             // Base Alignment  // Aligned Offset
     glm::vec4 position;     // 4                  0  (vec4 is treated identical to an array of 4 floats)
@@ -28,7 +27,6 @@ struct Vertex {
 
     Vertex(glm::vec4 position, glm::vec4 normal=glm::vec4(0.0f), glm::vec2 tex_coords=glm::vec2(0.0f), int mesh_index=0);
     Vertex() = default;
-
 
     void as_byte_array(unsigned char byte_array[48]) const;
 };

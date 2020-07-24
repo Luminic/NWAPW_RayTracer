@@ -1,13 +1,9 @@
 #include "Shader.hpp"
-
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
-
 #include <vector>
-
 #include <glm/gtc/type_ptr.hpp>
-
 
 QString text_content(const char* path) {
     QFile file(path);
@@ -16,14 +12,11 @@ QString text_content(const char* path) {
     return in.readAll();
 }
 
-
 Shader::Shader(QObject* parent) : QObject(parent) {}
-
 
 Shader::~Shader() {
     glDeleteProgram(id);
 }
-
 
 void Shader::load_shaders(ShaderStage shaders[], unsigned int nr_shaders) {
     initializeOpenGLFunctions();
@@ -85,7 +78,6 @@ void Shader::load_shaders(ShaderStage shaders[], unsigned int nr_shaders) {
     }
 }
 
-
 bool Shader::validate() {
     glValidateProgram(id);
 
@@ -101,38 +93,31 @@ bool Shader::validate() {
     return (bool) valid;
 }
 
-
 unsigned int Shader::get_id() {
     return id;
 }
-
 
 void Shader::set_bool(const char* name, bool value) {
     unsigned int loc = glGetUniformLocation(id, name);
     glUniform1i(loc, (int)value);
 }
 
-
 void Shader::set_int(const char* name, int value) {
     unsigned int loc = glGetUniformLocation(id, name);
     glUniform1i(loc, value);
 }
-
 
 void Shader::set_float(const char* name, float value) {
     unsigned int loc = glGetUniformLocation(id, name);
     glUniform1f(loc, value);
 }
 
-
-void Shader::set_vec3(const char* name, const glm::vec3 &value) {
+void Shader::set_vec3(const char* name, const glm::vec3& value) {
     unsigned int loc = glGetUniformLocation(id, name);
     glUniform3fv(loc, 1, &value[0]);
 }
 
-
-void Shader::set_mat4(const char* name, const glm::mat4 &value) {
+void Shader::set_mat4(const char* name, const glm::mat4& value) {
     unsigned int loc = glGetUniformLocation(id, name);
     glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
 }
-

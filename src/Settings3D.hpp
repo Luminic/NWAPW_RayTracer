@@ -11,12 +11,11 @@ class Settings3dWindow : public QDockWidget {
     // TODO: add accessors / mutators for settings
     // TODO: setup .ui file
     Q_OBJECT;
-
 public:
-    QDockWidget* settings3d;
-
     Settings3dWindow(QWidget* parent=nullptr);
-    ~Settings3dWindow();
+    virtual ~Settings3dWindow();
+
+    QDockWidget* settings3d;
 };
 
 #endif

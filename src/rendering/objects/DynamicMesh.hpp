@@ -25,11 +25,9 @@ public:
 
     std::vector<Vertex>& modify_vertices();
     std::vector<Index>& modify_indices();
-
 private:
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
 };
-
 
 #endif

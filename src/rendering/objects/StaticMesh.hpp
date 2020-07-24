@@ -27,7 +27,6 @@ public:
 
     const Vertex* get_vertices() override;
     const Index* get_indices() override;
-
 private:
     Vertex vertices[S_verts];
     Index indices[S_inds];

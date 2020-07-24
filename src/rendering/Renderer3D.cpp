@@ -1,5 +1,4 @@
 #include "Renderer3D.hpp"
-
 #include <QDebug>
 
 uint32_t round_up_to_pow_2(uint32_t x);
@@ -19,7 +18,7 @@ Texture* Renderer3D::initialize(int width, int height) {
     }
 
     // Setup the render shader
-    ShaderStage comp_shader{GL_COMPUTE_SHADER, ":/src/rendering/shaders/raytracer.glsl"};
+    ShaderStage comp_shader{GL_COMPUTE_SHADER, "src/rendering/shaders/raytracer.glsl"};
 
     render_shader.load_shaders(&comp_shader, 1);
     render_shader.validate();
@@ -28,7 +27,7 @@ Texture* Renderer3D::initialize(int width, int height) {
     render_result.create(width, height);
 
     // Setup the vertex shader
-    ShaderStage vert_shader{GL_COMPUTE_SHADER, ":/src/rendering/shaders/vertex_shader.glsl"};
+    ShaderStage vert_shader{GL_COMPUTE_SHADER, "src/rendering/shaders/vertex_shader.glsl"};
 
     vertex_shader.load_shaders(&vert_shader, 1);
     vertex_shader.validate();

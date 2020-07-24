@@ -6,7 +6,6 @@
 
 class AbstractMesh : public QObject {
     Q_OBJECT;
-
 public:
     AbstractMesh(QObject* parent=nullptr) : QObject(parent) {}
     virtual ~AbstractMesh() {}
@@ -20,7 +19,6 @@ public:
     virtual size_t size_indices() = 0;
     virtual const Vertex* get_vertices() = 0;
     virtual const Index* get_indices() = 0;
-
 protected:
     int mesh_index;
 };

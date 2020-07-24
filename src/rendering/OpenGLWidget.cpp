@@ -1,10 +1,8 @@
 #include "OpenGLWidget.hpp"
-
 #include <QCoreApplication>
 #include <QDebug>
 #include <QOpenGLDebugLogger>
 #include <QDir>
-
 
 OpenGLWidget::OpenGLWidget(QWidget* parent) : QOpenGLWidget(parent) {
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
@@ -49,12 +47,12 @@ void OpenGLWidget::initializeGL() {
         logger->startLogging();
     #endif
 
-    qDebug() << "GL Version:" << QString((const char*)glGetString(GL_VERSION));
+    qDebug() << "GL Version:" << (const char*)glGetString(GL_VERSION);
 
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glEnable(GL_DEBUG_OUTPUT);
     glDisable(GL_DEPTH_TEST); // OpenGL's default depth testing isn't useful when using compute shaders for raytracing
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Create the frame
     float frame_vertices[] = {
@@ -82,8 +80,8 @@ void OpenGLWidget::initializeGL() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     ShaderStage shaders[] = {
-        ShaderStage{GL_VERTEX_SHADER, ":/src/rendering/shaders/framebuffer_vs.glsl"},
-        ShaderStage{GL_FRAGMENT_SHADER, ":/src/rendering/shaders/framebuffer_fs.glsl"}
+        ShaderStage{GL_VERTEX_SHADER, "src/rendering/shaders/framebuffer_vs.glsl"},
+        ShaderStage{GL_FRAGMENT_SHADER, "src/rendering/shaders/framebuffer_fs.glsl"}
     };
 
     frame_shader.load_shaders(shaders, 2);
@@ -92,8 +90,8 @@ void OpenGLWidget::initializeGL() {
     if (renderer) {
         render_result = renderer->initialize(width(), height());
     } else {
-        // render_result = new Texture(this);
-        // render_result->load(":/resources/textures/awesomeface.png");
+        render_result = new Texture(this);
+        render_result->load("resources/textures/awesomeface.png");
     }
 }
 
