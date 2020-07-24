@@ -13,17 +13,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Raytracer");
     resize(800, 600);
 
-    // TODO
-    // assimp doesn't work for me (Bruce) if I don't use absolute paths
-    // y'all'll get some non-fatal error like this:
-    // Failed to load model from: C:/dev/NWAPW_RayTracer/resources/models/cube.obj
-    // Assimp Error:  Unable to open file "C:/dev/NWAPW_RayTracer/resources/models/cube.obj".
-    //
-    // it can be ignored for now, but we really need to work out how
-    // to use relative paths because not even qrc works for assimp
+
     loader = new ModelLoader3D(this);
-    Node* model_root_node = loader->load_model("C:/dev/NWAPW_RayTracer/resources/models/dodecahedron.obj");
-    //Node* model_root_node = loader->load_model("resources/models/cube.obj");
+    QDir fileInfo;
+    std::string path = (fileInfo.absoluteFilePath("./../../") + "resources/models/dodecahedron.obj").toStdString();
+    Node* model_root_node = loader->load_model(path.c_str());
     scene.add_static_root_node(model_root_node);
 
     loadUiFile(parent);
@@ -106,11 +100,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     scene.add_static_mesh((AbstractMesh*)mesh1);
     scene.add_dynamic_mesh((AbstractMesh*)mesh2);
     scene.add_dynamic_mesh((AbstractMesh*)mesh3);
-
-    // add the model from way up above
-    //qDebug() << "before";
-    //scene.add_node_meshes(model_node);
-    //qDebug() << "after";
 
     viewport->set_scene(&scene);
     setCentralWidget(viewport);
