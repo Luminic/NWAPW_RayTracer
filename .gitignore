@@ -2,7 +2,7 @@
 *.slo
 *.lo
 *.o
-#    *.a
+*.a
 *.la
 *.lai
 *.so
@@ -11,7 +11,13 @@
 *.dylib
 
 # Output Binaries
-build/**
+*.vc.pdb
+*.obj
+moc_*.cpp
+debug/**
+release/**
+generated_files/**
+
 
 # Qt-es
 object_script.*.Release

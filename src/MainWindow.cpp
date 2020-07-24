@@ -15,20 +15,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Raytracer");
     resize(800, 600);
 
-
     loader = new ModelLoader3D(this);
-    QDir fileInfo;
-    constexpr const char* file_name = "resources/models/monkey.obj";
-    #ifdef _WIN64
-    std::string model_path = (fileInfo.absoluteFilePath("./../../") + file_name).toStdString();
-    #else
-    std::string model_path = (fileInfo.absoluteFilePath("./") + file_name).toStdString();
-    #endif
-
-//    QFileInfo model_file("./../../resources/models/dodecahedron.obj");
-//    std::string model_path = model_file.absoluteFilePath().toStdString();
-
-    Node* model_root_node = loader->load_model(model_path.c_str());
+    Node* model_root_node = loader->load_model("resources/models/monkey.obj");
     scene.add_static_root_node(model_root_node);
 
     loadUiFile(parent);
