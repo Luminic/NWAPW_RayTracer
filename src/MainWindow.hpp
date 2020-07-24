@@ -8,6 +8,8 @@
 
 #include "Viewport.hpp"
 #include "rendering/objects/Scene.hpp"
+#include "rendering/objects/StaticMesh.hpp"
+#include "rendering/objects/DynamicMesh.hpp"
 #include "rendering/ModelLoader3D.hpp"
 
 #include "Settings3D.hpp"

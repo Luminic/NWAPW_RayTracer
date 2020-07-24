@@ -8,6 +8,23 @@ Scene::Scene(QObject* parent) : QObject(parent) {
     nr_static_indices = 0;
 }
 
+void Scene::add_static_root_node(Node* root_node) {
+    add_static_node_meshes(root_node);
+
+    QList<Node*> child_nodes = root_node->findChildren<Node*>();
+    for (auto node : child_nodes) {
+        add_static_node_meshes(node);
+    }
+}
+
+void Scene::add_static_node_meshes(Node* node) {
+    for (auto mesh : node->meshes) {
+        if (mesh) {
+            add_static_mesh(mesh);
+        }
+    }
+}
+
 void Scene::add_static_mesh(AbstractMesh* static_mesh) {
     static_meshes.push_back(static_mesh);
     modified_static_meshes = true;
@@ -83,12 +100,12 @@ int Scene::get_nr_dynamic_indices() {
     return nr_dynamic_indices;
 }
 
-void Scene::add_node_meshes(Node* node) {
-    for (auto& mesh : node->meshes) {
-        if (dynamic_cast<DynamicMesh*>(mesh)) {
-            add_dynamic_mesh(mesh);
-        } else if (mesh) {
-            add_static_mesh(mesh);
-        }
-    }
-}
+//void Scene::add_node_meshes(Node* node) {
+//    for (auto& mesh : node->meshes) {
+//        if (dynamic_cast<DynamicMesh*>(mesh)) {
+//            add_dynamic_mesh(mesh);
+//        } else if (mesh) {
+//            add_static_mesh(mesh);
+//        }
+//    }
+//}

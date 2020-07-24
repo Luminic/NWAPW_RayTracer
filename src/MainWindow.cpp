@@ -1,8 +1,7 @@
 #include "MainWindow.hpp"
 #include <QApplication>
 
-static QWidget *loadUiFile(QWidget *parent)
-{
+static QWidget* loadUiFile(QWidget* parent) {
     QFile file(":/src/MainWindow.ui");
     file.open(QIODevice::ReadOnly);
 
@@ -23,7 +22,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // it can be ignored for now, but we really need to work out how
     // to use relative paths because not even qrc works for assimp
     loader = new ModelLoader3D(this);
-    Node* model_node = loader->load_model("C:/dev/NWAPW_RayTracer/resources/models/cube.obj");
+    Node* model_root_node = loader->load_model("C:/dev/NWAPW_RayTracer/resources/models/dodecahedron.obj");
+    //Node* model_root_node = loader->load_model("resources/models/cube.obj");
+    scene.add_static_root_node(model_root_node);
 
     loadUiFile(parent);
     Ui::MainWindow ui;
@@ -67,8 +68,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     };
 
     Index inds1[6] = {
-        8, 9, 10,
-        10, 11, 8
+        0, 1, 2,
+        2, 3, 0
     };
 
     int inds1_size = 5;
@@ -95,8 +96,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     };
 
     std::vector<Index> inds3 {
-        3, 4, 5,
-        5, 6, 3
+        0, 1, 2,
+        2, 3, 0
     };
 
     DynamicMesh* mesh3 = new DynamicMesh(verts3, inds3);
@@ -107,9 +108,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     scene.add_dynamic_mesh((AbstractMesh*)mesh3);
 
     // add the model from way up above
-    qDebug() << "before";
-    scene.add_node_meshes(model_node);
-    qDebug() << "after";
+    //qDebug() << "before";
+    //scene.add_node_meshes(model_node);
+    //qDebug() << "after";
 
     viewport->set_scene(&scene);
     setCentralWidget(viewport);

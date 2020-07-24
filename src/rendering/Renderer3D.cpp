@@ -172,6 +172,7 @@ void Renderer3D::add_mesh_vertices_to_buffer(const std::vector<AbstractMesh*>& m
     int vertex_offset = 0;
     for (auto mesh : meshes) {
         int nr_mesh_vertices = mesh->size_vertices();
+        mesh->vertex_offset = vertex_offset;
         if (vertex_is_opengl_compatible) {
             glBufferSubData(GL_SHADER_STORAGE_BUFFER, vertex_offset*sizeof(Vertex), nr_mesh_vertices*sizeof(Vertex), mesh->get_vertices());
         } else {
@@ -192,7 +193,14 @@ void Renderer3D::add_mesh_indices_to_buffer(const std::vector<AbstractMesh*>& me
     int index_offset = 0;
     for (auto mesh : meshes) {
         int nr_mesh_indices = mesh->size_indices();
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, index_offset*sizeof(Index), nr_mesh_indices*sizeof(Index), mesh->get_indices());
+        const Index* mesh_indices = mesh->get_indices();
+        Index* indices = new Index[nr_mesh_indices];
+        for (int i=0; i<nr_mesh_indices; i++) {
+            indices[i] = mesh_indices[i] + mesh->vertex_offset;
+        }
+
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, index_offset*sizeof(Index), nr_mesh_indices*sizeof(Index), indices);
+        delete[] indices;
         index_offset += nr_mesh_indices;
     }
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);

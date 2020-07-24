@@ -12,6 +12,7 @@ public:
     virtual ~AbstractMesh() {}
 
     // virtual void set_mesh_index() = 0;
+    int vertex_offset;
 
     virtual size_t size_vertices() = 0;
     virtual size_t size_indices() = 0;

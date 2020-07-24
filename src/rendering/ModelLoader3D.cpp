@@ -28,7 +28,7 @@ Node* ModelLoader3D::load_model(const char* file_path) {
         aiMesh* mesh = scene->mMeshes[i];
 
         qDebug() << "Mesh" << i << "has" << mesh->mNumVertices << "vertices.";
-        qDebug() << "Mesh" << i << "has" << mesh->mNumFaces << "indices.";
+        qDebug() << "Mesh" << i << "has" << (mesh->mNumFaces * 3) << "indices.";
 
         // Get material info
         aiMaterial* meshMaterial = scene->mMaterials[mesh->mMaterialIndex];
@@ -50,7 +50,7 @@ Node* ModelLoader3D::load_model(const char* file_path) {
         for (unsigned int j = 0; j < mesh->mNumVertices; ++j) {
             aiVector3D mesh_position = mesh->mVertices[j];
 
-            glm::vec4 position(mesh_position.x, mesh_position.y, mesh_position.z, 0.0f);
+            glm::vec4 position(mesh_position.x, mesh_position.y, mesh_position.z, 1.0f);
             glm::vec4 normal(0.0f);
             glm::vec2 tex_coords(0.0f);
 
