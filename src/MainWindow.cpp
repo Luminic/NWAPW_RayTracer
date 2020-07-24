@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     loader = new ModelLoader3D(this);
     QDir fileInfo;
-    constexpr const char* file_name = "resources/models/dodecahedron.obj";
+    constexpr const char* file_name = "resources/models/monkey.obj";
     #ifdef _WIN64
     std::string model_path = (fileInfo.absoluteFilePath("./../../") + file_name).toStdString();
     #else
@@ -43,16 +43,16 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     Vertex verts[8] = {
         // Floor
-        Vertex(glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 1.0f)),
-        Vertex(glm::vec4(-1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec4(-1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)),
 
         // Ceiling
-        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec4(-1.0f, 1.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f, 1.0f))
+        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4(-1.0f, 1.0f, 1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f))
     };
 
     Index inds[12] = {
@@ -66,10 +66,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     StaticMesh<8, 12>* mesh = new StaticMesh<8, 12>(verts, inds, this);
 
     Vertex verts1[4] = {
-        Vertex{glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f)},
-        Vertex{glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f,0.0f)},
-        Vertex{glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(1.0f,0.0f)},
-        Vertex{glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f)}
+        Vertex{glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f,1.0f)},
+        Vertex{glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f,0.0f)},
+        Vertex{glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f,0.0f)},
+        Vertex{glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f,1.0f)}
     };
 
     Index inds1[6] = {
@@ -84,9 +84,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     std::vector<Vertex> verts2 {
         // Floor 2
-        Vertex(glm::vec4(-1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4(-1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
     };
 
     std::vector<Index> inds2 { 0, 1, 2 };
@@ -94,10 +94,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     DynamicMesh* mesh2 = new DynamicMesh(verts2, inds2, this);
 
     std::vector<Vertex> verts3 {
-       Vertex(glm::vec4( 1.0f,-2.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f)),
-       Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f)),
-       Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f)),
-       Vertex(glm::vec4( 1.0f,-2.0f, 1.0f, 1.0f), glm::vec4(0.0f), glm::vec2(0.0f,1.0f))
+       Vertex(glm::vec4( 1.0f,-2.0f,-1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f,1.0f)),
+       Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f,1.0f)),
+       Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f,1.0f)),
+       Vertex(glm::vec4( 1.0f,-2.0f, 1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f,1.0f))
     };
 
     std::vector<Index> inds3 {
