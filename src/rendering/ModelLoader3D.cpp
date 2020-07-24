@@ -22,7 +22,8 @@ Node* ModelLoader3D::load_model(const char* file_path) {
         return nullptr;
     }
 
-    std::vector<AbstractMesh*> meshes(scene->mNumMeshes);
+    std::vector<AbstractMesh*> meshes;
+    meshes.reserve(scene->mNumMeshes);
     for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
         aiMesh* mesh = scene->mMeshes[i];
 
@@ -44,7 +45,8 @@ Node* ModelLoader3D::load_model(const char* file_path) {
                           glm::vec4(ambient.r, ambient.g, ambient.b, ambient.a), this);
 
         // Get vertices
-        std::vector<Vertex> vertices(mesh->mNumVertices);
+        std::vector<Vertex> vertices;
+        vertices.reserve(mesh->mNumVertices);
         for (unsigned int j = 0; j < mesh->mNumVertices; ++j) {
             aiVector3D mesh_position = mesh->mVertices[j];
 
@@ -72,18 +74,19 @@ Node* ModelLoader3D::load_model(const char* file_path) {
         qDebug() << "Mesh" << i << (mesh->HasTextureCoords(0) ? "has" : "doesn't have") << "texture coordinates.";
 
         // Get indices
-        std::vector<Index> indices(mesh->mNumFaces * 3 /* 3 indices per triangle */);
-        for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {
+        std::vector<Index> indices;
+        indices.reserve(mesh->mNumFaces * 3 /* 3 indices per triangle */);
+        for (unsigned int j = 0; j < mesh->mNumFaces; ++j) {
             assert(mesh->mFaces->mNumIndices == 3);
 
             // could be a for loop but whatever
-            indices.push_back(mesh->mFaces->mIndices[0]);
-            indices.push_back(mesh->mFaces->mIndices[1]);
-            indices.push_back(mesh->mFaces->mIndices[2]);
+            indices.push_back(mesh->mFaces[j].mIndices[0]);
+            indices.push_back(mesh->mFaces[j].mIndices[1]);
+            indices.push_back(mesh->mFaces[j].mIndices[2]);
         }
 
         // Form DynamicMesh
-        meshes.push_back((new DynamicMesh(vertices, indices)));
+        meshes.push_back(new DynamicMesh(vertices, indices));
     }
 
     aiReleaseImport(scene);

@@ -4,6 +4,7 @@
 #include <QObject>
 #include "StaticMesh.hpp"
 #include "DynamicMesh.hpp"
+#include "Node.hpp"
 
 class Scene : public QObject {
     Q_OBJECT;
@@ -24,6 +25,7 @@ public:
     int get_nr_dynamic_vertices();
     int get_nr_dynamic_indices();
 
+    void add_node_meshes(Node* node);
 private:
     // All AbstractMeshes* in static_meshes must be a converted StaticMesh*
     std::vector<AbstractMesh*> static_meshes;

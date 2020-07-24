@@ -23,8 +23,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // it can be ignored for now, but we really need to work out how
     // to use relative paths because not even qrc works for assimp
     loader = new ModelLoader3D(this);
-    loader->load_model("C:/dev/NWAPW_RayTracer/resources/models/cube.obj");
-
+    Node* model_node = loader->load_model("C:/dev/NWAPW_RayTracer/resources/models/cube.obj");
 
     loadUiFile(parent);
     Ui::MainWindow ui;
@@ -106,6 +105,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     scene.add_static_mesh((AbstractMesh*)mesh1);
     scene.add_dynamic_mesh((AbstractMesh*)mesh2);
     scene.add_dynamic_mesh((AbstractMesh*)mesh3);
+
+    // add the model from way up above
+    qDebug() << "before";
+    scene.add_node_meshes(model_node);
+    qDebug() << "after";
 
     viewport->set_scene(&scene);
     setCentralWidget(viewport);
