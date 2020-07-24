@@ -9,7 +9,7 @@
 #include "objects/DynamicMesh.hpp"
 
 constexpr size_t MAX_VERTICES = 24; //  1M
-constexpr size_t MAX_INDICES = 12; // 10M
+constexpr size_t MAX_INDICES = 12;  // 10M
 
 Node* ModelLoader3D::load_model(const char* file_path) {
     const aiScene* scene = aiImportFile(file_path, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate);
