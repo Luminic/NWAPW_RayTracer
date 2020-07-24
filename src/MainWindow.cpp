@@ -16,7 +16,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     loader = new ModelLoader3D(this);
     QDir fileInfo;
+    #ifdef _WIN64
     std::string path = (fileInfo.absoluteFilePath("./../../") + "resources/models/dodecahedron.obj").toStdString();
+    #else
+    std::string path = (fileInfo.absoluteFilePath("./") + "resources/models/dodecahedron.obj").toStdString();
+    #endif
+    qDebug() << path.c_str();
     Node* model_root_node = loader->load_model(path.c_str());
     scene.add_static_root_node(model_root_node);
 
