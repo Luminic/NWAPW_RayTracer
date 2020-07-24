@@ -165,7 +165,7 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
 
 vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
-    return vec4(vert.normal.xyz, 1.0f);
+    return vert.normal;
 }
 
 
@@ -186,7 +186,7 @@ void main() {
     vec4 col = trace(eye, ray);
     // vec4 col;
     // if (pix.x >= 300)
-    //     col = vec4(0.0f);
+    //     col = trace(eye, ray);
     // else
     //     col = vec4(1.0f);
 
