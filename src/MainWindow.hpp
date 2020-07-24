@@ -8,6 +8,7 @@
 
 #include "Viewport.hpp"
 #include "rendering/objects/Scene.hpp"
+#include "rendering/ModelLoader3D.hpp"
 
 #include "Settings3D.hpp"
 #include "Settings4D.hpp"
@@ -28,6 +29,8 @@ private:
 
     Scene scene;
     Viewport *viewport;
+    //QPushButton *3DSettings = QPushButton("3D Settings");
+    ModelLoader3D *loader;
 };
 
 #endif

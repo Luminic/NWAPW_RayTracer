@@ -3,7 +3,7 @@
 
 static QWidget *loadUiFile(QWidget *parent)
 {
-    QFile file("src/MainWindow.ui");
+    QFile file(":/src/MainWindow.ui");
     file.open(QIODevice::ReadOnly);
 
     QUiLoader loader;
@@ -14,6 +14,18 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Raytracer");
     resize(800, 600);
 
+    // TODO
+    // assimp doesn't work for me (Bruce) if I don't use absolute paths
+    // y'all'll get some non-fatal error like this:
+    // Failed to load model from: C:/dev/NWAPW_RayTracer/resources/models/cube.obj
+    // Assimp Error:  Unable to open file "C:/dev/NWAPW_RayTracer/resources/models/cube.obj".
+    //
+    // it can be ignored for now, but we really need to work out how
+    // to use relative paths because not even qrc works for assimp
+    loader = new ModelLoader3D(this);
+    loader->load_model("C:/dev/NWAPW_RayTracer/resources/models/cube.obj");
+
+
     loadUiFile(parent);
     Ui::MainWindow ui;
     ui.setupUi(this);
@@ -23,7 +35,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     viewportWidget = findChild<QWidget*>("viewportWidget");
 
     viewport = new Viewport(viewportWidget);
-
 
     Vertex verts[8] = {
         // Floor
