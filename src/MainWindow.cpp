@@ -1,12 +1,40 @@
 #include "MainWindow.hpp"
 #include <QApplication>
 
+static QWidget *loadUiFile(QWidget *parent)
+{
+    QFile file(":/src/MainWindow.ui");
+    file.open(QIODevice::ReadOnly);
+
+    QUiLoader loader;
+    return loader.load(&file, parent);
+}
+
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Raytracer");
     resize(800, 600);
 
-    // TEMP
-    loader.load_model("C:/dev/NWAPW_RayTracer/resources/models/cube.obj");
+    // TODO
+    // assimp doesn't work for me (Bruce) if I don't use absolute paths
+    // y'all'll get some non-fatal error like this:
+    // Failed to load model from: C:/dev/NWAPW_RayTracer/resources/models/cube.obj
+    // Assimp Error:  Unable to open file "C:/dev/NWAPW_RayTracer/resources/models/cube.obj".
+    //
+    // it can be ignored for now, but we really need to work out how
+    // to use relative paths because not even qrc works for assimp
+    loader = new ModelLoader3D(this);
+    loader->load_model("C:/dev/NWAPW_RayTracer/resources/models/cube.obj");
+
+
+    loadUiFile(parent);
+    Ui::MainWindow ui;
+    ui.setupUi(this);
+
+    // Load viewport into UI
+    QWidget *viewportWidget;
+    viewportWidget = findChild<QWidget*>("viewportWidget");
+
+    viewport = new Viewport(viewportWidget);
 
     Vertex verts[8] = {
         // Floor
@@ -45,13 +73,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         10, 11, 8
     };
 
-    StaticMesh<4, 6>* mesh2 = new StaticMesh<4, 6>(verts2, inds2, this);
+    DynamicMesh<4, 6>* mesh2 = new DynamicMesh<4, 6>(verts2, inds2, this);
 
     scene.add_static_mesh((AbstractMesh*)mesh);
-    scene.add_static_mesh((AbstractMesh*)mesh2);
+    scene.add_dynamic_mesh((AbstractMesh*)mesh2);
 
-    viewport.set_scene(&scene);
-    setCentralWidget(&viewport);
+    viewport->set_scene(&scene);
+    setCentralWidget(viewport);
 
     show();
 
@@ -64,5 +92,5 @@ MainWindow::~MainWindow() {}
 
 void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
-    viewport.main_loop(dt);
+    viewport->main_loop(dt);
 }

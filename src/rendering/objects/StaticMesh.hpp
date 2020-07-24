@@ -2,7 +2,6 @@
 #define STATIC_MESH_HPP
 
 #include <QObject>
-#include <vector>
 #include <glm/glm.hpp>
 
 #include "AbstractMesh.hpp"
@@ -27,9 +26,6 @@ public:
     const Index* get_indices() override;
 
 private:
-    // Only non-const to help with initialization
-    // These should NOT be modified for any reason -- should a change need
-    // to be made, a new StaticMesh should be created and the old destroyed
     Vertex vertices[S_verts];
     Index indices[S_inds];
 };

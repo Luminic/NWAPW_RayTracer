@@ -35,12 +35,16 @@ private:
     std::vector<unsigned int> indices;
     unsigned int vertex_ssbo;
     unsigned int index_ssbo;
+    unsigned int vertex_ssbo_size;
+    unsigned int index_ssbo_size;
 
     int width;
     int height;
 
     Scene* scene;
+    void add_meshes_to_buffer();
     void add_static_meshes_to_buffer();
+    void add_dynamic_meshes_to_buffer();
 
     Camera3D* camera;
 };
