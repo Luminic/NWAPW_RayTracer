@@ -1,6 +1,8 @@
 #include "MainWindow.hpp"
 #include <QApplication>
 
+#include <QTextStream>
+
 static QWidget* loadUiFile(QWidget* parent) {
     QFile file(":/src/MainWindow.ui");
     file.open(QIODevice::ReadOnly);
@@ -16,14 +18,17 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     loader = new ModelLoader3D(this);
     QDir fileInfo;
+    constexpr const char* file_name = "resources/models/monkey.obj";
     #ifdef _WIN64
-    std::string path = fileInfo.absoluteFilePath("./../../").toStdString();
+    std::string model_path = (fileInfo.absoluteFilePath("./../../") + file_name).toStdString();
     #else
-    std::string path = fileInfo.absoluteFilePath("./").toStdString();
+    std::string model_path = (fileInfo.absoluteFilePath("./") + file_name).toStdString();
     #endif
-    path += "resources/models/monkey.obj";
-    qDebug() << path.c_str();
-    Node* model_root_node = loader->load_model(path.c_str());
+
+//    QFileInfo model_file("./../../resources/models/dodecahedron.obj");
+//    std::string model_path = model_file.absoluteFilePath().toStdString();
+
+    Node* model_root_node = loader->load_model(model_path.c_str());
     scene.add_static_root_node(model_root_node);
 
     loadUiFile(parent);
