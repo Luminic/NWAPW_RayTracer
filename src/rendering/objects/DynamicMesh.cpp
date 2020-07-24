@@ -1,5 +1,4 @@
 #include "DynamicMesh.hpp"
-#include "algorithm"
 
 DynamicMesh::DynamicMesh(const std::vector<Vertex>& vertices, const std::vector<Index>& indices, QObject* parent) :
     AbstractMesh(parent),

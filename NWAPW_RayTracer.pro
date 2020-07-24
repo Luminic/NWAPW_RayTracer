@@ -75,5 +75,4 @@ SOURCES += src/main.cpp \
            src/Settings3D.cpp \
            src/Settings4D.cpp
 
-
 FORMS +=   src/MainWindow.ui
