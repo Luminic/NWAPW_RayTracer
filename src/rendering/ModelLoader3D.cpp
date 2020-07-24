@@ -27,7 +27,7 @@ Node* ModelLoader3D::load_model(const char* file_path) {
         aiMesh* mesh = scene->mMeshes[i];
 
         qDebug() << "Mesh" << i << "has" << mesh->mNumVertices << "vertices.";
-        qDebug() << "Mesh" << i << "has" << mesh->mNumFaces << "indices.";
+        qDebug() << "Mesh" << i << "has" << mesh->mNumFaces << "faces.";
 
         // Get material info
         aiMaterial* meshMaterial = scene->mMaterials[mesh->mMaterialIndex];
@@ -48,7 +48,7 @@ Node* ModelLoader3D::load_model(const char* file_path) {
         for (unsigned int j = 0; j < mesh->mNumVertices; ++j) {
             aiVector3D mesh_position = mesh->mVertices[j];
 
-            glm::vec4 position(mesh_position.x, mesh_position.y, mesh_position.z, 0.0f);
+            glm::vec4 position(mesh_position.x, mesh_position.y, mesh_position.z, 1.0f);
             glm::vec4 normal(0.0f);
             glm::vec2 tex_coords(0.0f);
 
@@ -65,7 +65,7 @@ Node* ModelLoader3D::load_model(const char* file_path) {
                 tex_coords = glm::vec2(mesh_tex_coords.x, mesh_tex_coords.y);
             }
 
-            vertices.push_back(Vertex(position, normal, tex_coords));
+            vertices[j] = Vertex(position, normal, tex_coords);
         }
 
         qDebug() << "Mesh" << i << (mesh->HasNormals() ? "has" : "doesn't have") << "normals.";
@@ -73,17 +73,17 @@ Node* ModelLoader3D::load_model(const char* file_path) {
 
         // Get indices
         std::vector<Index> indices(mesh->mNumFaces * 3 /* 3 indices per triangle */);
-        for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {
+        for (unsigned int j = 0; j < mesh->mNumFaces; ++j) {
             assert(mesh->mFaces->mNumIndices == 3);
 
             // could be a for loop but whatever
-            indices.push_back(mesh->mFaces->mIndices[0]);
-            indices.push_back(mesh->mFaces->mIndices[1]);
-            indices.push_back(mesh->mFaces->mIndices[2]);
+            indices[j*3]   = mesh->mFaces[j].mIndices[0];
+            indices[j*3+1] = mesh->mFaces[j].mIndices[1];
+            indices[j*3+2] = mesh->mFaces[j].mIndices[2];
         }
 
         // Form DynamicMesh
-        meshes.push_back((new DynamicMesh(vertices, indices)));
+        meshes[i] = (AbstractMesh*)(new DynamicMesh(vertices, indices));
     }
 
     aiReleaseImport(scene);

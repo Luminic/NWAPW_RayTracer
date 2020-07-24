@@ -19,8 +19,9 @@ void Scene::add_static_root_node(Node* root_node) {
 
 void Scene::add_static_node_meshes(Node* node) {
     for (auto mesh : node->meshes) {
-        if (mesh)
+        if (mesh) {
             add_static_mesh(mesh);
+        }
     }
 }
 
