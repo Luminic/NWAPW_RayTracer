@@ -15,13 +15,13 @@ public:
     DynamicMesh(const std::vector<Vertex>& vertices, const std::vector<Index>& indices, QObject* parent=nullptr);
 
     void set_mesh_index(int mesh_index) override;
-    int get_mesh_index() override;
+    int get_mesh_index() const override;
 
-    size_t size_vertices() override;
-    size_t size_indices() override;
+    size_t size_vertices() const override;
+    size_t size_indices() const override;
     
-    const Vertex* get_vertices() override;
-    const Index* get_indices() override;
+    const Vertex* get_vertices() const override;
+    const Index* get_indices() const override;
 
     std::vector<Vertex>& modify_vertices();
     std::vector<Index>& modify_indices();

@@ -15,18 +15,18 @@ public:
     StaticMesh(Vertex verts[S_verts], Index inds[S_inds], QObject* parent=nullptr);
 
     void set_mesh_index(int mesh_index) override;
-    int get_mesh_index() override;
+    int get_mesh_index() const override;
 
-    size_t size_vertices() override;
-    size_t size_indices() override;
+    size_t size_vertices() const override;
+    size_t size_indices() const override;
     // constexpr functions cannot be virtual until c++20
     // when using a converted StaticMesh->AbstractMesh pointer use
     // size() instead
-    constexpr size_t size_vertices_cx();
-    constexpr size_t size_indices_cx();
+    constexpr size_t size_vertices_cx() const;
+    constexpr size_t size_indices_cx() const;
 
-    const Vertex* get_vertices() override;
-    const Index* get_indices() override;
+    const Vertex* get_vertices() const override;
+    const Index* get_indices() const override;
 private:
     Vertex vertices[S_verts];
     Index indices[S_inds];

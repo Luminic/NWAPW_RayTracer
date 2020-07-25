@@ -15,23 +15,23 @@ void DynamicMesh::set_mesh_index(int mesh_index) {
     }
 }
 
-int DynamicMesh::get_mesh_index() {
+int DynamicMesh::get_mesh_index() const {
     return mesh_index;
 }
 
-size_t DynamicMesh::size_vertices() {
+size_t DynamicMesh::size_vertices() const {
     return vertices.size();
 }
 
-size_t DynamicMesh::size_indices() {
+size_t DynamicMesh::size_indices() const {
     return indices.size();
 }
 
-const Vertex* DynamicMesh::get_vertices() {
+const Vertex* DynamicMesh::get_vertices() const {
     return vertices.data();
 }
 
-const Index* DynamicMesh::get_indices() {
+const Index* DynamicMesh::get_indices() const {
     return indices.data();
 }
 

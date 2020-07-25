@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 
+constexpr int vertex_struct_size_in_opengl = 48;
+
 struct Vertex {
                             // Base Alignment  // Aligned Offset
     glm::vec4 position;     // 4                  0  (vec4 is treated identical to an array of 4 floats)
@@ -28,7 +30,7 @@ struct Vertex {
     Vertex(glm::vec4 position, glm::vec4 normal=glm::vec4(0.0f), glm::vec2 tex_coords=glm::vec2(0.0f), int mesh_index=0);
     Vertex() = default;
 
-    void as_byte_array(unsigned char byte_array[48]) const;
+    void as_byte_array(unsigned char byte_array[vertex_struct_size_in_opengl]) const;
 };
 
 /*
@@ -39,8 +41,7 @@ layout is what we expect
 
 The memory layout must exactly match the memory layout of the Vertex struct in GLSL
 */
-#define VERTEX_STRUCT_SIZE_IN_OPENGL 48
-constexpr bool vertex_is_opengl_compatible = (sizeof(Vertex) == VERTEX_STRUCT_SIZE_IN_OPENGL) && std::is_standard_layout<Vertex>::value;
+constexpr bool vertex_is_opengl_compatible = (sizeof(Vertex) == vertex_struct_size_in_opengl) && std::is_standard_layout<Vertex>::value;
 
 typedef unsigned int Index;
 

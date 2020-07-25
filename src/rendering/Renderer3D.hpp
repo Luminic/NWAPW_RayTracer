@@ -55,6 +55,10 @@ private:
     unsigned int dynamic_index_ssbo;
     int dynamic_index_ssbo_size;
 
+    std::vector<unsigned char> opengl_mesh_data;
+    unsigned int mesh_ssbo;
+    int mesh_ssbo_size;
+
     int width;
     int height;
 
