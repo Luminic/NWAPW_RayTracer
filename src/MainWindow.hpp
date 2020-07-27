@@ -17,6 +17,9 @@
 #include "Settings4D.hpp"
 #include "ui_MainWindow.h"
 
+// TODO: temp
+#include "rendering/DimensionDropper.hpp"
+
 class MainWindow : public QMainWindow {
     Q_OBJECT;
 public:
@@ -33,6 +36,7 @@ private:
     //QPushButton* 3DSettings = QPushButton("3D Settings");
     ModelLoader3D* loader3d;
     ModelLoader4D* loader4d;
+    DimensionDropper* dropper;
 };
 
 #endif
