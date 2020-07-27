@@ -77,4 +77,4 @@ SOURCES += src/main.cpp \
            src/Settings4D.cpp
 
 FORMS +=   src/MainWindow.ui \
-    Viewport.ui
+    src/Viewport.ui

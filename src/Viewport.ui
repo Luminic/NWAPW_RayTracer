@@ -13,6 +13,16 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <widget class="QOpenGLWidget" name="gl_widget">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>220</y>
+     <width>300</width>
+     <height>200</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
