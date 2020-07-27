@@ -3,7 +3,9 @@
 #include <QDebug>
 #include <glm/glm.hpp>
 #include <QRegularExpression>
+#include "objects/DynamicMesh.hpp"
 
+// NOTE: this does NOT handle any malformed files
 Node* ModelLoader4D::load_model(const char* file_path) {
     QFile file(file_path);
 
@@ -12,11 +14,14 @@ Node* ModelLoader4D::load_model(const char* file_path) {
         return nullptr;
     }
 
+    // the actual data
     std::vector<glm::vec4> positions;
     std::vector<glm::vec4> normals;
     std::vector<glm::vec2> tex_coords;
 
+    // mock vertices that store the indices into the data
     std::vector<vert> verts;
+
     std::vector<Index> indices;
     Index currentIndex = 0;
 
@@ -63,16 +68,32 @@ Node* ModelLoader4D::load_model(const char* file_path) {
 
         if (!line.size()) loading_file = false;
     } while (loading_file);
-
-    qDebug() << verts.size() << indices.size() << positions.size() << normals.size() << tex_coords.size();
-    qDebug() << "Verts:";
-    for (unsigned int i = 0; i < verts.size(); i++)
-        qDebug() << verts[i].position_index << verts[i].normal_index << verts[i].tex_coord_index;
-
-    qDebug() << "Indices:";
-    for (unsigned int i = 0; i < indices.size(); i += 4)
-        qDebug() << indices[i+0] << indices[i+1] << indices[i+2] << indices[i+3];
-
     file.close();
-    return nullptr;
+
+//    qDebug() << verts.size() << indices.size() << positions.size() << normals.size() << tex_coords.size();
+//    qDebug() << "Verts:";
+//    for (unsigned int i = 0; i < verts.size(); i++)
+//        qDebug() << verts[i].position_index << verts[i].normal_index << verts[i].tex_coord_index;
+
+//    qDebug() << "Indices:";
+//    for (unsigned int i = 0; i < indices.size(); i += 4)
+//        qDebug() << indices[i+0] << indices[i+1] << indices[i+2] << indices[i+3];
+
+    std::vector<Vertex> vertices;
+    vertices.reserve(verts.size());
+    for (const auto& vert : verts) {
+        if (normals.size() && tex_coords.size())
+            vertices.emplace_back(positions[vert.position_index], normals[vert.normal_index], tex_coords[vert.tex_coord_index]);
+        else if (normals.size())
+            vertices.emplace_back(positions[vert.position_index], normals[vert.normal_index]);
+        else if (tex_coords.size())
+            vertices.emplace_back(positions[vert.position_index], glm::vec4(0.0f), tex_coords[vert.tex_coord_index]);
+        else
+            vertices.emplace_back(positions[vert.position_index]);
+    }
+
+    DynamicMesh* mesh = new DynamicMesh(vertices, indices, this);
+    std::vector<AbstractMesh*> meshes;
+    meshes.push_back(mesh);
+    return new Node(meshes, this);
 }

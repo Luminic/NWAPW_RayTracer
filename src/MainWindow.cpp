@@ -17,10 +17,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // load the model
     loader3d = new ModelLoader3D(this);
     loader4d = new ModelLoader4D(this);
-//    Node* model_root_node = loader->load_model("resources/models/dodecahedron.obj");
-//    model_root_node->transformation = glm::mat4(1.0f)/2.0f;
-//    scene.add_root_node(model_root_node);
-    loader4d->load_model("resources/models/pentachron_4D.obj");
+    Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
+    model_root_node->transformation = glm::mat4(1.0f)/2.0f;
+    scene.add_root_node(model_root_node);
+//    loader4d->load_model("resources/models/pentachron_4D.obj");
 
     loadUiFile(parent);
     Ui::MainWindow ui;
