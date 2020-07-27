@@ -9,7 +9,7 @@ static QWidget* loadUiFile(QWidget* parent, QString path) {
 }
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    setWindowTitle("Ray Tracer");
+    setWindowTitle("Ray tracer");
     resize(800, 600);
 
     // load the model
@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     model_root_node->transformation = glm::mat4(1.0f)/2.0f;
     scene.add_root_node(model_root_node);
 //    loader4d->load_model("resources/models/pentachron_4D.obj");
-
+    /*
     loadUiFile(parent, "src/MainWindow.ui");
     Ui::MainWindow ui;
     ui.setupUi(this);
@@ -27,8 +27,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Load viewport into UI
     QWidget *viewportWidget;
     viewportWidget = findChild<QWidget*>("viewportWidget");
-
-    viewport = new Viewport(viewportWidget);
+    */
+    viewport = new Viewport(this);
 
     Vertex verts[8] = {
         // Floor

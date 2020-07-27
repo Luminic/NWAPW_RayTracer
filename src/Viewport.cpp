@@ -9,16 +9,22 @@ static QWidget* loadUiFile(QWidget* parent, QString path) {
 }
 
 Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer_3D(this) {
-    QGridLayout* layout = new QGridLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(&gl_widget, 0, 0);
+    // Load UI
+    loadUiFile(parent, "src/Viewport.ui");
+    Ui::Viewport ui;
+    ui.setupUi(this);
     setFocusPolicy(Qt::StrongFocus);
+    resize(800, 600);
+
+    QGridLayout* layout = findChild<QGridLayout*>("gridLayout");
+    layout->addWidget(&gl_widget, 0, 0);
 
     renderer_3D.set_camera(&camera_3D);
     cam_controller.set_camera_3D(&camera_3D);
     gl_widget.set_renderer(&renderer_3D);
 
     mouse_captured = false;
+
 }
 
 void Viewport::main_loop(float dt) {

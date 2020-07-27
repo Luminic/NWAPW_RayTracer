@@ -13,6 +13,8 @@
 #include "rendering/Renderer3D.hpp"
 #include "rendering/objects/Scene.hpp"
 
+#include "ui_Viewport.h"
+
 class Viewport : public QWidget {
     Q_OBJECT;
 public:
