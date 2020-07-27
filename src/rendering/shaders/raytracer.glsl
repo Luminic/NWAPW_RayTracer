@@ -54,16 +54,48 @@ layout (std430, binding=2) buffer DynamicIndexBuffer {
     int dynamic_indices[];
 };
 
+#define MAX_NR_TEXTURES 79
+uniform sampler2D textures[79];
+
+struct TexturedMaterial {
+    // The ints correspond to textures[i]
+
+                                    // Base Alignment  // Aligned Offset
+    int albedo;                     // 4               // 0
+    int F0;                         // 4               // 4
+    int roughness;                  // 4               // 8
+    int metalness;                  // 4               // 12
+    int AO;                         // 4               // 16
+
+    // (PADDING)                    // 12              // 20
+
+    // Total Size: 32
+};
 
 struct Material {
-    vec3 albedo;
-    vec3 F0;
-    float roughness;
-    float metalness;
-    float AO;
+    // textures_index corresponds to textured_materials[textures_index] if the
+    // material has textures
+
+                        // Base Alignment  // Aligned Offset
+    vec3 albedo;        // 16              // 0
+    vec3 F0;            // 16              // 16
+    float roughness;    // 4               // 32
+    float metalness;    // 4               // 36
+    float AO;           // 4               // 40
+    int textures_index; // 4               // 44
+
+    // Total Size: 48
 };
-#define DEFAULT_MATERIAL Material(vec3(1.0f), vec3(0.05f), 0.3f, 1.0f, 0.5f)
-#define MATERIAL(x) Material(x, vec3(0.05f), 0.3f, 1.0f, 0.5f)
+#define DEFAULT_MATERIAL Material(vec3(1.0f), vec3(0.05f), 0.3f, 1.0f, 0.5f, -1)
+#define MATERIAL(x) Material(x, vec3(0.05f), 0.3f, 1.0f, 0.5f, -1)
+
+layout(std140, binding=6) buffer {
+    Material materials[];
+};
+
+layout(std140, binding=7) buffer {
+    TexturedMaterial textured_materials[];
+};
 
 
 uniform vec3 eye;
@@ -72,7 +104,7 @@ uniform vec3 ray10;
 uniform vec3 ray01;
 uniform vec3 ray11;
 
-layout (binding = 1) uniform samplerCube environment_map;
+layout (binding = 0) uniform samplerCube environment_map;
 
 // Prev_rand should be initialized to the seed once when the this shader is invocated
 uint rand(uint prev_rand) {

@@ -111,7 +111,7 @@ Texture* Renderer3D::render() {
     render_shader.set_vec3("ray01", eye_rays.r01);
     render_shader.set_vec3("ray11", eye_rays.r11);
 
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, environment_map.get_id());
 
     glBindImageTexture(0, render_result.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
