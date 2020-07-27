@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // load the model
     loader = new ModelLoader3D(this);
     Node* model_root_node = loader->load_model("resources/models/dodecahedron.obj");
+    model_root_node->transformation = glm::mat4(1.0f)/2.0f;
     scene.add_root_node(model_root_node);
 
     loadUiFile(parent);

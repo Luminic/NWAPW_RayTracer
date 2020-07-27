@@ -9,11 +9,16 @@ Scene::Scene(QObject* parent) : QObject(parent) {
 
 void Scene::add_root_node(Node* root_node) {
     add_node_meshes(root_node);
+    root_nodes.push_back(root_node);
 
     QList<Node*> child_nodes = root_node->findChildren<Node*>();
     for (auto node : child_nodes) {
         add_node_meshes(node);
     }
+}
+
+const std::vector<Node*>& Scene::get_root_nodes() {
+    return root_nodes;
 }
 
 void Scene::add_node_meshes(Node* node) {

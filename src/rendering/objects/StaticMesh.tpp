@@ -10,7 +10,7 @@ void StaticMesh<S_verts, S_inds>::set_mesh_index(int mesh_index) {
 }
 
 template <size_t S_verts, size_t S_inds>
-int StaticMesh<S_verts, S_inds>::get_mesh_index() {
+int StaticMesh<S_verts, S_inds>::get_mesh_index() const {
     return mesh_index;
 }
 
@@ -21,31 +21,31 @@ StaticMesh<S_verts, S_inds>::StaticMesh(Vertex verts[S_verts], Index inds[S_inds
 }
 
 template <size_t S_verts, size_t S_inds>
-size_t StaticMesh<S_verts, S_inds>::size_vertices() {
+size_t StaticMesh<S_verts, S_inds>::size_vertices() const {
     return S_verts;
 }
 
 template <size_t S_verts, size_t S_inds>
-size_t StaticMesh<S_verts, S_inds>::size_indices() {
+size_t StaticMesh<S_verts, S_inds>::size_indices() const {
     return S_inds;
 }
 
 template <size_t S_verts, size_t S_inds>
-constexpr size_t StaticMesh<S_verts, S_inds>::size_vertices_cx() {
+constexpr size_t StaticMesh<S_verts, S_inds>::size_vertices_cx() const {
     return S_verts;
 }
 
 template <size_t S_verts, size_t S_inds>
-constexpr size_t StaticMesh<S_verts, S_inds>::size_indices_cx() {
+constexpr size_t StaticMesh<S_verts, S_inds>::size_indices_cx() const {
     return S_inds;
 }
 
 template <size_t S_verts, size_t S_inds>
-const Vertex* StaticMesh<S_verts, S_inds>::get_vertices() {
+const Vertex* StaticMesh<S_verts, S_inds>::get_vertices() const {
     return vertices;
 }
 
 template <size_t S_verts, size_t S_inds>
-const Index* StaticMesh<S_verts, S_inds>::get_indices() {
+const Index* StaticMesh<S_verts, S_inds>::get_indices() const {
     return indices;
 }

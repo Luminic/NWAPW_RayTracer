@@ -11,6 +11,7 @@ public:
     Scene(QObject* parent=nullptr);
 
     void add_root_node(Node* root_node);
+    const std::vector<Node*>& get_root_nodes();
 
     void add_static_mesh(AbstractMesh* static_mesh);
     const std::vector<AbstractMesh*>& get_static_meshes();

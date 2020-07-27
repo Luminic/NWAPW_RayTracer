@@ -50,12 +50,9 @@ layout (std430, binding=1) buffer StaticIndexBuffer {
 
 layout (std430, binding=2) buffer DynamicIndexBuffer {
     // Same as StaticIndexBuffer
-    // Indices correspond to vertices[dynamic_indices[i] + dynamic_indices_offset]
+    // Indices correspond to vertices[dynamic_indices[i] + nr_static_indices]
     int dynamic_indices[];
 };
-
-// The number of static vertices
-uniform int dynamic_indices_offset;
 
 
 struct Material {

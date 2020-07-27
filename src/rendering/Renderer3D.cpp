@@ -1,5 +1,6 @@
 #include "Renderer3D.hpp"
 #include <QDebug>
+#include <glm/gtc/type_ptr.hpp>
 
 uint32_t round_up_to_pow_2(uint32_t x);
 
@@ -64,6 +65,12 @@ Texture* Renderer3D::initialize(int width, int height) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, dynamic_index_ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
     dynamic_index_ssbo_size = 0;
+
+    glGenBuffers(1, &mesh_ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_ssbo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, mesh_ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
+    mesh_ssbo_size = 0;
 
     // Clean up
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT); // Not 100% sure if necessary but just in case
@@ -162,6 +169,25 @@ void Renderer3D::add_meshes_to_buffer() {
     add_mesh_vertices_to_buffer(dynamic_meshes, dynamic_vertex_ssbo, static_meshes.size());
     add_mesh_indices_to_buffer(dynamic_meshes, dynamic_index_ssbo);
 
+    
+    // Send mesh data to shaders
+    // Get mesh data into opengl_mesh_data
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_ssbo);
+    if (static_meshes.size()+dynamic_meshes.size() != (unsigned int)mesh_ssbo_size) {
+        mesh_ssbo_size = static_meshes.size()+dynamic_meshes.size();
+
+        opengl_mesh_data.resize(mesh_ssbo_size*mesh_size_in_opengl, 0);
+        for (auto node : scene->get_root_nodes()) {
+            node->add_mesh_data(opengl_mesh_data);
+        }
+        glBufferData(GL_SHADER_STORAGE_BUFFER, mesh_ssbo_size*mesh_size_in_opengl, opengl_mesh_data.data(), GL_DYNAMIC_DRAW);
+    } else {
+        for (auto node : scene->get_root_nodes()) {
+            node->add_mesh_data(opengl_mesh_data);
+        }
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, mesh_ssbo_size*mesh_size_in_opengl, opengl_mesh_data.data());
+    }
+
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
@@ -178,12 +204,12 @@ void Renderer3D::add_mesh_vertices_to_buffer(const std::vector<AbstractMesh*>& m
         if (vertex_is_opengl_compatible) {
             glBufferSubData(GL_SHADER_STORAGE_BUFFER, vertex_offset*sizeof(Vertex), nr_mesh_vertices*sizeof(Vertex), mesh->get_vertices());
         } else {
-            std::vector<unsigned char> vertex_data(VERTEX_STRUCT_SIZE_IN_OPENGL*nr_mesh_vertices);
+            std::vector<unsigned char> vertex_data(vertex_struct_size_in_opengl*nr_mesh_vertices);
             const Vertex* mesh_vertices = mesh->get_vertices();
             for (int i=0; i<nr_mesh_vertices; i++) {
-                mesh_vertices[i].as_byte_array(&vertex_data[i*VERTEX_STRUCT_SIZE_IN_OPENGL]);
+                mesh_vertices[i].as_byte_array(&vertex_data[i*vertex_struct_size_in_opengl]);
             }
-            glBufferSubData(GL_SHADER_STORAGE_BUFFER, vertex_offset*VERTEX_STRUCT_SIZE_IN_OPENGL, nr_mesh_vertices*VERTEX_STRUCT_SIZE_IN_OPENGL, vertex_data.data());
+            glBufferSubData(GL_SHADER_STORAGE_BUFFER, vertex_offset*vertex_struct_size_in_opengl, nr_mesh_vertices*vertex_struct_size_in_opengl, vertex_data.data());
         }
         vertex_offset += nr_mesh_vertices;
     }
@@ -200,7 +226,6 @@ void Renderer3D::add_mesh_indices_to_buffer(const std::vector<AbstractMesh*>& me
         for (int i=0; i<nr_mesh_indices; i++) {
             indices[i] = mesh_indices[i] + mesh->vertex_offset;
         }
-
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, index_offset*sizeof(Index), nr_mesh_indices*sizeof(Index), indices);
         delete[] indices;
         index_offset += nr_mesh_indices;
