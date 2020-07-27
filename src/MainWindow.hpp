@@ -11,6 +11,7 @@
 #include "rendering/objects/StaticMesh.hpp"
 #include "rendering/objects/DynamicMesh.hpp"
 #include "rendering/ModelLoader3D.hpp"
+#include "rendering/ModelLoader4D.hpp"
 
 #include "Settings3D.hpp"
 #include "Settings4D.hpp"
@@ -30,7 +31,8 @@ private:
     Scene scene; // if viewport and loader are pointers, should this?
     Viewport* viewport;
     //QPushButton* 3DSettings = QPushButton("3D Settings");
-    ModelLoader3D* loader;
+    ModelLoader3D* loader3d;
+    ModelLoader4D* loader4d;
 };
 
 #endif
