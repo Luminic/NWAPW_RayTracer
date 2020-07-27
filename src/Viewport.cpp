@@ -1,8 +1,12 @@
 #include "Viewport.hpp"
-#include <QApplication>
-#include <QKeyEvent>
-#include <QGridLayout>
-#include <QDebug>
+
+static QWidget* loadUiFile(QWidget* parent, QString path) {
+    QFile file(path);
+    file.open(QIODevice::ReadOnly);
+
+    QUiLoader loader;
+    return loader.load(&file, parent);
+}
 
 Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer_3D(this) {
     QGridLayout* layout = new QGridLayout(this);

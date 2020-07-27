@@ -1,9 +1,7 @@
 #include "MainWindow.hpp"
-#include <QApplication>
-#include <QTextStream>
 
-static QWidget* loadUiFile(QWidget* parent) {
-    QFile file("src/MainWindow.ui");
+static QWidget* loadUiFile(QWidget* parent, QString path) {
+    QFile file(path);
     file.open(QIODevice::ReadOnly);
 
     QUiLoader loader;
@@ -22,7 +20,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     scene.add_root_node(model_root_node);
 //    loader4d->load_model("resources/models/pentachron_4D.obj");
 
-    loadUiFile(parent);
+    loadUiFile(parent, "src/MainWindow.ui");
     Ui::MainWindow ui;
     ui.setupUi(this);
 
