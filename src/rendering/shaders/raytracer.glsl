@@ -72,7 +72,14 @@ uniform vec3 ray10;
 uniform vec3 ray01;
 uniform vec3 ray11;
 
-
+// Prev_rand should be initialized to the seed once when the this shader is invocated
+uint rand(uint prev_rand) {
+    // LCG produces terrible results
+    // observe how there is clear repetition when doing: vec4 col = vec4(rand(prev_rand).xxxx / float(1<<24));
+    // where prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y);
+    prev_rand = (12586549*prev_rand + 12435) % uint((1<<24)-1);
+    return prev_rand;
+}
 
 // Ray-Triangle Intersection
 
@@ -229,6 +236,7 @@ vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, Material material) {
 #define SUN_RADIANCE vec3(2.0f);
 #define SHADOWS 1
 #define AMBIENT_MULTIPLIER 0.03
+#define BIAS 0.0001f
 vec4 shade(Vertex vert, vec3 ray_dir, Material material) {
     Material tmp;
     bool tmp2;
@@ -239,7 +247,8 @@ vec4 shade(Vertex vert, vec3 ray_dir, Material material) {
     vec3 diffuse = 0.0f.xxx;
 
     vec3 radiance = vec3(0.0f);
-    radiance += SUN_RADIANCE;
+    if (get_vertex_data(vert.position.xyz-SUN_DIR*(NEAR_PLANE-BIAS), SUN_DIR).mesh_index == -1)
+        radiance += SUN_RADIANCE;
     // #if SHADOWS
     //     radiance *= shadow_ray(point, SUN_DIR, FAR_PLANE, 32);
     // #endif
@@ -280,6 +289,14 @@ void main() {
     //     col = trace(eye, ray);
     // else
     //     col = vec4(1.0f);
+    uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y);
+    // uint prev_rand = 5;
+    for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {
+        prev_rand = rand(prev_rand);
+    }
+    // prev_rand = (prev_rand >> 16);// & uint(1<<30 - 1);
+    // vec4 col = vec4(rand(prev_rand).xxxx / float(1<<24));
+    // vec4 col = prev_rand.xxxx/float(size.y*size.x);
 
     imageStore(framebuffer, pix, col);
 }
