@@ -18,6 +18,8 @@ Texture* Renderer3D::initialize(int width, int height) {
         camera->update_perspective_matrix(float(width)/height);
     }
 
+    environment_map.load_cube_map("resources/textures/sunny_vondelpark_4k.hdr", 512);
+
     // Setup the render shader
     ShaderStage comp_shader{GL_COMPUTE_SHADER, "src/rendering/shaders/raytracer.glsl"};
 
@@ -108,6 +110,9 @@ Texture* Renderer3D::render() {
     render_shader.set_vec3("ray10", eye_rays.r10);
     render_shader.set_vec3("ray01", eye_rays.r01);
     render_shader.set_vec3("ray11", eye_rays.r11);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, environment_map.get_id());
 
     glBindImageTexture(0, render_result.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 

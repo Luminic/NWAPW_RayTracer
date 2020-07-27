@@ -90,7 +90,7 @@ void Texture::load_cube_map(const char* equirectangular_path, unsigned int size)
     glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     Shader eq_to_cubemap;
-    ShaderStage eq_to_cubemap_compute{GL_COMPUTE_SHADER, ":/rendering/shaders/equirectangular_to_cube_map.glsl"};
+    ShaderStage eq_to_cubemap_compute{GL_COMPUTE_SHADER, "src/rendering/shaders/equirectangular_to_cube_map.glsl"};
 
     eq_to_cubemap.load_shaders(&eq_to_cubemap_compute, 1);
     eq_to_cubemap.validate();
