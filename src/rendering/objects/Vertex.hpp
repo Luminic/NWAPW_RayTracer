@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 
 constexpr int vertex_struct_size_in_opengl = 48;
-constexpr float vertex_epsilon = 0.000001f;
 
 struct Vertex {
                             // Base Alignment  // Aligned Offset
@@ -32,8 +31,6 @@ struct Vertex {
     Vertex() = default;
 
     void as_byte_array(unsigned char byte_array[vertex_struct_size_in_opengl]) const;
-
-    bool operator==(const glm::vec3& pos);
 };
 
 /*

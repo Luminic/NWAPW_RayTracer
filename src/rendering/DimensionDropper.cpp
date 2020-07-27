@@ -4,11 +4,21 @@
 #include "objects/DynamicMesh.hpp"
 #include <QMatrix3x3>
 
+// glm's built-in operator== is too precise
+// to the point where rounding errors make
+// a big enough difference to not be equal
+static constexpr float epsilon = 0.000001f;
+static bool operator==(const glm::vec3& v1, const glm::vec3& v2) {
+    return std::abs(v1.x - v2.x) < epsilon &&
+           std::abs(v1.y - v2.y) < epsilon &&
+           std::abs(v1.z - v2.z) < epsilon;
+}
+
 Node* DimensionDropper::drop(Node* node4d, float slice) {
     std::vector<AbstractMesh*> meshes3d;
 
     for (const auto& mesh4d : node4d->meshes) {
-        std::vector<Vertex> mesh3d_vertices;
+        std::vector<glm::vec3> mesh3d_vertices;
         std::vector<Index> mesh3d_indices;
 
         // accumulate all intersections
@@ -87,7 +97,7 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
                                 // if the vertex exists in the mesh already
                                 if (mesh3d_vertices[k] == intersection) {
                                     found = true;
-
+//qDebug() << "found";
                                     bool found2 = false;
                                     // for every index in the triangle
                                     for (unsigned int l = 0; l < triIndices.size(); l++) {
@@ -106,7 +116,7 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
 
                             // if the vertex isn't already in the mesh
                             if (!found) {
-                                mesh3d_vertices.push_back(Vertex(glm::vec4(intersection, 0.0f)));
+                                mesh3d_vertices.push_back(intersection);
                                 triIndices.push_back(currentIndex++);
                             }
                         }
@@ -123,29 +133,41 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
             }
         }
 
+        std::vector<Vertex> vertices;
+        vertices.reserve(mesh3d_vertices.size() * 3);
+        std::vector<Index> indices;
+        indices.reserve(mesh3d_indices.size());
+
         // TODO: how to i calculate normals from 4d normals?
         // this is just taking the 3d normals of each generated triangle
+        std::vector<glm::vec4> normals;
         for (unsigned int i = 0; i < mesh3d_indices.size(); i += 3) {
-            // glm has built-in conversions from 4D to 3D
-            // really though, it's just c++ default behaivor
-            glm::vec3 p0 = mesh3d_vertices[mesh3d_indices[i+0]].position;
-            glm::vec3 p1 = mesh3d_vertices[mesh3d_indices[i+1]].position;
-            glm::vec3 p2 = mesh3d_vertices[mesh3d_indices[i+2]].position;
+            glm::vec3 p0 = mesh3d_vertices[mesh3d_indices[i+0]];
+            glm::vec3 p1 = mesh3d_vertices[mesh3d_indices[i+1]];
+            glm::vec3 p2 = mesh3d_vertices[mesh3d_indices[i+2]];
 
             glm::vec3 line1 = p0 - p1;
             glm::vec3 line2 = p0 - p2;
 
-            glm::vec3 normal = glm::cross(line1, line2);
+            glm::vec4 normal = glm::vec4(glm::normalize(glm::cross(line1, line2)), 0.0f);
+
+            vertices.push_back(Vertex(glm::vec4(p0, 0.0f), normal));
+            vertices.push_back(Vertex(glm::vec4(p1, 0.0f), normal));
+            vertices.push_back(Vertex(glm::vec4(p2, 0.0f), normal));
+
+            indices.push_back(i+0);
+            indices.push_back(i+1);
+            indices.push_back(i+2);
         }
 
         qDebug() << "Vertices:";
         for (const auto& vertex : mesh3d_vertices)
-            qDebug() << vertex.position.x << vertex.position.y << vertex.position.z;
+            qDebug() << vertex.x << vertex.y << vertex.z;
         qDebug() << "Indices:";
         for (unsigned int i = 0; i < mesh3d_indices.size(); i += 3)
             qDebug() << mesh3d_indices[i+0] << mesh3d_indices[i+1] << mesh3d_indices[i+2];
 
-        meshes3d.push_back(new DynamicMesh(mesh3d_vertices, mesh3d_indices, this));
+        meshes3d.push_back(new DynamicMesh(vertices, indices, this));
     }
 
     return new Node(meshes3d, this);

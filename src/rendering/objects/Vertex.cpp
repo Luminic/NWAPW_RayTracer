@@ -24,9 +24,3 @@ void Vertex::as_byte_array(unsigned char byte_array[vertex_struct_size_in_opengl
     tmp = reinterpret_cast<unsigned char const*>(&mesh_index);
     std::copy(tmp, tmp+4, byte_array+40);
 }
-
-bool Vertex::operator==(const glm::vec3& pos) {
-    return std::abs(position.x - pos.x) < vertex_epsilon &&
-           std::abs(position.y - pos.y) < vertex_epsilon &&
-           std::abs(position.z - pos.z) < vertex_epsilon;
-}

@@ -1,38 +1,48 @@
 #include "MainWindow.hpp"
-#include <QApplication>
-#include <QTextStream>
+#include <glm/gtc/matrix_transform.hpp>
 
-static QWidget* loadUiFile(QWidget* parent) {
-    QFile file("src/MainWindow.ui");
+static QWidget* loadUiFile(QWidget* parent, QString path) {
+    QFile file(path);
     file.open(QIODevice::ReadOnly);
 
     QUiLoader loader;
     return loader.load(&file, parent);
 }
 
+static void test(DimensionDropper* dropper, Scene* scene, Node* model4d, float slice) {
+    Node* model3d = dropper->drop(model4d, slice);
+    model3d->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f * (slice-0.5f), 0.0f, 0.0f));
+    scene->add_root_node(model3d);
+}
+
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    setWindowTitle("Ray Tracer");
+    setWindowTitle("Ray tracer");
     resize(800, 600);
 
     // load the model
     loader3d = new ModelLoader3D(this);
     loader4d = new ModelLoader4D(this);
     dropper = new DimensionDropper(this);
-//    Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
-//    model_root_node->transformation = glm::mat4(1.0f/2.0f);
-//    scene.add_root_node(model_root_node);
-    Node* model4d = loader4d->load_model("resources/models/pentachron_4D.obj");
-    scene.add_root_node(dropper->drop(model4d, 0.0f));
 
-    loadUiFile(parent);
+    Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
+    model_root_node->transformation = glm::translate(glm::mat4(0.5f), glm::vec3(3.0f, 0.0f, 0.0f));
+    scene.add_root_node(model_root_node);
+
+    Node* model4d = loader4d->load_model("resources/models/pentachron_4D.obj");
+
+    Node* model3d = dropper->drop(model4d, 0.0f);
+    scene.add_root_node(model3d);
+
+    /*
+    loadUiFile(parent, "src/MainWindow.ui");
     Ui::MainWindow ui;
     ui.setupUi(this);
 
     // Load viewport into UI
     QWidget *viewportWidget;
     viewportWidget = findChild<QWidget*>("viewportWidget");
-
-    viewport = new Viewport(viewportWidget);
+    */
+    viewport = new Viewport(this);
 
     Vertex verts[8] = {
         // Floor

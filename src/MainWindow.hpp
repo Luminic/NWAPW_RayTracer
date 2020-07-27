@@ -5,6 +5,8 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QtUiTools>
+#include <QApplication>
+#include <QTextStream>
 
 #include "Viewport.hpp"
 #include "rendering/objects/Scene.hpp"
