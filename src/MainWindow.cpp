@@ -2,8 +2,8 @@
 #include <QApplication>
 #include <QTextStream>
 
-static QWidget* loadUiFile(QWidget* parent) {
-    QFile file("src/MainWindow.ui");
+static QWidget* loadUiFile(QWidget* parent, QString path) {
+    QFile file(path);
     file.open(QIODevice::ReadOnly);
 
     QUiLoader loader;
@@ -20,13 +20,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     model_root_node->transformation = glm::mat4(1.0f)/2.0f;
     scene.add_root_node(model_root_node);
 
-    loadUiFile(parent);
+    loadUiFile(parent, "src/MainWindow.ui");
     Ui::MainWindow ui;
     ui.setupUi(this);
 
     // Load viewport into UI
     QWidget *viewportWidget;
-    viewportWidget = findChild<QWidget*>("viewportWidget");
+    viewportWidget = findChild<QOpenGLWidget*>("viewportWidget");
 
     viewport = new Viewport(viewportWidget);
 
