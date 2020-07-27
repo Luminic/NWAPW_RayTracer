@@ -72,6 +72,8 @@ uniform vec3 ray10;
 uniform vec3 ray01;
 uniform vec3 ray11;
 
+layout (binding = 1) uniform samplerCube environment_map;
+
 // Prev_rand should be initialized to the seed once when the this shader is invocated
 uint rand(uint prev_rand) {
     // LCG produces terrible results
@@ -263,7 +265,8 @@ vec4 shade(Vertex vert, vec3 ray_dir, Material material) {
 vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
     if (vert.mesh_index == -1) {
-        return vec4(0.0f.xxx,1.0f);
+        // return vec4(0.0f.xxx,1.0f);
+        return texture(environment_map, ray_dir);
     }
     return shade(vert, ray_dir, MATERIAL(vec3(1.0f,0.0f,0.0f)));
 }
