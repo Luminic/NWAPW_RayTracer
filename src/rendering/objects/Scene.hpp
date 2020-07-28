@@ -4,6 +4,7 @@
 #include <QObject>
 #include "Node.hpp"
 #include "AbstractMesh.hpp"
+#include "MaterialManager.hpp"
 
 class Scene : public QObject {
     Q_OBJECT;
@@ -25,7 +26,10 @@ public:
     std::vector<AbstractMesh*>& get_dynamic_meshes_modifiable();
     int get_nr_dynamic_vertices();
     int get_nr_dynamic_indices();
+
 private:
+    MaterialManager material_manager;
+
     std::vector<Node*> root_nodes;
     void add_node_meshes(Node* node);
 

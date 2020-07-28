@@ -4,6 +4,7 @@
 #include <QObject>
 #include <glm/glm.hpp>
 #include "Vertex.hpp"
+#include "Material.hpp"
 
 constexpr int mesh_size_in_opengl = 80;
 
@@ -14,7 +15,9 @@ public:
     virtual ~AbstractMesh() {}
 
     int vertex_offset;
-    int material_index;
+
+    void set_material(MaterialHandle material_handle);
+    MaterialHandle get_material() const;
 
     virtual void set_mesh_index(int mesh_index) = 0;
     virtual int get_mesh_index() const = 0;
@@ -28,6 +31,9 @@ public:
 
 protected:
     int mesh_index;
+
+private:
+    MaterialHandle material_handle;
 };
 
 #endif

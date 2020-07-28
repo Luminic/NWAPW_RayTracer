@@ -53,6 +53,7 @@ HEADERS += src/MainWindow.hpp \
            src/rendering/objects/Node.hpp \
            src/rendering/objects/Scene.hpp \
            src/rendering/objects/Material.hpp \
+           src/rendering/objects/MaterialManager.hpp \
            src/rendering/ModelLoader3D.hpp \
            src/rendering/ModelLoader4D.hpp \
            src/Settings3D.hpp \
@@ -73,6 +74,7 @@ SOURCES += src/main.cpp \
            src/rendering/objects/Scene.cpp \
            src/rendering/objects/Node.cpp \
            src/rendering/objects/Material.cpp \
+           src/rendering/objects/MaterialManager.cpp \
            src/rendering/ModelLoader3D.cpp \
            src/rendering/ModelLoader4D.cpp \
            src/Settings3D.cpp \
