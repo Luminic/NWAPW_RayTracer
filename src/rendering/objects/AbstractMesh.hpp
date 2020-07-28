@@ -15,9 +15,7 @@ public:
     virtual ~AbstractMesh() {}
 
     int vertex_offset;
-
-    void set_material(MaterialHandle material_handle);
-    MaterialHandle get_material() const;
+    int material_index;
 
     virtual void set_mesh_index(int mesh_index) = 0;
     virtual int get_mesh_index() const = 0;
@@ -31,9 +29,6 @@ public:
 
 protected:
     int mesh_index;
-
-private:
-    MaterialHandle material_handle;
 };
 
 #endif

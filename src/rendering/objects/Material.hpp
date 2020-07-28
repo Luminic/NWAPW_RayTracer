@@ -5,28 +5,6 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-// Once the MaterialManager that created the MaterialHandle is deleted,
-// the MaterialHandle becomes useless
-class MaterialHandle {
-public:
-    MaterialHandle();
-
-    MaterialHandle(int material_index, int* material_ref_count, std::shared_ptr<const bool> valid);
-
-    MaterialHandle(const MaterialHandle& other);
-
-    ~MaterialHandle();
-
-    MaterialHandle& MaterialHandle::operator=(const MaterialHandle& other);
-
-    int get_material_index() const;
-
-private:
-    int material_index;
-    int* material_ref_count;
-    std::shared_ptr<const bool> valid;
-};
-
 constexpr int material_size_in_opengl = 64;
 
 struct Material {

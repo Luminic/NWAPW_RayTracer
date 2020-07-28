@@ -74,6 +74,12 @@ Texture* Renderer3D::initialize(int width, int height) {
     glBufferData(GL_SHADER_STORAGE_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
     mesh_ssbo_size = 0;
 
+    glGenBuffers(1, &material_ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, material_ssbo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, material_ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
+    material_ssbo_size = 0;
+
     // Clean up
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT); // Not 100% sure if necessary but just in case
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
@@ -97,6 +103,7 @@ Texture* Renderer3D::render() {
 
     Q_ASSERT_X(scene, "Renderer3D::render", "Scene must be set before rendering");
     add_meshes_to_buffer();
+    add_materials_to_buffer();
     glUseProgram(vertex_shader.get_id());
     unsigned int vertex_shader_worksize_x = round_up_to_pow_2(vertex_ssbo_size) / Y_SIZE;
     unsigned int vertex_shader_worksize_y = Y_SIZE;
@@ -235,6 +242,21 @@ void Renderer3D::add_mesh_indices_to_buffer(const std::vector<AbstractMesh*>& me
         delete[] indices;
         index_offset += nr_mesh_indices;
     }
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+void Renderer3D::add_materials_to_buffer() {
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, material_ssbo);
+    MaterialManager& material_manager = scene->get_material_manager();
+    const std::vector<Material>& materials = material_manager.get_materials();
+
+    if ((int) materials.size() != material_ssbo_size) {
+        material_ssbo_size = materials.size();
+        glBufferData(GL_SHADER_STORAGE_BUFFER, material_ssbo_size*sizeof(Material), materials.data(), GL_DYNAMIC_DRAW);
+    } else {
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, material_ssbo_size*sizeof(Material), materials.data());
+    }
+
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 

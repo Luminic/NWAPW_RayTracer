@@ -71,8 +71,8 @@ SOURCES += src/main.cpp \
            src/rendering/objects/Vertex.cpp \
            src/rendering/objects/AbstractMesh.cpp \
            src/rendering/objects/DynamicMesh.cpp \
-           src/rendering/objects/Scene.cpp \
            src/rendering/objects/Node.cpp \
+           src/rendering/objects/Scene.cpp \
            src/rendering/objects/Material.cpp \
            src/rendering/objects/MaterialManager.cpp \
            src/rendering/ModelLoader3D.cpp \

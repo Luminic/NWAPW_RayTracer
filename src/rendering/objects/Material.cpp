@@ -1,53 +1,6 @@
 #include "Material.hpp"
 #include <algorithm>
 
-MaterialHandle::MaterialHandle() : valid(std::make_shared<const bool>(false)) {}
-
-MaterialHandle::MaterialHandle(int material_index, int* material_ref_count, std::shared_ptr<const bool> valid) :
-    material_index(material_index),
-    material_ref_count(material_ref_count),
-    valid(valid)
-{
-    if (*valid)
-        (*material_ref_count)++;
-}
-
-MaterialHandle::MaterialHandle(const MaterialHandle& other) :
-    material_index(other.material_index),
-    material_ref_count(other.material_ref_count),
-    valid(other.valid)
-{}
-
-MaterialHandle& MaterialHandle::operator=(const MaterialHandle& other) {
-    if (&other == this) 
-        return *this;
-
-    // Basically destruct the old MaterialHandle
-    if (*valid)
-        (*material_ref_count)--;
-
-    this->valid = other.valid;
-    this->material_index = other.material_index;
-    this->material_ref_count = other.material_ref_count;
-
-    // And construct a new one with the new data
-    if (*valid)
-        (*material_ref_count)++;
-    
-    return *this;
-};
-
-MaterialHandle::~MaterialHandle() {
-    if (*valid)
-        (*material_ref_count)--;
-}
-
-int MaterialHandle::get_material_index() const {
-    if (*valid)
-        return material_index;
-    return -1;
-}
-
 Material::Material(glm::vec4 albedo, glm::vec4 F0, float roughness, float metalness, float AO) : 
     albedo(albedo),
     F0(F0),

@@ -56,6 +56,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     StaticMesh<8, 12>* mesh = new StaticMesh<8, 12>(verts, inds, this);
 
+    Material mat(glm::vec4(0.0f,1.0f,0.0f,1.0f));
+    mat.metalness = 1.0f;
+    mesh->material_index = scene.get_material_manager().add_material(mat);
+    
+
     Vertex verts1[4] = {
         Vertex{glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f,1.0f)},
         Vertex{glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f,0.0f)},
@@ -96,7 +101,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         2, 3, 0
     };
 
-    DynamicMesh* mesh3 = new DynamicMesh(verts3, inds3);
+    DynamicMesh* mesh3 = new DynamicMesh(verts3, inds3, this);
 
     scene.add_static_mesh((AbstractMesh*)mesh);
     scene.add_static_mesh((AbstractMesh*)mesh1);
