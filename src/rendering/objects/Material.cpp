@@ -7,15 +7,13 @@ Material::Material(glm::vec4 albedo, glm::vec4 F0, float roughness, float metaln
     roughness(roughness),
     metalness(metalness),
     AO(AO)
-{}
-
-Material::Material(int albedo_ti, int F0_ti, int roughness_ti, int metalness_ti, int AO_ti) :
-    albedo_ti(albedo_ti),
-    F0_ti(F0_ti),
-    roughness_ti(roughness_ti),
-    metalness_ti(metalness_ti),
-    AO_ti(AO_ti)
-{}
+{
+    albedo_ti = -1;
+    F0_ti = -1;
+    roughness_ti = -1;
+    metalness_ti = -1;
+    AO_ti = -1;
+}
 
 void Material::as_byte_array(unsigned char byte_array[material_size_in_opengl]) const {
     unsigned char const* tmp = reinterpret_cast<unsigned char const*>(&albedo);

@@ -1,6 +1,7 @@
 #include "Renderer3D.hpp"
 #include <QDebug>
 #include <glm/gtc/type_ptr.hpp>
+#include <string>
 
 uint32_t round_up_to_pow_2(uint32_t x);
 
@@ -120,6 +121,8 @@ Texture* Renderer3D::render() {
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, environment_map.get_id());
+
+    set_textures();
 
     glBindImageTexture(0, render_result.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
@@ -258,6 +261,18 @@ void Renderer3D::add_materials_to_buffer() {
     }
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+void Renderer3D::set_textures() {
+    MaterialManager& material_manager = scene->get_material_manager();
+    const std::vector<Texture*>& textures = material_manager.get_textures();
+    for (unsigned int i=0; i<textures.size(); i++) {
+        glActiveTexture(GL_TEXTURE1+i);
+        glBindTexture(GL_TEXTURE_2D, textures[i]->get_id());
+        std::string name = std::string("textures[") + std::to_string(i) + "]";
+        render_shader.set_int(name.c_str(), i+1);
+    }
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void Renderer3D::set_scene(Scene* scene) {

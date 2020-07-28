@@ -33,8 +33,7 @@ struct Material {
 
     // Total Size: 64
 
-    Material(glm::vec4 albedo, glm::vec4 F0=glm::vec4(0.0f), float roughness=0.5f, float metalness=0.0f, float AO=0.0f);
-    Material(int albedo_ti, int F0_ti=-1, int roughness_ti=-1, int metalness_ti=-1, int AO_ti=-1);
+    Material(glm::vec4 albedo, glm::vec4 F0=glm::vec4(0.0f), float roughness=0.5f, float metalness=0.0f, float AO=0.1f);
     Material() = default;
 
     void as_byte_array(unsigned char byte_array[material_size_in_opengl]) const;

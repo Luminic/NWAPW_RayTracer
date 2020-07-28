@@ -28,10 +28,15 @@ public:
 
     void main_loop(float dt);
     void set_scene(Scene* scene);
+
+signals:
+    void opengl_initialized();
+
 protected:
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
+
 private:
     void capture_mouse();
     void release_mouse();

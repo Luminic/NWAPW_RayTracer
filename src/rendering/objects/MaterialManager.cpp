@@ -1,5 +1,5 @@
 #include "MaterialManager.hpp"
-
+#include <QDebug>
 #include <algorithm>
 #include <glm/glm.hpp>
 
@@ -9,7 +9,7 @@ MaterialManager::MaterialManager() {
     materials.push_back(default_material);
 }
 
-int MaterialManager::add_texture(std::shared_ptr<Texture> texture, bool new_tex) {
+int MaterialManager::add_texture(Texture* texture, bool new_tex) {
     if (!new_tex) {
         for (unsigned int i=0; i<textures.size(); i++) {
             if (*(textures[i]) == *texture) {
@@ -35,7 +35,7 @@ int MaterialManager::add_material(Material material, bool new_mat) {
     return materials.size()-1;
 }
 
-const std::vector<std::shared_ptr<Texture>>& MaterialManager::get_textures() const {
+const std::vector<Texture*>& MaterialManager::get_textures() const {
     return textures;
 }
 

@@ -9,6 +9,9 @@ static QWidget* loadUiFile(QWidget* parent, QString path) {
 }
 
 Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer_3D(this) {
+    // Propagate opengl signals
+    connect(&gl_widget, &OpenGLWidget::opengl_initialized, this, &Viewport::opengl_initialized);
+
     // Load UI
     loadUiFile(parent, "src/Viewport.ui");
 
@@ -29,7 +32,6 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
     QWidget* widget3D = findChild<QWidget*>("widget3D");
     settings3D = new Settings3D();
     settings3D->setAlignment(widget3D, Qt::AlignRight);
-
 }
 
 void Viewport::main_loop(float dt) {

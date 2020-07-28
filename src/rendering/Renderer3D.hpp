@@ -75,6 +75,8 @@ private:
 
     void add_materials_to_buffer();
 
+    void set_textures();
+
     Camera3D* camera;
 };
 

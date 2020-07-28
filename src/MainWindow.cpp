@@ -49,82 +49,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     viewportWidget = findChild<QWidget*>("viewportWidget");
     */
     viewport = new Viewport(this);
-
-    Vertex verts[8] = {
-        // Floor
-        Vertex(glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)),
-        Vertex(glm::vec4(-1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)),
-
-        // Ceiling
-        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec4( 1.0f, 2.0f, 1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec4(-1.0f, 2.0f, 1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(0.0f, 1.0f))
-    };
-
-    Index inds[12] = {
-        0, 1, 2,
-        2, 3, 0,
-
-        4, 5, 6,
-        6, 7, 4
-    };
-
-    StaticMesh<8, 12>* mesh = new StaticMesh<8, 12>(verts, inds, this);
-
-    Material mat(glm::vec4(0.0f,1.0f,0.0f,1.0f));
-    mat.metalness = 1.0f;
-    mesh->material_index = scene.get_material_manager().add_material(mat);
-    
-
-    Vertex verts1[4] = {
-        Vertex{glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f,1.0f)},
-        Vertex{glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f,0.0f)},
-        Vertex{glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f,0.0f)},
-        Vertex{glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f,1.0f)}
-    };
-
-    Index inds1[6] = {
-        0, 1, 2,
-        2, 3, 0
-    };
-
-    int inds1_size = 5;
-    inds1_size++;
-
-    StaticMesh<4, 6>* mesh1 = new StaticMesh<4, 6>(verts1, inds1, this);
-
-    std::vector<Vertex> verts2 {
-        // Floor 2
-        Vertex(glm::vec4(-1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
-    };
-
-    std::vector<Index> inds2 { 0, 1, 2 };
-
-    DynamicMesh* mesh2 = new DynamicMesh(verts2, inds2, this);
-
-    std::vector<Vertex> verts3 {
-       Vertex(glm::vec4( 1.0f,-2.0f,-1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f,1.0f)),
-       Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f,1.0f)),
-       Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f,1.0f)),
-       Vertex(glm::vec4( 1.0f,-2.0f, 1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f,1.0f))
-    };
-
-    std::vector<Index> inds3 {
-        0, 1, 2,
-        2, 3, 0
-    };
-
-    DynamicMesh* mesh3 = new DynamicMesh(verts3, inds3, this);
-
-    scene.add_static_mesh((AbstractMesh*)mesh);
-    scene.add_static_mesh((AbstractMesh*)mesh1);
-    scene.add_dynamic_mesh((AbstractMesh*)mesh2);
-    scene.add_dynamic_mesh((AbstractMesh*)mesh3);
+    connect(viewport, &Viewport::opengl_initialized, this, &MainWindow::resource_initialization);
 
     viewport->set_scene(&scene);
     setCentralWidget(viewport);
@@ -134,6 +59,87 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(&timer, &QTimer::timeout, this, &MainWindow::main_loop);
     timer.start(16);
     elapsedTimer.start();
+}
+
+void MainWindow::resource_initialization() {
+    MaterialManager& material_manager = scene.get_material_manager();
+    Material mat(glm::vec4(0.0f,1.0f,0.0f,1.0f));
+    mat.metalness = 1.0f;
+    Texture* diffuse_texture = new Texture(&material_manager);
+    diffuse_texture->load("resources/textures/Metal022_2K-JPG/Metal022_2K_Color.jpg");
+    mat.albedo_ti = material_manager.add_texture(diffuse_texture);
+    Texture* rougness_texture = new Texture(&material_manager);
+    rougness_texture->load("resources/textures/Metal022_2K-JPG/Metal022_2K_Roughness.jpg");
+    mat.roughness_ti = material_manager.add_texture(rougness_texture);
+    Texture* metalness_texture = new Texture(&material_manager);
+    metalness_texture->load("resources/textures/Metal022_2K-JPG/Metal022_2K_Metalness.jpg");
+    mat.metalness_ti = material_manager.add_texture(metalness_texture);
+    int metal_material = material_manager.add_material(mat);
+
+    Vertex verts[8] = {
+        // Floor
+        Vertex(glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec4(-1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)),
+
+        // Ceiling
+        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f, 2.0f, 1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec4(-1.0f, 2.0f, 1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(0.0f, 1.0f))
+    };
+    Index inds[12] = {
+        0, 1, 2,
+        2, 3, 0,
+
+        4, 5, 6,
+        6, 7, 4
+    };
+    StaticMesh<8, 12>* mesh = new StaticMesh<8, 12>(verts, inds, this);
+    mesh->material_index = metal_material;
+
+    Vertex verts1[4] = {
+        Vertex{glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f, 0.0f)},
+        Vertex{glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f, 0.0f)},
+        Vertex{glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f, 1.0f)},
+        Vertex{glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f, 1.0f)}
+    };
+    Index inds1[6] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+    StaticMesh<4, 6>* mesh1 = new StaticMesh<4, 6>(verts1, inds1, this);
+    mesh1->material_index = metal_material;
+    
+    std::vector<Vertex> verts2 {
+        // Floor 2
+        Vertex(glm::vec4(-1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 1.0f)),
+    };
+    std::vector<Index> inds2 { 0, 1, 2 };
+    DynamicMesh* mesh2 = new DynamicMesh(verts2, inds2, this);
+    mesh2->material_index = metal_material;
+
+    std::vector<Vertex> verts3 {
+       Vertex(glm::vec4( 1.0f,-2.0f,-1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f, 0.0f)),
+       Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
+       Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(1.0f, 1.0f)),
+       Vertex(glm::vec4( 1.0f,-2.0f, 1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f, 1.0f))
+    };
+    std::vector<Index> inds3 {
+        0, 1, 2,
+        2, 3, 0
+    };
+    DynamicMesh* mesh3 = new DynamicMesh(verts3, inds3, this);
+    mesh3->material_index = metal_material;
+
+    scene.add_static_mesh((AbstractMesh*)mesh);
+    scene.add_static_mesh((AbstractMesh*)mesh1);
+    scene.add_dynamic_mesh((AbstractMesh*)mesh2);
+    scene.add_dynamic_mesh((AbstractMesh*)mesh3);
+    
 }
 
 void MainWindow::main_loop() {

@@ -27,7 +27,9 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget* parent=nullptr);
     virtual ~MainWindow() {}
+
 private:
+    void resource_initialization();
     void main_loop();
 
     QTimer timer;
