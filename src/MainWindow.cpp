@@ -27,15 +27,15 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     loader4d = new ModelLoader4D(this);
     dropper = new DimensionDropper(this);
 
-    Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
-    model_root_node->transformation = glm::translate(glm::mat4(0.5f), glm::vec3(3.0f, 0.0f, 0.0f));
-    scene.add_root_node(model_root_node);
+//    Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
+//    model_root_node->transformation = glm::mat4(0.5f);
+//    scene.add_root_node(model_root_node);
 
     Node* model4d = loader4d->load_model("resources/models/pentachron_4D.obj");
 
     Node* model3d = dropper->drop(model4d, 0.0f);
     if (model3d) {
-        model3d->transformation = transform(glm::vec3(3.0f, 0.0f, 0.0f), glm::radians(30.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f));
+        model3d->transformation = transform(glm::vec3(2.0f, 0.0f, 0.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f));
         scene.add_root_node(model3d);
     }
 

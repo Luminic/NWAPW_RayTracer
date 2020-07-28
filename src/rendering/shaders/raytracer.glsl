@@ -269,6 +269,7 @@ vec4 trace(vec3 ray_origin, vec3 ray_dir) {
         return texture(environment_map, ray_dir);
     }
     return shade(vert, ray_dir, MATERIAL(vec3(1.0f,0.0f,0.0f)));
+    //return vert.normal;
 }
 
 
