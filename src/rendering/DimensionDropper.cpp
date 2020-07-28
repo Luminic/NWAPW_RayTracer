@@ -167,8 +167,9 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
         for (unsigned int i = 0; i < indices.size(); i += 3)
             qDebug() << indices[i+0] << indices[i+1] << indices[i+2];
 
-        meshes3d.push_back(new DynamicMesh(vertices, indices, this));
+        if (vertices.size() && indices.size())
+            meshes3d.push_back(new DynamicMesh(vertices, indices, this));
     }
 
-    return new Node(meshes3d, this);
+    return meshes3d.size() ? new Node(meshes3d, this) : nullptr;
 }
