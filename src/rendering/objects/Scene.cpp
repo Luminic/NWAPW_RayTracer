@@ -5,6 +5,12 @@ Scene::Scene(QObject* parent) : QObject(parent) {
     modified_static_meshes = false;
     nr_static_vertices = 0;
     nr_static_indices = 0;
+
+    root_nodes.push_back(new Node(this));
+}
+
+MaterialManager& Scene::get_material_manager() {
+    return material_manager;
 }
 
 void Scene::add_root_node(Node* root_node) {
@@ -24,22 +30,26 @@ const std::vector<Node*>& Scene::get_root_nodes() {
 void Scene::add_node_meshes(Node* node) {
     for (auto mesh : node->meshes) {
         if (dynamic_cast<DynamicMesh*>(mesh)) {
-            add_dynamic_mesh(mesh);
+            add_dynamic_mesh(mesh, false);
         } else if (mesh) {
-            add_static_mesh(mesh);
+            add_static_mesh(mesh, false);
         }
     }
 }
 
-void Scene::add_static_mesh(AbstractMesh* static_mesh) {
+void Scene::add_static_mesh(AbstractMesh* static_mesh, bool orphaned) {
     static_meshes.push_back(static_mesh);
     modified_static_meshes = true;
 
     if (nr_static_vertices >= 0) nr_static_vertices += static_mesh->size_vertices();
     if (nr_static_indices >= 0) nr_static_indices += static_mesh->size_indices();
+
+    if (orphaned) {
+        root_nodes[0]->meshes.push_back(static_mesh);
+    }
 }
 
-const std::vector<AbstractMesh*>& Scene::get_static_meshes() {
+const std::vector<AbstractMesh*>& Scene::get_static_meshes() const {
     return static_meshes;
 }
 
@@ -78,11 +88,14 @@ int Scene::get_nr_static_indices() {
     return nr_static_indices;
 }
 
-void Scene::add_dynamic_mesh(AbstractMesh* dynamic_mesh) {
+void Scene::add_dynamic_mesh(AbstractMesh* dynamic_mesh, bool orphaned) {
     dynamic_meshes.push_back(dynamic_mesh);
+    if (orphaned) {
+        root_nodes[0]->meshes.push_back(dynamic_mesh);
+    }
 }
 
-const std::vector<AbstractMesh*>& Scene::get_dynamic_meshes() {
+const std::vector<AbstractMesh*>& Scene::get_dynamic_meshes() const {
     return dynamic_meshes;
 }
 

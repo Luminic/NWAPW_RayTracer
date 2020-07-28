@@ -4,6 +4,7 @@
 #include <QObject>
 #include <glm/glm.hpp>
 #include "Vertex.hpp"
+#include "Material.hpp"
 
 constexpr int mesh_size_in_opengl = 80;
 

@@ -138,3 +138,7 @@ void Texture::resize(unsigned int width, unsigned int height) {
 unsigned int Texture::get_id() {
     return id;
 }
+
+bool Texture::operator==(const Texture& other) {
+    return id == other.id;
+}

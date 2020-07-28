@@ -54,16 +54,60 @@ layout (std430, binding=2) buffer DynamicIndexBuffer {
     int dynamic_indices[];
 };
 
+struct Mesh {
+                          // Base Alignment  // Aligned Offset
+    mat4 transformation;  // 16              // 0
+                          // 16              // 16
+                          // 16              // 32
+                          // 16 (total: 64)  // 48
+
+    int material_index;   // 4               // 64
+    
+    // (PADDING)          // 12              // 68
+    // (12 bytes of padding to pad out struct to a multiple of a vec4 because it will be used in an array)
+
+    // Total Size: 80
+};
+
+layout (std140, binding=5) buffer MeshBuffer {
+    Mesh meshes[];
+    //          // Base Alignment  // Aligned Offset
+    // mesh[0]  // 80              // 0
+    // mesh[1]  // 80              // 80
+    // mesh[3]  // 80              // 160
+    // ...
+};
+
+#define MAX_NR_TEXTURES 79
+uniform sampler2D textures[MAX_NR_TEXTURES];
 
 struct Material {
-    vec3 albedo;
-    vec3 F0;
-    float roughness;
-    float metalness;
-    float AO;
+    // textures_index corresponds to textured_materials[textures_index] if the
+    // material has textures
+
+                        // Base Alignment  // Aligned Offset
+    vec4 albedo;        // 16              // 0
+    vec4 F0;            // 16              // 16
+    float roughness;    // 4               // 32
+    float metalness;    // 4               // 36
+    float AO;           // 4               // 40
+
+    // The following ints are texture indices
+
+    int albedo_ti;         // 4               // 44
+    int F0_ti;             // 4               // 48
+    int roughness_ti;      // 4               // 52
+    int metalness_ti;      // 4               // 56
+    int AO_ti;             // 4               // 60
+
+    // Total Size: 64
 };
-#define DEFAULT_MATERIAL Material(vec3(1.0f), vec3(0.05f), 0.3f, 1.0f, 0.5f)
-#define MATERIAL(x) Material(x, vec3(0.05f), 0.3f, 1.0f, 0.5f)
+#define DEFAULT_MATERIAL Material(vec4(1.0f), vec4(0.05f), 0.3f, 1.0f, 0.5f, -1, -1, -1, -1, -1)
+#define MATERIAL(x) Material(x, vec4(0.05f), 0.3f, 1.0f, 0.5f, -1, -1, -1, -1, -1)
+
+layout(std140, binding=6) buffer MaterialBuffer {
+    Material materials[];
+};
 
 
 uniform vec3 eye;
@@ -72,7 +116,7 @@ uniform vec3 ray10;
 uniform vec3 ray01;
 uniform vec3 ray11;
 
-layout (binding = 1) uniform samplerCube environment_map;
+layout (binding = 0) uniform samplerCube environment_map;
 
 // Prev_rand should be initialized to the seed once when the this shader is invocated
 uint rand(uint prev_rand) {
@@ -215,11 +259,11 @@ vec3 F_schlick(vec3 view, vec3 normal, vec3 F0) {
 }
 
 vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, Material material) {
-    vec3 lambertian_diffuse = material.albedo / PI;
+    vec3 lambertian_diffuse = material.albedo.rgb / PI;
 
     float alpha = material.roughness * material.roughness;
-    vec3 F0 = material.F0;
-    F0 = mix(F0, material.albedo, material.metalness);
+    vec3 F0 = material.F0.rgb;
+    F0 = mix(F0, material.albedo.rgb, material.metalness);
 
     float NDF = NDF_trowbridge_reitz_GGX(view, normal, light, alpha);
     float GF = GF_smith(view, normal, light, alpha);
@@ -258,7 +302,7 @@ vec4 shade(Vertex vert, vec3 ray_dir, Material material) {
     vec3 color = cook_torrance_BRDF(-ray_dir, normal, SUN_DIR, material);
     color *= radiance * max(dot(normal, SUN_DIR), 0.0f);
     
-    color += material.albedo * material.AO * AMBIENT_MULTIPLIER;
+    color += material.albedo.rgb * material.AO * AMBIENT_MULTIPLIER;
     return vec4(color, 1.0f);
 }
 
@@ -268,7 +312,8 @@ vec4 trace(vec3 ray_origin, vec3 ray_dir) {
         // return vec4(0.0f.xxx,1.0f);
         return texture(environment_map, ray_dir);
     }
-    return shade(vert, ray_dir, MATERIAL(vec3(1.0f,0.0f,0.0f)));
+    Material mat = materials[meshes[vert.mesh_index].material_index];
+    return shade(vert, ray_dir, mat);
 }
 
 
@@ -289,7 +334,7 @@ void main() {
     vec4 col = trace(eye, ray);
     // vec4 col;
     // if (pix.x >= 300)
-    //     col = trace(eye, ray);
+    //     col = (materials.length()/2.0f).xxxx;
     // else
     //     col = vec4(1.0f);
     uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y);

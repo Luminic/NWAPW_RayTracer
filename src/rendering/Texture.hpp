@@ -21,6 +21,9 @@ public:
     void resize(unsigned int width, unsigned int height);
 
     unsigned int get_id();
+
+    bool operator==(const Texture& other);
+
 private:
     void set_params(unsigned int tex_id=0); // TODO: add sampler options and make public
 

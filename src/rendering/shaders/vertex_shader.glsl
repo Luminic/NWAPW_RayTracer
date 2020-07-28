@@ -95,6 +95,7 @@ void main() {
     mat4 model = meshes[vert.mesh_index].transformation;
     if (model == mat4(0.0f)) model = mat4(1.0f); // Unset model matrix should default to an identity matrix
     vert.position = model * vert.position;
+    vert.normal = vec4(transpose(inverse(mat3(model))) * vert.normal.xyz, 1.0f);
 
     vertices[index] = vert;
 }

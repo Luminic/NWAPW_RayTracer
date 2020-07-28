@@ -6,7 +6,7 @@
 #include <assimp/postprocess.h>
 #include <vector>
 #include "objects/Vertex.hpp"
-#include "objects/Material.hpp"
+// #include "objects/Material.hpp"
 #include "objects/DynamicMesh.hpp"
 
 Node* ModelLoader3D::load_model(const char* file_path) {
@@ -40,9 +40,9 @@ Node* ModelLoader3D::load_model(const char* file_path) {
         aiGetMaterialColor(meshMaterial, AI_MATKEY_COLOR_AMBIENT, &ambient);
         aiGetMaterialFloat(meshMaterial, AI_MATKEY_SHININESS, &shininess);
 
-        Material material(glm::vec4(specular.r, specular.g, specular.b, shininess),
-                          glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a),
-                          glm::vec4(ambient.r, ambient.g, ambient.b, ambient.a), this);
+        // Material material(glm::vec4(specular.r, specular.g, specular.b, shininess),
+        //                   glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a),
+        //                   glm::vec4(ambient.r, ambient.g, ambient.b, ambient.a), this);
 
         // Get vertices
         std::vector<Vertex> vertices;
