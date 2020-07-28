@@ -11,11 +11,11 @@ static QWidget* loadUiFile(QWidget* parent, QString path) {
 Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer_3D(this) {
     // Load UI
     loadUiFile(parent, "src/Viewport.ui");
-    Ui::Viewport ui;
+
     ui.setupUi(this);
     setFocusPolicy(Qt::StrongFocus);
-    resize(800, 600);
 
+    // Setup viewport
     QGridLayout* layout = findChild<QGridLayout*>("gridLayout");
     layout->addWidget(&gl_widget, 0, 0);
 
@@ -24,6 +24,11 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
     gl_widget.set_renderer(&renderer_3D);
 
     mouse_captured = false;
+
+    // Setup 3D settings ui
+    QWidget* widget3D = findChild<QWidget*>("widget3D");
+    settings3D = new Settings3D();
+    settings3D->setAlignment(widget3D, Qt::AlignRight);
 
 }
 
@@ -85,3 +90,4 @@ void Viewport::release_mouse() {
     releaseMouse();
     setMouseTracking(false);
 }
+

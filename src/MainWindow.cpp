@@ -10,7 +10,7 @@ static QWidget* loadUiFile(QWidget* parent, QString path) {
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Ray tracer");
-    resize(800, 600);
+    resize(1280, 640);
 
     // load the model
     loader3d = new ModelLoader3D(this);
@@ -18,16 +18,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
     model_root_node->transformation = glm::mat4(1.0f)/2.0f;
     scene.add_root_node(model_root_node);
-//    loader4d->load_model("resources/models/pentachron_4D.obj");
-    /*
-    loadUiFile(parent, "src/MainWindow.ui");
-    Ui::MainWindow ui;
-    ui.setupUi(this);
 
-    // Load viewport into UI
-    QWidget *viewportWidget;
-    viewportWidget = findChild<QWidget*>("viewportWidget");
-    */
     viewport = new Viewport(this);
 
     Vertex verts[8] = {

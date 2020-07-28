@@ -1,21 +1,22 @@
 #ifndef SETTINGS_3D_HPP
 #define SETTINGS_3D_HPP
 
-#include <QDockWidget>
+#include <QFormLayout>
 #include <QString>
-#include <QListWidget>
+#include <QLabel>
 
-#include "Viewport.hpp"
+/* Q Form that hooks into Viewport UI to provide access to 3D render
+ * settings.
+*/
 
-class Settings3dWindow : public QDockWidget {
+class Settings3D : public QFormLayout {
     // TODO: add accessors / mutators for settings
-    // TODO: setup .ui file
     Q_OBJECT;
 public:
-    Settings3dWindow(QWidget* parent=nullptr);
-    virtual ~Settings3dWindow();
+    Settings3D(QWidget* parent=nullptr);
+    virtual ~Settings3D();
 
-    QDockWidget* settings3d;
+    QFormLayout* form3D;
 };
 
 #endif

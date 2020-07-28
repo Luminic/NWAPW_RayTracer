@@ -1,11 +1,12 @@
 #include "Settings4D.hpp"
 
-Settings_4D::Settings_4D(QWidget* parent) : QDockWidget(parent) {
-	setWindowTitle("4D Render Settings");
-	resize(800, 600);
-	show();
+Settings4D::Settings4D(QWidget* parent) : QFormLayout(parent) {
+    settings4D = new QFormLayout(parent);
+
+    QLabel* label = new QLabel("4D Settings");
+    settings4D->addWidget(label);
 }
 
-Settings_4D::~Settings_4D() {
+Settings4D::~Settings4D() {
 
 }
