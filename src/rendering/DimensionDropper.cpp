@@ -161,11 +161,11 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
         }
 
         qDebug() << "Vertices:";
-        for (const auto& vertex : mesh3d_vertices)
-            qDebug() << vertex.x << vertex.y << vertex.z;
+        for (const auto& vertex : vertices)
+            qDebug() << vertex.position.x << vertex.position.y << vertex.position.z << ' ' << vertex.normal.x << vertex.normal.y << vertex.normal.z;
         qDebug() << "Indices:";
-        for (unsigned int i = 0; i < mesh3d_indices.size(); i += 3)
-            qDebug() << mesh3d_indices[i+0] << mesh3d_indices[i+1] << mesh3d_indices[i+2];
+        for (unsigned int i = 0; i < indices.size(); i += 3)
+            qDebug() << indices[i+0] << indices[i+1] << indices[i+2];
 
         meshes3d.push_back(new DynamicMesh(vertices, indices, this));
     }

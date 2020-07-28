@@ -9,12 +9,6 @@ static QWidget* loadUiFile(QWidget* parent, QString path) {
     return loader.load(&file, parent);
 }
 
-static void test(DimensionDropper* dropper, Scene* scene, Node* model4d, float slice) {
-    Node* model3d = dropper->drop(model4d, slice);
-    model3d->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f * (slice-0.5f), 0.0f, 0.0f));
-    scene->add_root_node(model3d);
-}
-
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Ray tracer");
     resize(800, 600);
@@ -26,11 +20,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
     model_root_node->transformation = glm::translate(glm::mat4(0.5f), glm::vec3(3.0f, 0.0f, 0.0f));
-    scene.add_root_node(model_root_node);
 
     Node* model4d = loader4d->load_model("resources/models/pentachron_4D.obj");
 
     Node* model3d = dropper->drop(model4d, 0.0f);
+    model3d->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(-3.0f, 0.0f, 0.0f));
     scene.add_root_node(model3d);
 
     /*
