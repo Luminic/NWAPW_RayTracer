@@ -2,10 +2,18 @@
 #define VIEWPORT_HPP
 
 #include <QWidget>
+#include <QApplication>
+#include <QKeyEvent>
+#include <QGridLayout>
+#include <QDebug>
+#include <QtUiTools>
+
 #include "CameraController.hpp"
 #include "rendering/OpenGLWidget.hpp"
 #include "rendering/Renderer3D.hpp"
 #include "rendering/objects/Scene.hpp"
+
+#include "ui_Viewport.h"
 
 class Viewport : public QWidget {
     Q_OBJECT;
