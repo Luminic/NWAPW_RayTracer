@@ -105,7 +105,7 @@ Texture* Renderer3D::render() {
     add_meshes_to_buffer();
     add_materials_to_buffer();
     glUseProgram(vertex_shader.get_id());
-    unsigned int vertex_shader_worksize_x = round_up_to_pow_2(vertex_ssbo_size) / Y_SIZE;
+    unsigned int vertex_shader_worksize_x = round_up_to_pow_2(vertex_ssbo_size) / Y_SIZE + 1;
     unsigned int vertex_shader_worksize_y = Y_SIZE;
     glDispatchCompute(vertex_shader_worksize_x, vertex_shader_worksize_y, 1);
     // Make sure the vertex shader has finished writing

@@ -8,7 +8,8 @@
                 "/usr/include/qt",
                 "/usr/include/qt/QtCore",
                 "/usr/include/qt/QtGui",
-                "/usr/include/qt/QtUiTools"
+                "/usr/include/qt/QtUiTools",
+                "${workspaceFolder}"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
