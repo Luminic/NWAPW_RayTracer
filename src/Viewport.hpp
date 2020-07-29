@@ -9,6 +9,7 @@
 #include <QGridLayout>
 #include <QDebug>
 #include <QtUiTools>
+#include <QDesktopServices>
 
 #include "CameraController.hpp"
 #include "rendering/OpenGLWidget.hpp"
@@ -36,6 +37,13 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
+
+private slots:
+    void on_iterativeRenderCheckBox_toggled(bool checked);
+
+    void on_dynNormals4DSlider_valueChanged(int value);
+
+    void on_label_linkActivated(const QString &link);
 
 private:
     void capture_mouse();

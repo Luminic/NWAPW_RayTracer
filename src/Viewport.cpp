@@ -29,9 +29,8 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
     mouse_captured = false;
 
     // Setup 3D settings ui
-    QWidget* widget3D = findChild<QWidget*>("widget3D");
     settings3D = new Settings3D();
-    settings3D->setAlignment(widget3D, Qt::AlignRight);
+
 }
 
 void Viewport::main_loop(float dt) {
@@ -93,3 +92,18 @@ void Viewport::release_mouse() {
     setMouseTracking(false);
 }
 
+
+void Viewport::on_iterativeRenderCheckBox_toggled(bool checked)
+{
+
+}
+
+void Viewport::on_dynNormals4DSlider_valueChanged(int value)
+{
+
+}
+
+void Viewport::on_label_linkActivated(const QString &link)
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/Luminic/NWAPW_RayTracer"));
+}
