@@ -307,6 +307,8 @@ vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData materia
     return kD*lambertian_diffuse + numer/max(denom, 0.001f);
 }
 
+// TODO: make make some of these (especially shadows)
+// uniforms so they can be controlled in settings
 #define OFFSET 0.0001f
 #define SUN_DIR  normalize(vec3(-0.2f, 1.0f, 0.2f))
 #define SUN_RADIANCE vec3(1.0f);
@@ -346,13 +348,6 @@ vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     return shade(vert, normalize(ray_dir), material_data);
 }
 
-// I'm (Bruce) getting this error:
-// Validation Error: Samplers of different types point to the same texture unit
-// It doesn't seem to be affecting anything, as
-// far as I can see.
-// this might be conflicting with the samplerCube
-// environment map because they're both using the
-// same binding.
 layout (binding = 0, rgba32f) uniform image2D framebuffer;
 layout (local_size_x = 8, local_size_y = 8) in;
 

@@ -128,9 +128,9 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
                 mesh3d_indices.push_back(inds[1]);
                 mesh3d_indices.push_back(inds[2]);
                 if (tetraIntersection.size() == 4) {
-                    mesh3d_indices.push_back(inds[2]);
-                    mesh3d_indices.push_back(inds[3]);
                     mesh3d_indices.push_back(inds[1]);
+                    mesh3d_indices.push_back(inds[3]);
+                    mesh3d_indices.push_back(inds[2]);
                 }
             }
         }
@@ -162,15 +162,24 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
             indices.push_back(i+2);
         }
 
-        qDebug() << "Vertices:";
-        for (const auto& vertex : vertices)
-            qDebug() << vertex.position.x << vertex.position.y << vertex.position.z << ' ' << vertex.normal.x << vertex.normal.y << vertex.normal.z;
-        qDebug() << "Indices:";
-        for (unsigned int i = 0; i < indices.size(); i += 3)
-            qDebug() << indices[i+0] << indices[i+1] << indices[i+2];
+//        if (vertices.size()) {
+//            qDebug() << "Vertices:";
+//            for (const auto& vertex : vertices)
+//                qDebug() << vertex.position.x << vertex.position.y << vertex.position.z << ' ' << vertex.normal.x << vertex.normal.y << vertex.normal.z;
+//        }
+//        if (indices.size()) {
+//            qDebug() << "Indices:";
+//            for (unsigned int i = 0; i < indices.size(); i += 3)
+//              qDebug() << indices[i+0] << indices[i+1] << indices[i+2];
+//        }
 
-        if (vertices.size() && indices.size())
+        if (vertices.size() && indices.size()) {
+            qDebug() << "Mesh" << meshes3d.size() << "has" << vertices.size() << "vertices.";
+            qDebug() << "Mesh" << meshes3d.size() << "has" << indices.size() << "indices.";
+            qDebug() << "Mesh" << meshes3d.size() << "has" << normals.size() << "indices.";
+            qDebug() << "Mesh" << meshes3d.size() << "successfully dropped.";
             meshes3d.push_back(new DynamicMesh(vertices, indices, this));
+        }
     }
 
     return meshes3d.size() ? new Node(meshes3d, this) : nullptr;
