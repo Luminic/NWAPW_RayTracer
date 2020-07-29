@@ -7,27 +7,33 @@
 // glm's built-in operator== is too precise
 // to the point where rounding errors make
 // a big enough difference to not be equal
-static constexpr float epsilon = 0.000001f;
-static bool operator==(const glm::vec3& v1, const glm::vec3& v2) {
-    return std::abs(v1.x - v2.x) < epsilon &&
-           std::abs(v1.y - v2.y) < epsilon &&
-           std::abs(v1.z - v2.z) < epsilon;
-}
+//
+// https://stackoverflow.com/questions/14322299/c-stdfind-with-a-custom-comparator
+struct compare_vec3s : public std::unary_function<glm::vec3, bool> {
+    compare_vec3s(const glm::vec3& v1) : v1(v1) {}
+
+    bool operator()(const glm::vec3& v2) {
+        return std::abs(v1.x - v2.x) < epsilon &&
+               std::abs(v1.y - v2.y) < epsilon &&
+               std::abs(v1.z - v2.z) < epsilon;
+    }
+
+    glm::vec3 v1;
+
+    static constexpr float epsilon = 0.000001f;
+};
 
 Node* DimensionDropper::drop(Node* node4d, float slice) {
     std::vector<AbstractMesh*> meshes3d;
 
     for (const auto& mesh4d : node4d->meshes) {
-        std::vector<glm::vec3> mesh3d_vertices;
-        std::vector<Index> mesh3d_indices;
-
-        // accumulate all intersections
-        std::vector<std::vector<std::vector<glm::vec3>>> intersections;
+        // calculate intersection points
+        std::vector<std::vector<std::pair<glm::vec3, glm::vec3>>> intersections;
 
         // for each tetrahedron in the mesh
         for (size_t i = 0; i < mesh4d->size_indices(); i += 4) {
             // accumulate all intersections for each tetrahedron
-            std::vector<std::vector<glm::vec3>> tetraIntersections;
+            std::vector<std::pair<glm::vec3, glm::vec3>> tetraIntersections;
 
             // get the current tetrahedron
             constexpr unsigned char pointCount = 4;
@@ -38,14 +44,11 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
                 mesh4d->get_vertices()[mesh4d->get_indices()[i + 3]].position
             };
 
-            // calculate the intersection points for the tetrahedron
-
             // for each triangle in the tetrahedron
-            constexpr unsigned char triCount = pointCount - 1;
-            for (unsigned char j = 0; j < triCount; ++j) {
-
+            for (unsigned char j = 0; j < pointCount; ++j) {
                 std::vector<glm::vec3> triIntersections;
 
+                constexpr unsigned char triCount = pointCount - 1;
                 glm::vec4 triPoints[triCount] {
                     points[0 + (j <= 0)],
                     points[1 + (j <= 1)],
@@ -71,76 +74,75 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
                     }
                 }
 
-                tetraIntersections.push_back(triIntersections);
+                // if a single valid line intersection was found in the triangle
+                if (triIntersections.size() == 2 && !compare_vec3s(triIntersections[0])(triIntersections[1]))
+                    tetraIntersections.push_back({triIntersections[0], triIntersections[1]});
             }
 
-            intersections.push_back(tetraIntersections);
+            if (tetraIntersections.size()) // 3 or 4
+               intersections.push_back(tetraIntersections);
         }
 
-        unsigned int currentIndex = 0;
+        // assemble the intersection points into triangles
+        std::vector<glm::vec3> mesh3d_vertices;
+        std::vector<Index> mesh3d_indices;
 
-        for (unsigned int i = 0; i < intersections.size();) {
-            if (intersections[i].size() == 3) {
-//                qDebug() << "is 3\n";
+        // for all tetrahedron with intersections
+        for (const auto& tetraIntersection : intersections) {
+            // if one or two triangles were found
+            if (tetraIntersection.size() == 3 || tetraIntersection.size() == 4) {
+                // temporary pool of indices to add them in order
+                std::vector<Index> inds;
+                inds.reserve(8);
+                Index verts_added = 0;
 
-                std::vector<unsigned int> triIndices;
+                // only add the vertex positions if they are unique
+                for (const auto& line : tetraIntersection) {
+                    auto it_first = std::find_if(mesh3d_vertices.begin(), mesh3d_vertices.end(), compare_vec3s(line.first));
+                    if (it_first == mesh3d_vertices.end()) { inds.push_back((Index)mesh3d_vertices.size()); mesh3d_vertices.push_back(line.first); verts_added++; }
+                    else inds.push_back((Index)(it_first - mesh3d_vertices.begin()));
 
-                for (unsigned int j = 0; j < intersections[i].size();) {
-                    if (intersections[i][j].size() == 2) {
-//                        qDebug() << " is 2\n";
-                        for (const auto &intersection : intersections[i][j]) {
-//                            qDebug() << "  mesh3d.vertices.size() = " << mesh3d_vertices.size() << '\n';
-                            bool found = false;
-
-                            // for every vertex in the mesh
-                            for (unsigned int k = 0; k < mesh3d_vertices.size(); k++) {
-                                // if the vertex exists in the mesh already
-                                if (mesh3d_vertices[k] == intersection) {
-                                    found = true;
-//qDebug() << "found";
-                                    bool found2 = false;
-                                    // for every index in the triangle
-                                    for (unsigned int l = 0; l < triIndices.size(); l++) {
-                                        // if the index exists in the triangle already
-                                        if (triIndices[l] == k) {
-                                            found2 = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!found2)
-                                        triIndices.push_back(k);
-
-                                    break;
-                                }
-                            }
-
-                            // if the vertex isn't already in the mesh
-                            if (!found) {
-                                mesh3d_vertices.push_back(intersection);
-                                triIndices.push_back(currentIndex++);
-                            }
-                        }
-
-                        j++;
-                    } else {
-                        intersections[i].erase(intersections[i].begin() + j);
-                    }
+                    auto it_second = std::find_if(mesh3d_vertices.begin(), mesh3d_vertices.end(), compare_vec3s(line.second));
+                    if (it_second == mesh3d_vertices.end()) { inds.push_back((Index)mesh3d_vertices.size()); mesh3d_vertices.push_back(line.second); verts_added++; }
+                    else inds.push_back((Index)(it_second - mesh3d_vertices.begin()));
                 }
-                mesh3d_indices.insert(mesh3d_indices.end(), triIndices.begin(), triIndices.end());
-                i++;
-            } else {
-                intersections.erase(intersections.begin() + i);
+
+                // remove duplicate indices... weird, I know.
+                std::sort(inds.begin(), inds.end());
+                inds.erase(std::unique(inds.begin(), inds.end()), inds.end());
+
+                // at certain angles, for example 90 degrees,
+                // triangles may be generated that have 0
+                // volume, that is all of their points are
+                // the same point, and since duplicates are
+                // removed, inds will be left with only one
+                // index, and adding any index other than
+                // inds[0] will result in a crash.
+                // if that happens, remove this intersection
+                if (inds.size() < tetraIntersection.size()) {
+                    mesh3d_vertices.erase(mesh3d_vertices.end() - verts_added, mesh3d_vertices.end());
+                    continue;
+                }
+
+                mesh3d_indices.push_back(inds[0]);
+                mesh3d_indices.push_back(inds[1]);
+                mesh3d_indices.push_back(inds[2]);
+                if (tetraIntersection.size() == 4) {
+                    mesh3d_indices.push_back(inds[2]);
+                    mesh3d_indices.push_back(inds[3]);
+                    mesh3d_indices.push_back(inds[1]);
+                }
             }
         }
 
+        // calculate normals and separate vertices with different normals
         std::vector<Vertex> vertices;
         vertices.reserve(mesh3d_vertices.size() * 3);
         std::vector<Index> indices;
         indices.reserve(mesh3d_indices.size());
 
-        // TODO: how to i calculate normals from 4d normals?
-        // this is just taking the 3d normals of each generated triangle
         std::vector<glm::vec4> normals;
+        // for every triangle
         for (unsigned int i = 0; i < mesh3d_indices.size(); i += 3) {
             glm::vec3 p0 = mesh3d_vertices[mesh3d_indices[i+0]];
             glm::vec3 p1 = mesh3d_vertices[mesh3d_indices[i+1]];

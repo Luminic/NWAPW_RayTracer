@@ -344,7 +344,13 @@ vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     return shade(vert, ray_dir, material_data);
 }
 
-
+// I'm (Bruce) getting this error:
+// Validation Error: Samplers of different types point to the same texture unit
+// It doesn't seem to be affecting anything, as
+// far as I can see.
+// this might be conflicting with the samplerCube
+// environment map because they're both using the
+// same binding.
 layout (binding = 0, rgba32f) uniform image2D framebuffer;
 layout (local_size_x = 8, local_size_y = 8) in;
 
