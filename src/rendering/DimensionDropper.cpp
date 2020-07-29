@@ -153,9 +153,9 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
 
             glm::vec4 normal = glm::vec4(glm::normalize(glm::cross(line1, line2)), 0.0f);
 
-            vertices.push_back(Vertex(glm::vec4(p0, 0.0f), normal));
-            vertices.push_back(Vertex(glm::vec4(p1, 0.0f), normal));
-            vertices.push_back(Vertex(glm::vec4(p2, 0.0f), normal));
+            vertices.push_back(Vertex(glm::vec4(p0, 0.0f), normal, glm::vec2(0.0f, 0.0f)));
+            vertices.push_back(Vertex(glm::vec4(p1, 0.0f), normal, glm::vec2(1.0f, 0.0f)));
+            vertices.push_back(Vertex(glm::vec4(p2, 0.0f), normal, glm::vec2(1.0f, 1.0f)));
 
             indices.push_back(i+0);
             indices.push_back(i+1);

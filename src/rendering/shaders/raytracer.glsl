@@ -313,7 +313,7 @@ vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData materia
 #define SUN_DIR  normalize(vec3(-0.2f, 1.0f, 0.2f))
 #define SUN_RADIANCE vec3(3.0f);
 #define SHADOWS 1
-#define AMBIENT_MULTIPLIER 0.5f
+#define AMBIENT_MULTIPLIER 0.1f
 #define BIAS 0.0001f
 vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
     vec3 normal = vert.normal.xyz;
@@ -335,10 +335,10 @@ vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
     return vec4(color, 1.0f);
 }
 
-subroutine vec4 Trace(vec3 ray_origin, vec3 ray_dir);
-subroutine uniform Trace trace;
+//subroutine vec4 Trace(vec3 ray_origin, vec3 ray_dir);
+//subroutine uniform Trace trace;
 
-subroutine(Trace)
+//subroutine(Trace)
 vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
     if (vert.mesh_index == -1) {
