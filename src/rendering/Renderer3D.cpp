@@ -8,6 +8,7 @@ uint32_t round_up_to_pow_2(uint32_t x);
 Renderer3D::Renderer3D(QObject* parent) : QObject(parent) {
     camera = nullptr;
     scene = nullptr;
+    options = new Renderer3DOptions(this, this);
 }
 
 Texture* Renderer3D::initialize(int width, int height) {
@@ -138,6 +139,10 @@ Texture* Renderer3D::render() {
     glUseProgram(0);
 
     return &render_result;
+}
+
+Renderer3DOptions* Renderer3D::get_options() {
+    return options;
 }
 
 void Renderer3D::begin_iterative_rendering() {

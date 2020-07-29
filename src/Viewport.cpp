@@ -43,6 +43,10 @@ void Viewport::set_scene(Scene* scene) {
     renderer_3D.set_scene(scene);
 }
 
+Renderer3DOptions* Viewport::get_renderer_3D_options() {
+    return renderer_3D.get_options();
+}
+
 void Viewport::keyPressEvent(QKeyEvent* event) {
     switch (event->key()) {
         case Qt::Key_Home:

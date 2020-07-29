@@ -44,6 +44,7 @@ HEADERS += src/MainWindow.hpp \
            src/rendering/Shader.hpp \
            src/rendering/Texture.hpp \
            src/rendering/Renderer3D.hpp \
+           src/rendering/Renderer3DOptions.hpp \
            src/rendering/Camera3D.hpp \
            src/rendering/objects/Vertex.hpp \
            src/rendering/objects/AbstractMesh.hpp \
@@ -68,6 +69,7 @@ SOURCES += src/main.cpp \
            src/rendering/Shader.cpp \
            src/rendering/Texture.cpp \
            src/rendering/Renderer3D.cpp \
+           src/rendering/Renderer3DOptions.cpp \
            src/rendering/Camera3D.cpp \
            src/rendering/objects/Vertex.cpp \
            src/rendering/objects/AbstractMesh.cpp \
