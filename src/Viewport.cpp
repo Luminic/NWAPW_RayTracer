@@ -96,18 +96,12 @@ void Viewport::release_mouse() {
     setMouseTracking(false);
 }
 
+void Viewport::on_label_linkActivated(const QString &link)
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/Luminic/NWAPW_RayTracer"));
+}
 
 void Viewport::on_iterativeRenderCheckBox_toggled(bool checked)
 {
 
-}
-
-void Viewport::on_dynNormals4DSlider_valueChanged(int value)
-{
-
-}
-
-void Viewport::on_label_linkActivated(const QString &link)
-{
-    QDesktopServices::openUrl(QUrl("https://github.com/Luminic/NWAPW_RayTracer"));
 }

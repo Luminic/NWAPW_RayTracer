@@ -47,7 +47,7 @@
     <bool>true</bool>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab3D">
     <property name="autoFillBackground">
@@ -113,10 +113,10 @@
       <item row="0" column="1">
        <widget class="QSlider" name="unused4DSlider">
         <property name="minimum">
-         <number>-2</number>
+         <number>-2000</number>
         </property>
         <property name="maximum">
-         <number>2</number>
+         <number>2000</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -125,7 +125,7 @@
          <enum>QSlider::TicksBelow</enum>
         </property>
         <property name="tickInterval">
-         <number>1</number>
+         <number>1000</number>
         </property>
        </widget>
       </item>
