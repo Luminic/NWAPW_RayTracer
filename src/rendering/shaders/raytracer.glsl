@@ -343,6 +343,8 @@ vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Material material = materials[meshes[vert.mesh_index].material_index];
     MaterialData material_data = get_material_data(material, vert.tex_coord);
 
+//    return vec4(((vert.normal.xyz + 1.0f) / 2.0f), 0.0f); // keep this here for debugging
+//    maybe make it a debug setting which of these to return?
     return shade(vert, ray_dir, material_data);
 }
 
