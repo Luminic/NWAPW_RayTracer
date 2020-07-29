@@ -43,8 +43,6 @@ protected:
 private slots:
     void on_iterativeRenderCheckBox_toggled(bool checked);
 
-    void on_dynNormals4DSlider_valueChanged(int value);
-
     void on_label_linkActivated(const QString &link);
 
 private:
