@@ -122,7 +122,7 @@ MaterialData get_material_data(Material material, vec2 tex_coord) {
     MaterialData material_data = MaterialData(material.albedo, material.F0, material.roughness, material.metalness, material.AO);
 
     if (material.albedo_ti != -1) {
-        material_data.albedo = texture(textures[material.albedo_ti], tex_coord);
+        material_data.albedo = pow(texture(textures[material.albedo_ti], tex_coord), 2.2f.xxxx);
     }
     if (material.F0_ti != -1) {
         material_data.F0 = texture(textures[material.F0_ti], tex_coord);
@@ -308,24 +308,23 @@ vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData materia
 }
 
 #define OFFSET 0.0001f
-#define SUN_DIR  normalize(vec3(-0.5f, 1.0f, 0.5f))
-#define SUN_RADIANCE vec3(2.0f);
+#define SUN_DIR  normalize(vec3(-0.2f, 1.0f, 0.2f))
+#define SUN_RADIANCE vec3(1.0f);
 #define SHADOWS 1
-#define AMBIENT_MULTIPLIER 0.5
+#define AMBIENT_MULTIPLIER 0.005
 #define BIAS 0.0001f
 vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
     vec3 normal = vert.normal.xyz;
     // Make the normal always facing the camera
     normal = normalize(normal) * sign(dot(normal, -ray_dir));
 
-    vec3 diffuse = 0.0f.xxx;
-
     vec3 radiance = vec3(0.0f);
-    if (get_vertex_data(vert.position.xyz-SUN_DIR*(NEAR_PLANE-BIAS), SUN_DIR).mesh_index == -1)
+    #if SHADOWS
+        if (get_vertex_data(vert.position.xyz-SUN_DIR*(NEAR_PLANE-BIAS), SUN_DIR).mesh_index == -1)
+            radiance += SUN_RADIANCE;
+    #else
         radiance += SUN_RADIANCE;
-    // #if SHADOWS
-    //     radiance *= shadow_ray(point, SUN_DIR, FAR_PLANE, 32);
-    // #endif
+    #endif
 
     vec3 color = cook_torrance_BRDF(-ray_dir, normal, SUN_DIR, material);
     color *= radiance * max(dot(normal, SUN_DIR), 0.0f);
@@ -337,11 +336,11 @@ vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
 vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
     if (vert.mesh_index == -1) {
-        // return vec4(0.0f.xxx,1.0f);
         return texture(environment_map, ray_dir);
     }
     Material material = materials[meshes[vert.mesh_index].material_index];
     MaterialData material_data = get_material_data(material, vert.tex_coord);
+
     return shade(vert, ray_dir, material_data);
 }
 
