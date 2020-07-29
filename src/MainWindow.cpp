@@ -64,20 +64,24 @@ void MainWindow::resource_initialization() {
 //    model_root_node->transformation = glm::translate(glm::mat4(0.5f), glm::vec3(0.0f, 0.0f, 0.0f));
 //    scene.add_root_node(model_root_node);
 
-    Node* model4d = loader4d->load_model("resources/models/pentachron_4D.obj");
+    Node* model4d = loader4d->load_model("resources/models/pentachron.ob4");
 
     glm::mat4 rotation_matrix(1.0f);
-    constexpr char axis1 = 0, axis2 = 3;
-    for (int j = 0; j < 10; j += 2) {
+    constexpr char axis1 = 0, axis2 = 3, increment = 2;
+    for (int j = 0; j < 10; j += increment) {
         float rotation = glm::radians(j * 10.0f);
         rotation_matrix[axis1][axis1] = cosf(rotation); rotation_matrix[axis1][axis2] = -sinf(rotation);
         rotation_matrix[axis2][axis1] = sinf(rotation); rotation_matrix[axis2][axis2] = cosf(rotation);
 
+        // TODO: put this in vertex_shader.glsl around line 97
+        // to have everything affected by the camera's
+        // 4D rotation/position (which should be 4D settings
+        // if we don't end up implementing an editor).
         std::vector<Vertex>& model4d_vertices = dynamic_cast<DynamicMesh*>(model4d->meshes[0])->modify_vertices();
         for (auto& vertex : model4d_vertices)
             vertex.position = rotation_matrix * vertex.position;
 
-        for (int i = 0; i < 10; i += 2)
+        for (int i = 0; i < 10; i += increment)
             test(dropper, &scene, model4d, i / 10.0f, j);
     }
 
