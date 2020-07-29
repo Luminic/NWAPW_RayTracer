@@ -262,16 +262,15 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
 
 #define PI 3.1415926535f
 
-float NDF_trowbridge_reitz_GGX(vec3 view, vec3 normal, vec3 light, float alpha) {
-    vec3 halfway = normalize(view + light);
+float NDF_trowbridge_reitz_GGX(vec3 normal, vec3 halfway, float alpha) {
     float a2 = alpha * alpha;
 
     return a2 / ( PI * pow( pow(max(dot(normal, halfway), 0.0f), 2) * (a2 - 1) + 1, 2) );
 }
 
-float GF_schlick_GGX(float n_dot_v, float alpha) {
+float GF_schlick_GGX(float n_dot_v, float roughness) {
     // Schlick approximation
-    float k = alpha / 2.0f;
+    float k = (roughness+1.0f)*(roughness+1.0f) / 8.0f;
 
     return n_dot_v / ( n_dot_v * (1-k) + k );
 }
@@ -283,9 +282,9 @@ float GF_smith(vec3 view, vec3 normal, vec3 light, float alpha) {
     return GF_schlick_GGX(n_dot_v, alpha) * GF_schlick_GGX(n_dot_l, alpha);
 }
 
-vec3 F_schlick(vec3 view, vec3 normal, vec3 F0) {
+vec3 F_schlick(vec3 view, vec3 halfway, vec3 F0) {
     // F0 is the reflectivity at normal incidence
-    return F0 + (1.0f - F0) * pow((1.0f - dot(view, normal)), 5);
+    return F0 + (1.0f - F0) * pow((1.0f - dot(view, halfway)), 5);
 }
 
 vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData material) {
@@ -294,10 +293,11 @@ vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData materia
     float alpha = material.roughness * material.roughness;
     vec3 F0 = material.F0.rgb;
     F0 = mix(F0, material.albedo.rgb, material.metalness);
+    vec3 halfway = normalize(view + light);
 
-    float NDF = NDF_trowbridge_reitz_GGX(view, normal, light, alpha);
-    float GF = GF_smith(view, normal, light, alpha);
-    vec3 F = F_schlick(view, normal, F0);
+    float NDF = NDF_trowbridge_reitz_GGX(normal, halfway, alpha);
+    float GF = GF_smith(view, normal, light, material.roughness);
+    vec3 F = F_schlick(view, halfway, F0);
 
     vec3 kD = (1.0f.xxx - F) * (1.0f - material.metalness);
 
