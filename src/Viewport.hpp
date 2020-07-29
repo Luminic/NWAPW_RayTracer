@@ -13,11 +13,11 @@
 #include "CameraController.hpp"
 #include "rendering/OpenGLWidget.hpp"
 #include "rendering/Renderer3D.hpp"
+#include "rendering/Renderer3DOptions.hpp"
 #include "rendering/objects/Scene.hpp"
 
 #include "Settings3D.hpp"
 #include "Settings4D.hpp"
-
 
 
 class Viewport : public QWidget {
@@ -28,6 +28,8 @@ public:
 
     void main_loop(float dt);
     void set_scene(Scene* scene);
+
+    Renderer3DOptions* get_renderer_3D_options();
 
 signals:
     void opengl_initialized();

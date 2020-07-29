@@ -11,6 +11,11 @@
 #include "objects/Vertex.hpp"
 #include "objects/Scene.hpp"
 
+#include "Renderer3DOptions.hpp"
+
+// Forward declaration because they need to know each other
+class Renderer3DOptions;
+
 class Renderer3D : public QObject, protected QOpenGLFunctions_4_5_Core{
     Q_OBJECT;
 public:
@@ -27,6 +32,8 @@ public:
     void set_camera(Camera3D* camera);
     Camera3D* get_camera();
 
+
+    Renderer3DOptions* get_options();
     void begin_iterative_rendering();
     void end_iterative_rendering();
 
@@ -86,6 +93,7 @@ private:
     void set_textures();
 
     Camera3D* camera;
+    Renderer3DOptions* options;
 };
 
 #endif
