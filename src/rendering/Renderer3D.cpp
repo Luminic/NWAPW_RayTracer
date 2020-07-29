@@ -151,31 +151,43 @@ void Renderer3D::add_meshes_to_buffer() {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, static_vertex_ssbo);
         glBufferData(GL_SHADER_STORAGE_BUFFER, nr_static_vertices*sizeof(Vertex), nullptr, GL_STATIC_DRAW);
         re_add_static_meshes = true;
+        qDebug() << static_vertex_ssbo_size;
     }
     if (nr_static_indices != static_index_ssbo_size) {
         static_index_ssbo_size = nr_static_indices;
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, static_index_ssbo);
         glBufferData(GL_SHADER_STORAGE_BUFFER, nr_static_indices*sizeof(Index), nullptr, GL_STATIC_DRAW);
         re_add_static_meshes = true;
+        qDebug() << static_index_ssbo_size;
     }
     if (nr_dynamic_vertices != dynamic_vertex_ssbo_size) {
         dynamic_vertex_ssbo_size = nr_dynamic_vertices;
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, dynamic_vertex_ssbo);
         glBufferData(GL_SHADER_STORAGE_BUFFER, nr_dynamic_vertices*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
+        qDebug() << dynamic_vertex_ssbo_size;
     }
     if (nr_dynamic_indices != dynamic_index_ssbo_size) {
         dynamic_index_ssbo_size = nr_dynamic_indices;
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, dynamic_index_ssbo);
         glBufferData(GL_SHADER_STORAGE_BUFFER, nr_dynamic_indices*sizeof(Index), nullptr, GL_DYNAMIC_DRAW);
+        qDebug() << dynamic_index_ssbo_size;
     }
     if(nr_dynamic_vertices+nr_static_vertices != vertex_ssbo_size) {
         vertex_ssbo_size = nr_dynamic_vertices+nr_static_vertices;
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, vertex_ssbo);
         glBufferData(GL_SHADER_STORAGE_BUFFER, vertex_ssbo_size*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
+        qDebug() << vertex_ssbo_size;
     }
 
     const std::vector<AbstractMesh*>& static_meshes = scene->get_static_meshes();
     if (re_add_static_meshes) {
+        for (auto mesh : static_meshes) {
+            const Vertex* verts = mesh->get_vertices();
+            for (int i=0; i<mesh->size_vertices(); i++) {
+                qDebug() << verts[i].tex_coords.x << verts[i].tex_coords.y;
+            }
+        }
+
         add_mesh_vertices_to_buffer(static_meshes, static_vertex_ssbo);
         add_mesh_indices_to_buffer(static_meshes, static_index_ssbo);
     }
@@ -184,7 +196,6 @@ void Renderer3D::add_meshes_to_buffer() {
     add_mesh_vertices_to_buffer(dynamic_meshes, dynamic_vertex_ssbo, static_meshes.size());
     add_mesh_indices_to_buffer(dynamic_meshes, dynamic_index_ssbo);
 
-    
     // Send mesh data to shaders
     // Get mesh data into opengl_mesh_data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_ssbo);

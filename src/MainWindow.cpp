@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     dropper = new DimensionDropper(this);
 
     Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
-    model_root_node->transformation = glm::mat4(0.5f);
+    model_root_node->transformation = glm::translate(glm::mat4(0.5f), glm::vec3(3.0f, 0.0f, 0.0f));
     scene.add_root_node(model_root_node);
 
     Node* model4d = loader4d->load_model("resources/models/pentachron_4D.obj");
@@ -71,6 +71,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     show();
 
     connect(&timer, &QTimer::timeout, this, &MainWindow::main_loop);
+
     timer.start(16);
     elapsedTimer.start();
 }

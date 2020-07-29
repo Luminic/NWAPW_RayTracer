@@ -1,7 +1,7 @@
 #include "Node.hpp"
 #include <QDebug>
 
-Node::Node(QObject* parent) : QObject(parent) {}
+Node::Node(QObject* parent) : QObject(parent), transformation(1.0f) {}
 
 Node::Node(const std::vector<AbstractMesh*>& meshes, QObject* parent) : QObject(parent), meshes(meshes) {
     transformation = glm::mat4(1.0f);
