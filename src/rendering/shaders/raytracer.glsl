@@ -54,16 +54,90 @@ layout (std430, binding=2) buffer DynamicIndexBuffer {
     int dynamic_indices[];
 };
 
+struct Mesh {
+                          // Base Alignment  // Aligned Offset
+    mat4 transformation;  // 16              // 0
+                          // 16              // 16
+                          // 16              // 32
+                          // 16 (total: 64)  // 48
+
+    int material_index;   // 4               // 64
+    
+    // (PADDING)          // 12              // 68
+    // (12 bytes of padding to pad out struct to a multiple of a vec4 because it will be used in an array)
+
+    // Total Size: 80
+};
+
+layout (std140, binding=5) buffer MeshBuffer {
+    Mesh meshes[];
+    //          // Base Alignment  // Aligned Offset
+    // mesh[0]  // 80              // 0
+    // mesh[1]  // 80              // 80
+    // mesh[3]  // 80              // 160
+    // ...
+};
+
+#define MAX_NR_TEXTURES 20
+// From binding 1 (GL_TEXTURE1) to binding MAX_NR_TEXTURES (GL_TEXTURE1 + MAX_NR_TEXTURES)
+uniform sampler2D textures[MAX_NR_TEXTURES];
 
 struct Material {
-    vec3 albedo;
-    vec3 F0;
+    // textures_index corresponds to textured_materials[textures_index] if the
+    // material has textures
+
+                        // Base Alignment  // Aligned Offset
+    vec4 albedo;        // 16              // 0
+    vec4 F0;            // 16              // 16
+    float roughness;    // 4               // 32
+    float metalness;    // 4               // 36
+    float AO;           // 4               // 40
+
+    // The following ints are texture indices
+
+    int albedo_ti;         // 4               // 44
+    int F0_ti;             // 4               // 48
+    int roughness_ti;      // 4               // 52
+    int metalness_ti;      // 4               // 56
+    int AO_ti;             // 4               // 60
+
+    // Total Size: 64
+};
+
+layout(std140, binding=6) buffer MaterialBuffer {
+    Material materials[];
+};
+
+// The per-pixel material data once the textures have been read
+// and added to the color information
+struct MaterialData {
+    vec4 albedo;
+    vec4 F0;
     float roughness;
     float metalness;
     float AO;
 };
-#define DEFAULT_MATERIAL Material(vec3(1.0f), vec3(0.05f), 0.3f, 1.0f, 0.5f)
-#define MATERIAL(x) Material(x, vec3(0.05f), 0.3f, 1.0f, 0.5f)
+
+MaterialData get_material_data(Material material, vec2 tex_coord) {
+    MaterialData material_data = MaterialData(material.albedo, material.F0, material.roughness, material.metalness, material.AO);
+
+    if (material.albedo_ti != -1) {
+        material_data.albedo = pow(texture(textures[material.albedo_ti], tex_coord), 2.2f.xxxx);
+    }
+    if (material.F0_ti != -1) {
+        material_data.F0 = texture(textures[material.F0_ti], tex_coord);
+    }
+    if (material.roughness_ti != -1) {
+        material_data.roughness = texture(textures[material.roughness_ti], tex_coord).r;
+    }
+    if (material.metalness_ti != -1) {
+        material_data.metalness = texture(textures[material.metalness_ti], tex_coord).g;
+    }
+    if (material.AO_ti != -1) {
+        material_data.AO = texture(textures[material.AO_ti], tex_coord).b;
+    }
+    return material_data;
+}
 
 
 uniform vec3 eye;
@@ -72,7 +146,7 @@ uniform vec3 ray10;
 uniform vec3 ray01;
 uniform vec3 ray11;
 
-layout (binding = 1) uniform samplerCube environment_map;
+layout (binding = 0) uniform samplerCube environment_map;
 
 // Prev_rand should be initialized to the seed once when the this shader is invocated
 uint rand(uint prev_rand) {
@@ -214,12 +288,12 @@ vec3 F_schlick(vec3 view, vec3 normal, vec3 F0) {
     return F0 + (1.0f - F0) * pow((1.0f - dot(view, normal)), 5);
 }
 
-vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, Material material) {
-    vec3 lambertian_diffuse = material.albedo / PI;
+vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData material) {
+    vec3 lambertian_diffuse = material.albedo.rgb / PI;
 
     float alpha = material.roughness * material.roughness;
-    vec3 F0 = material.F0;
-    F0 = mix(F0, material.albedo, material.metalness);
+    vec3 F0 = material.F0.rgb;
+    F0 = mix(F0, material.albedo.rgb, material.metalness);
 
     float NDF = NDF_trowbridge_reitz_GGX(view, normal, light, alpha);
     float GF = GF_smith(view, normal, light, alpha);
@@ -234,45 +308,49 @@ vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, Material material) {
 }
 
 #define OFFSET 0.0001f
-#define SUN_DIR  normalize(vec3(-0.5f, 1.0f, 0.5f))
-#define SUN_RADIANCE vec3(2.0f);
+#define SUN_DIR  normalize(vec3(-0.2f, 1.0f, 0.2f))
+#define SUN_RADIANCE vec3(1.0f);
 #define SHADOWS 1
-#define AMBIENT_MULTIPLIER 0.03
+#define AMBIENT_MULTIPLIER 0.005
 #define BIAS 0.0001f
-vec4 shade(Vertex vert, vec3 ray_dir, Material material) {
-    Material tmp;
-    bool tmp2;
+vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
     vec3 normal = vert.normal.xyz;
     // Make the normal always facing the camera
     normal = normalize(normal) * sign(dot(normal, -ray_dir));
 
-    vec3 diffuse = 0.0f.xxx;
-
     vec3 radiance = vec3(0.0f);
-    if (get_vertex_data(vert.position.xyz-SUN_DIR*(NEAR_PLANE-BIAS), SUN_DIR).mesh_index == -1)
+    #if SHADOWS
+        if (get_vertex_data(vert.position.xyz-SUN_DIR*(NEAR_PLANE-BIAS), SUN_DIR).mesh_index == -1)
+            radiance += SUN_RADIANCE;
+    #else
         radiance += SUN_RADIANCE;
-    // #if SHADOWS
-    //     radiance *= shadow_ray(point, SUN_DIR, FAR_PLANE, 32);
-    // #endif
+    #endif
 
     vec3 color = cook_torrance_BRDF(-ray_dir, normal, SUN_DIR, material);
     color *= radiance * max(dot(normal, SUN_DIR), 0.0f);
     
-    color += material.albedo * material.AO * AMBIENT_MULTIPLIER;
+    color += material.albedo.rgb * material.AO * AMBIENT_MULTIPLIER;
     return vec4(color, 1.0f);
 }
 
 vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
     if (vert.mesh_index == -1) {
-        // return vec4(0.0f.xxx,1.0f);
         return texture(environment_map, ray_dir);
     }
-    return shade(vert, ray_dir, MATERIAL(vec3(1.0f,0.0f,0.0f)));
-    //return vert.normal;
+    Material material = materials[meshes[vert.mesh_index].material_index];
+    MaterialData material_data = get_material_data(material, vert.tex_coord);
+
+    return shade(vert, ray_dir, material_data);
 }
 
-
+// I'm (Bruce) getting this error:
+// Validation Error: Samplers of different types point to the same texture unit
+// It doesn't seem to be affecting anything, as
+// far as I can see.
+// this might be conflicting with the samplerCube
+// environment map because they're both using the
+// same binding.
 layout (binding = 0, rgba32f) uniform image2D framebuffer;
 layout (local_size_x = 8, local_size_y = 8) in;
 
@@ -290,7 +368,7 @@ void main() {
     vec4 col = trace(eye, ray);
     // vec4 col;
     // if (pix.x >= 300)
-    //     col = trace(eye, ray);
+    //     col = (materials.length()/2.0f).xxxx;
     // else
     //     col = vec4(1.0f);
     uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y);

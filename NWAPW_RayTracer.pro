@@ -53,6 +53,7 @@ HEADERS += src/MainWindow.hpp \
            src/rendering/objects/Node.hpp \
            src/rendering/objects/Scene.hpp \
            src/rendering/objects/Material.hpp \
+           src/rendering/objects/MaterialManager.hpp \
            src/rendering/ModelLoader3D.hpp \
            src/rendering/ModelLoader4D.hpp \
            src/rendering/DimensionDropper.hpp \
@@ -71,9 +72,10 @@ SOURCES += src/main.cpp \
            src/rendering/objects/Vertex.cpp \
            src/rendering/objects/AbstractMesh.cpp \
            src/rendering/objects/DynamicMesh.cpp \
-           src/rendering/objects/Scene.cpp \
            src/rendering/objects/Node.cpp \
+           src/rendering/objects/Scene.cpp \
            src/rendering/objects/Material.cpp \
+           src/rendering/objects/MaterialManager.cpp \
            src/rendering/ModelLoader3D.cpp \
            src/rendering/ModelLoader4D.cpp \
            src/rendering/DimensionDropper.cpp \

@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <QDebug>
 
-AbstractMesh::AbstractMesh(QObject* parent) : QObject(parent) {}
+AbstractMesh::AbstractMesh(QObject* parent) : QObject(parent) {
+    material_index = 0;
+}
 
 void AbstractMesh::as_byte_array(unsigned char byte_array[mesh_size_in_opengl], const glm::mat4& transformation) const {
     unsigned char const* tmp = reinterpret_cast<unsigned char const*>(glm::value_ptr(transformation));

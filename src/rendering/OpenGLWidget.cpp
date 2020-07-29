@@ -93,6 +93,8 @@ void OpenGLWidget::initializeGL() {
         render_result = new Texture(this);
         render_result->load("resources/textures/awesomeface.png");
     }
+
+    emit opengl_initialized();
 }
 
 void OpenGLWidget::set_renderer(Renderer3D* renderer) {

@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "Shader.hpp"
-#include "Texture.hpp"
 #include "Camera3D.hpp"
+#include "Texture.hpp"
 #include "objects/Vertex.hpp"
 #include "objects/Scene.hpp"
 
@@ -26,6 +26,7 @@ public:
 
     void set_camera(Camera3D* camera);
     Camera3D* get_camera();
+
 private:
     Texture environment_map;
 
@@ -61,15 +62,20 @@ private:
     unsigned int mesh_ssbo;
     int mesh_ssbo_size;
 
+    unsigned int material_ssbo;
+    int material_ssbo_size;
+
     int width;
     int height;
 
     Scene* scene;
     void add_meshes_to_buffer();
-
-    // This functionality might be added to AbstractMesh if i can figure out a clean way to pass ogl functions
     void add_mesh_vertices_to_buffer(const std::vector<AbstractMesh*>& meshes, unsigned int vert_ssbo, int mesh_index_offset=0);
     void add_mesh_indices_to_buffer(const std::vector<AbstractMesh*>& meshes, unsigned int ind_ssbo);
+
+    void add_materials_to_buffer();
+
+    void set_textures();
 
     Camera3D* camera;
 };

@@ -1,16 +1,13 @@
 #include "Settings3D.hpp"
-// #include "ui_Settings3D.h"
 
-Settings3dWindow::Settings3dWindow(QWidget* parent) : QDockWidget(parent) {
-    settings3d = new QDockWidget(tr("3D Rendering Settings"), parent);
-    settings3d->setAllowedAreas(Qt::RightDockWidgetArea);
-    QListWidget* list = new QListWidget(settings3d);
-    // TODO: get settings from respective classes, maybe as an array
-    // list.additem("Some setting here")
-    resize(800, 600);
-    show();
+Settings3D::Settings3D(QWidget* parent) : QFormLayout(parent) {
+    form3D = new QFormLayout(parent);
+
+    QLabel* label = new QLabel("3D Settings");
+    form3D->addWidget(label);
+
 }
 
-Settings3dWindow::~Settings3dWindow() {
+Settings3D::~Settings3D() {
 
 }

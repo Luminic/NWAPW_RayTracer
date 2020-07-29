@@ -2,19 +2,44 @@
 #define MATERIAL_HPP
 
 #include <QObject>
+#include <memory>
 #include <glm/glm.hpp>
 
-class Material : public QObject {
-    Q_OBJECT;
-public:
-    Material(const glm::vec4& specular, const glm::vec4& diffuse, const glm::vec4& ambient, QObject* parent=nullptr);
-    virtual ~Material() {}
+constexpr int material_size_in_opengl = 64;
 
-    inline const glm::vec4& get_specular() const { return specular; }
-    inline const glm::vec4& get_diffuse() const { return diffuse; }
-    inline const glm::vec4& get_ambient() const { return ambient; }
-private:
-    glm::vec4 specular, diffuse, ambient;
+struct Material {
+                        // Base Alignment  // Aligned Offset
+    glm::vec4 albedo;   // 4               // 0
+                        // 4               // 4
+                        // 4               // 8
+                        // 4               // 12
+
+    glm::vec4 F0;       // 4               // 16
+                        // 4               // 20
+                        // 4               // 24
+                        // 4               // 28
+
+    float roughness;    // 4               // 32
+    float metalness;    // 4               // 36
+    float AO;           // 4               // 40
+
+    // Texture indices
+
+    int albedo_ti;      // 4               // 44
+    int F0_ti;          // 4               // 48
+    int roughness_ti;   // 4               // 52
+    int metalness_ti;   // 4               // 56
+    int AO_ti;          // 4               // 60
+
+    // Total Size: 64
+
+    Material(glm::vec4 albedo, glm::vec4 F0=glm::vec4(0.04f), float roughness=0.5f, float metalness=0.0f, float AO=0.1f);
+    Material() = default;
+
+    void as_byte_array(unsigned char byte_array[material_size_in_opengl]) const;
+
+    bool operator==(const Material& other);
 };
+constexpr bool material_is_opengl_compatible = (sizeof(Material) == material_size_in_opengl) && std::is_standard_layout<Material>::value;
 
 #endif

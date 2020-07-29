@@ -1,16 +1,22 @@
-#ifndef SETTINGS_4D
-#define SETTINGS_4D
+#ifndef SETTINGS_4D_HPP
+#define SETTINGS_4D_HPP
 
-#include <QDockWidget>
+#include <QFormLayout>
 #include <QString>
+#include <QLabel>
 
-class Settings_4D : public QDockWidget {
-    // TODO: add list of useful settings
-    // TODO: add GUI for said settings
+/* Q Form that hooks into Viewport UI to provide access to 4D render
+ * settings.
+*/
+
+class Settings4D : public QFormLayout {
+    // TODO: add accessors / mutators for settings
     Q_OBJECT;
 public:
-    Settings_4D(QWidget* parent=nullptr);
-    virtual ~Settings_4D();
+    Settings4D(QWidget* parent=nullptr);
+    virtual ~Settings4D();
+
+    QFormLayout* settings4D;
 };
 
 #endif
