@@ -335,10 +335,10 @@ vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
     return vec4(color, 1.0f);
 }
 
-subroutine vec4 Trace(vec3 ray_origin, vec3 ray_dir);
-subroutine uniform Trace trace;
+//subroutine vec4 Trace(vec3 ray_origin, vec3 ray_dir);
+//subroutine uniform Trace trace;
 
-subroutine(Trace)
+//subroutine(Trace)
 vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
     if (vert.mesh_index == -1) {
