@@ -9,6 +9,8 @@
 
 #include <QObject>
 
+#include "rendering/Renderer3DOptions.hpp"
+
 class Settings3D : public QObject {
     // TODO: add accessors / mutators for settings
     Q_OBJECT;
@@ -17,6 +19,9 @@ public:
     virtual ~Settings3D();
 
 
+    void toggle_iterative_rendering(bool toggle, Renderer3DOptions* options3D);
+
+private:
 };
 
 #endif
