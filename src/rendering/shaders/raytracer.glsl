@@ -311,9 +311,9 @@ vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData materia
 // uniforms so they can be controlled in settings
 #define OFFSET 0.0001f
 #define SUN_DIR  normalize(vec3(-0.2f, 1.0f, 0.2f))
-#define SUN_RADIANCE vec3(1.0f);
+#define SUN_RADIANCE vec3(3.0f);
 #define SHADOWS 1
-#define AMBIENT_MULTIPLIER 0.05
+#define AMBIENT_MULTIPLIER 0.5f
 #define BIAS 0.0001f
 vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
     vec3 normal = vert.normal.xyz;
