@@ -15,6 +15,8 @@ Texture* Renderer3D::initialize(int width, int height) {
     this->width = width;
     this->height = height;
 
+    iterative_rendering = false;
+
     if (camera) {
         camera->update_perspective_matrix(float(width)/height);
     }
@@ -136,6 +138,14 @@ Texture* Renderer3D::render() {
     glUseProgram(0);
 
     return &render_result;
+}
+
+void Renderer3D::begin_iterative_rendering() {
+    iterative_rendering = true;
+}
+
+void Renderer3D::end_iterative_rendering() {
+    iterative_rendering = false;
 }
 
 void Renderer3D::add_meshes_to_buffer() {

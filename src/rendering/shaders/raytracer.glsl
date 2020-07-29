@@ -78,7 +78,7 @@ layout (std140, binding=5) buffer MeshBuffer {
     // ...
 };
 
-#define MAX_NR_TEXTURES 20
+#define MAX_NR_TEXTURES 3
 // From binding 1 (GL_TEXTURE1) to binding MAX_NR_TEXTURES (GL_TEXTURE1 + MAX_NR_TEXTURES)
 uniform sampler2D textures[MAX_NR_TEXTURES];
 
@@ -284,7 +284,7 @@ float GF_smith(vec3 view, vec3 normal, vec3 light, float alpha) {
 
 vec3 F_schlick(vec3 view, vec3 halfway, vec3 F0) {
     // F0 is the reflectivity at normal incidence
-    return F0 + (1.0f - F0) * pow((1.0f - dot(view, halfway)), 5);
+    return F0 + (1.0f - F0) * pow((1.0f - max(dot(view, halfway), 0.0f)), 5);
 }
 
 vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData material) {
@@ -311,7 +311,7 @@ vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData materia
 #define SUN_DIR  normalize(vec3(-0.2f, 1.0f, 0.2f))
 #define SUN_RADIANCE vec3(1.0f);
 #define SHADOWS 1
-#define AMBIENT_MULTIPLIER 0.005
+#define AMBIENT_MULTIPLIER 0.05
 #define BIAS 0.0001f
 vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
     vec3 normal = vert.normal.xyz;
@@ -333,6 +333,8 @@ vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
     return vec4(color, 1.0f);
 }
 
+// subroutine vec4 renderer(vec3 ray_origin, vec3 ray_dir);
+
 vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
     if (vert.mesh_index == -1) {
@@ -341,7 +343,7 @@ vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     Material material = materials[meshes[vert.mesh_index].material_index];
     MaterialData material_data = get_material_data(material, vert.tex_coord);
 
-    return shade(vert, ray_dir, material_data);
+    return shade(vert, normalize(ray_dir), material_data);
 }
 
 // I'm (Bruce) getting this error:
@@ -366,19 +368,11 @@ void main() {
     vec3 ray = mix(mix(ray00, ray10, tex_coords.x), mix(ray01, ray11, tex_coords.x), tex_coords.y);
 
     vec4 col = trace(eye, ray);
-    // vec4 col;
-    // if (pix.x >= 300)
-    //     col = (materials.length()/2.0f).xxxx;
-    // else
-    //     col = vec4(1.0f);
-    uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y);
-    // uint prev_rand = 5;
-    for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {
-        prev_rand = rand(prev_rand);
-    }
-    // prev_rand = (prev_rand >> 16);// & uint(1<<30 - 1);
-    // vec4 col = vec4(rand(prev_rand).xxxx / float(1<<24));
-    // vec4 col = prev_rand.xxxx/float(size.y*size.x);
+
+    // uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y);
+    // for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {
+    //     prev_rand = rand(prev_rand);
+    // }
 
     imageStore(framebuffer, pix, col);
 }

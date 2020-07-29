@@ -76,6 +76,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 }
 
 void MainWindow::resource_initialization() {
+    qDebug() << "resource initialization";
+
     MaterialManager& material_manager = scene.get_material_manager();
     Material mat(glm::vec4(0.0f,1.0f,0.0f,1.0f));
     mat.metalness = 1.0f;

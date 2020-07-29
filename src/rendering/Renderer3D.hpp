@@ -27,6 +27,9 @@ public:
     void set_camera(Camera3D* camera);
     Camera3D* get_camera();
 
+    void begin_iterative_rendering();
+    void end_iterative_rendering();
+
 private:
     Texture environment_map;
 
@@ -67,6 +70,11 @@ private:
 
     int width;
     int height;
+
+    // Iterative rendering
+    bool iterative_rendering;
+    // Texture scene_geometry;
+    // Texture scene_normals;
 
     Scene* scene;
     void add_meshes_to_buffer();
