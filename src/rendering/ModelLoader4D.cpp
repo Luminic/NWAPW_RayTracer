@@ -5,6 +5,12 @@
 #include <QRegularExpression>
 #include "objects/DynamicMesh.hpp"
 
+bool operator==(const vert& vert1, const vert& vert2) {
+    return vert1.position_index  == vert2.position_index &&
+           vert1.normal_index    == vert2.normal_index   &&
+           vert1.tex_coord_index == vert2.tex_coord_index;
+}
+
 // NOTE: this does NOT handle any malformed files
 Node* ModelLoader4D::load_model(const char* file_path) {
     QFile file(file_path);
@@ -14,25 +20,26 @@ Node* ModelLoader4D::load_model(const char* file_path) {
         return nullptr;
     }
 
+    // all of the meshes in the file
+    std::vector<AbstractMesh*> meshes;
+
     // the actual data
     std::vector<glm::vec4> positions;
     std::vector<glm::vec4> normals;
     std::vector<glm::vec2> tex_coords;
 
-    // mock vertices that store the indices into the data
+    // mock vertices that store the indices into "the actual data"
     std::vector<vert> verts;
 
     std::vector<Index> indices;
-    Index currentIndex = 0;
+    Index face_indices = 0;
 
     bool loading_file = true;
     do {
+        // get the line and tokenize it
         QString line(file.readLine().toStdString().c_str());
-//        qDebug() << "Line:" << line;
-
         QRegularExpression regex("[ |\r|\n]"); // \\w+ doesn't work :P
         QStringList tokens = line.split(regex);
-//        qDebug() << tokens;
 
         if (tokens[0] == "v") {
             positions.emplace_back(tokens[1].toFloat(), tokens[2].toFloat(), tokens[3].toFloat(), tokens[4].toFloat());
@@ -41,7 +48,8 @@ Node* ModelLoader4D::load_model(const char* file_path) {
         } else if (tokens[0] == "vn") {
             normals.emplace_back(tokens[1].toFloat(), tokens[2].toFloat(), tokens[3].toFloat(), tokens[4].toFloat());
         } else if (tokens[0] == "f") {
-            for (unsigned char i = 1; i < 5; i++) {
+            qDebug() << tokens.size();
+            for (unsigned char i = 1; i < face_indices; i++) {
                 QStringList vertex_data = tokens[i].split('/');
 
                 vert vertex{vertex_data[0].toUInt() - 1, 0, 0};
@@ -50,34 +58,38 @@ Node* ModelLoader4D::load_model(const char* file_path) {
                 if (vertex_data.length() == 3)
                     vertex.normal_index = vertex_data[2].toUInt() - 1;
 
-                bool found = false;
-                for (unsigned int j = 0; j < verts.size(); j++) {
-                    if (vertex == verts[j]) {
-                        found = true;
-                        indices.push_back(j);
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    verts.push_back(vertex);
-                    indices.push_back(currentIndex++);
-                }
+                auto it = std::find(verts.begin(), verts.end(), vertex);
+                if (it != verts.end()) indices.push_back((Index)(it - verts.begin()));
+                else { indices.push_back((Index)verts.size()); verts.push_back(vertex); }
             }
+        } // new mesh
+        else if (tokens[0] == "nm") {
+            store_mesh(verts, indices, positions, normals, tex_coords, meshes);
+            verts.clear();
+            indices.clear();
+            positions.clear();
+            normals.clear();
+            tex_coords.clear();
+            face_indices = tokens[1].toUInt() + 1;
         }
 
         if (!line.size()) loading_file = false;
     } while (loading_file);
     file.close();
 
-//    qDebug() << verts.size() << indices.size() << positions.size() << normals.size() << tex_coords.size();
-//    qDebug() << "Verts:";
-//    for (unsigned int i = 0; i < verts.size(); i++)
-//        qDebug() << verts[i].position_index << verts[i].normal_index << verts[i].tex_coord_index;
+    // get the last mesh in the file
+    store_mesh(verts, indices, positions, normals, tex_coords, meshes);
+    return new Node(meshes, this);
+}
 
-//    qDebug() << "Indices:";
-//    for (unsigned int i = 0; i < indices.size(); i += 4)
-//        qDebug() << indices[i+0] << indices[i+1] << indices[i+2] << indices[i+3];
+void ModelLoader4D::store_mesh(const std::vector<vert>& verts,
+                const std::vector<Index>& indices,
+                const std::vector<glm::vec4>& positions,
+                const std::vector<glm::vec4>& normals,
+                const std::vector<glm::vec2>& tex_coords,
+                std::vector<AbstractMesh*>& meshes) {
+    if (!indices.size())
+        return;
 
     std::vector<Vertex> vertices;
     vertices.reserve(verts.size());
@@ -92,8 +104,5 @@ Node* ModelLoader4D::load_model(const char* file_path) {
             vertices.emplace_back(positions[vert.position_index]);
     }
 
-    DynamicMesh* mesh = new DynamicMesh(vertices, indices, this);
-    std::vector<AbstractMesh*> meshes;
-    meshes.push_back(mesh);
-    return new Node(meshes, this);
+    meshes.push_back(new DynamicMesh(vertices, indices, this));
 }

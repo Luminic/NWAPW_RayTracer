@@ -37,7 +37,6 @@ private:
 
     Scene scene; // if viewport and loader are pointers, should this?
     Viewport* viewport;
-    //QPushButton* 3DSettings = QPushButton("3D Settings");
     ModelLoader3D* loader3d;
     ModelLoader4D* loader4d;
     DimensionDropper* dropper;

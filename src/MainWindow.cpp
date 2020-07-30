@@ -13,10 +13,10 @@ static glm::mat4 transform(const glm::vec3& position, float rotation, const glm:
     return glm::translate(glm::rotate(glm::scale(glm::mat4(1.0f), scalar), rotation, rotation_axis), position);
 }
 
-static void test(DimensionDropper* dropper, Scene* scene, Node* model4d, float slice) {
+static void test(DimensionDropper* dropper, Scene* scene, Node* model4d, float slice, int row) {
     Node* model3d = dropper->drop(model4d, slice);
     if (model3d) {
-        model3d->transformation = transform(glm::vec3(20.0f * (slice - 0.5f), 0.0f, 0.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f));
+        model3d->transformation = transform(glm::vec3(20.0f * (slice - 0.5f), 0.0f, (row + 2) * -2.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f));
         scene->add_root_node(model3d);
     }
 }
@@ -27,41 +27,13 @@ static void print_matrix(const glm::mat4& matrix) {
 }
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    setWindowTitle("Ray tracer");
+    setWindowTitle("Ray Tracer");
     resize(1280, 640);
 
-    // load the model
     loader3d = new ModelLoader3D(this);
     loader4d = new ModelLoader4D(this);
     dropper = new DimensionDropper(this);
 
-    Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
-    model_root_node->transformation = glm::translate(glm::mat4(0.5f), glm::vec3(3.0f, 0.0f, 0.0f));
-    scene.add_root_node(model_root_node);
-
-    Node* model4d = loader4d->load_model("resources/models/pentachron_4D.obj");
-
-    glm::mat4 rotation_matrix(1.0f);
-    constexpr float rotation = glm::radians(90.0f);
-    rotation_matrix[2][2] = cosf(rotation); rotation_matrix[2][3] = -sinf(rotation);
-    rotation_matrix[3][2] = sinf(rotation); rotation_matrix[3][3] = cosf(rotation);
-
-    std::vector<Vertex>& model4d_vertices = dynamic_cast<DynamicMesh*>(model4d->meshes[0])->modify_vertices();
-    for (auto& vertex : model4d_vertices)
-        vertex.position = rotation_matrix * vertex.position;
-
-    for (int i = 0; i < 10; i++)
-        test(dropper, &scene, model4d, i / 10.0f);
-
-    /*
-    loadUiFile(parent, "src/MainWindow.ui");
-    Ui::MainWindow ui;
-    ui.setupUi(this);
-
-    // Load viewport into UI
-    QWidget *viewportWidget;
-    viewportWidget = findChild<QWidget*>("viewportWidget");
-    */
     viewport = new Viewport(this);
     connect(viewport, &Viewport::opengl_initialized, this, &MainWindow::resource_initialization);
 
@@ -78,6 +50,33 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
 void MainWindow::resource_initialization() {
     qDebug() << "resource initialization";
+
+//    Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
+//    model_root_node->transformation = glm::translate(glm::mat4(0.5f), glm::vec3(0.0f, 0.0f, 0.0f));
+//    scene.add_root_node(model_root_node);
+
+    Node* model4d = loader4d->load_model("resources/models/pentachron.ob4");
+
+    glm::mat4 rotation_matrix(1.0f);
+    constexpr char axis1 = 0, axis2 = 3, increment = 2;
+    for (int j = 0; j < 10; j += increment) {
+        float rotation = glm::radians(j * 10.0f);
+        rotation_matrix[axis1][axis1] = cosf(rotation); rotation_matrix[axis1][axis2] = -sinf(rotation);
+        rotation_matrix[axis2][axis1] = sinf(rotation); rotation_matrix[axis2][axis2] = cosf(rotation);
+
+        // TODO: put this in vertex_shader.glsl around line 97
+        // to have everything affected by the camera's
+        // 4D rotation/position (which should be 4D settings
+        // if we don't end up implementing an editor).
+        for (auto mesh : model4d->meshes) {
+            std::vector<Vertex>& model4d_vertices = dynamic_cast<DynamicMesh*>(mesh)->modify_vertices();
+            for (auto& vertex : model4d_vertices)
+                vertex.position = rotation_matrix * vertex.position;
+        }
+
+        for (int i = 0; i < 10; i += increment)
+            test(dropper, &scene, model4d, i / 10.0f, j);
+    }
 
     MaterialManager& material_manager = scene.get_material_manager();
     Material mat(glm::vec4(0.0f,1.0f,0.0f,1.0f));

@@ -29,9 +29,8 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
     mouse_captured = false;
 
     // Setup 3D settings ui
-    QWidget* widget3D = findChild<QWidget*>("widget3D");
-    settings3D = new Settings3D();
-    settings3D->setAlignment(widget3D, Qt::AlignRight);
+    settings3D = new Settings3D(this);
+
 }
 
 void Viewport::main_loop(float dt) {
@@ -97,3 +96,7 @@ void Viewport::release_mouse() {
     setMouseTracking(false);
 }
 
+void Viewport::on_iterativeRenderCheckBox_toggled(bool checked)
+{
+    settings3D->toggle_iterative_rendering(checked, get_renderer_3D_options());
+}

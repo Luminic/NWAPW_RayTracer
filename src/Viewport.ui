@@ -10,6 +10,11 @@
     <height>640</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -18,7 +23,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>591</width>
+     <width>741</width>
      <height>601</height>
     </rect>
    </property>
@@ -27,7 +32,7 @@
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>630</x>
+     <x>770</x>
      <y>20</y>
      <width>411</width>
      <height>581</height>
@@ -38,10 +43,16 @@
      <pointsize>10</pointsize>
     </font>
    </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab3D">
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
     <attribute name="title">
      <string>3D Settings</string>
     </attribute>
@@ -51,10 +62,13 @@
        <x>0</x>
        <y>0</y>
        <width>401</width>
-       <height>551</height>
+       <height>541</height>
       </rect>
      </property>
-     <layout class="QFormLayout" name="formLayout_3">
+     <layout class="QFormLayout" name="formLayout3D">
+      <property name="topMargin">
+       <number>5</number>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="font">
@@ -70,7 +84,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="iterativeRenderCheckBox">
         <property name="text">
          <string/>
         </property>
@@ -80,6 +94,9 @@
     </widget>
    </widget>
    <widget class="QWidget" name="tab4D">
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
     <attribute name="title">
      <string>4D Settings</string>
     </attribute>
@@ -89,10 +106,32 @@
        <x>0</x>
        <y>0</y>
        <width>401</width>
-       <height>551</height>
+       <height>541</height>
       </rect>
      </property>
-     <layout class="QFormLayout" name="formLayout_2">
+     <layout class="QFormLayout" name="formLayout4D">
+      <property name="topMargin">
+       <number>5</number>
+      </property>
+      <item row="0" column="1">
+       <widget class="QSlider" name="unused4DSlider">
+        <property name="minimum">
+         <number>-2000</number>
+        </property>
+        <property name="maximum">
+         <number>2000</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksBelow</enum>
+        </property>
+        <property name="tickInterval">
+         <number>1000</number>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="font">
@@ -103,32 +142,52 @@
          </font>
         </property>
         <property name="text">
-         <string>Dynamically Calculate Normals</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QSlider" name="dynNormals4DSlider">
-        <property name="minimum">
-         <number>-2</number>
-        </property>
-        <property name="maximum">
-         <number>2</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="tickPosition">
-         <enum>QSlider::TicksBelow</enum>
-        </property>
-        <property name="tickInterval">
-         <number>1</number>
+         <string>Unused</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </widget>
+  </widget>
+  <widget class="QLabel" name="githubLink">
+   <property name="geometry">
+    <rect>
+     <x>1204</x>
+     <y>10</y>
+     <width>61</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <underline>false</underline>
+    </font>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="lineWidth">
+    <number>1</number>
+   </property>
+   <property name="midLineWidth">
+    <number>1</number>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/Luminic/NWAPW_RayTracer&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline; color:#0000ff;&quot;&gt;Github&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+   <property name="openExternalLinks">
+    <bool>true</bool>
+   </property>
+   <property name="textInteractionFlags">
+    <set>Qt::TextBrowserInteraction</set>
+   </property>
   </widget>
  </widget>
  <resources/>
