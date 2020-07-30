@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QApplication>
 #include <QKeyEvent>
+#include <QWheelEvent>
+
 #include <QGridLayout>
 #include <QDebug>
 #include <QtUiTools>
@@ -39,6 +41,7 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
 private slots:
     void on_iterativeRenderCheckBox_toggled(bool checked);

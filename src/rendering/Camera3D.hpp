@@ -32,6 +32,8 @@ public:
     
     CameraDirectionVectors get_camera_direction_vectors();
     CornerRays get_corner_rays();
+
+    void update_fov(float fov_change);
 private:
     float aspect_ratio;
     float fov;
