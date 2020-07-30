@@ -23,8 +23,13 @@ public:
     virtual ~Renderer3D() {}
 
     Texture* initialize(int width, int height);
+    // Creates renders of size w,h
+    // Warning: The render result will still be the old size if iterative rendering
+    // is on
     void resize(int width, int height);
 
+    // Render new frame (iterative rendering off)
+    // or improve previous frame (iterative rendering on)
     Texture* render();
 
     void set_scene(Scene* scene);
@@ -32,8 +37,11 @@ public:
     void set_camera(Camera3D* camera);
     Camera3D* get_camera();
 
-
+    // "Safe" options for settings classes etc.
     Renderer3DOptions* get_options();
+
+    // Iterative rendering improves the quality of the current render_result instead
+    // of rendering a new render_result every frame
     void begin_iterative_rendering();
     void end_iterative_rendering();
 
@@ -78,10 +86,18 @@ private:
     int width;
     int height;
 
+    // Per-pixel mesh indices (output of render)
+    // The data at pixel (u,v) is located at u+v*size_x
+    unsigned int mesh_indices_ssbo;
+    // Per-pixel indices so size is split into width & height (actual buffer size is width*height)
+    int mesh_indices_ssbo_size[2];
+
     // Iterative rendering
+    Texture* iterative_render();
     bool iterative_rendering;
     Texture scene_geometry;
     Texture scene_normals;
+    int iterative_rendering_texture_size[2];
 
     Scene* scene;
     void add_meshes_to_buffer();

@@ -118,6 +118,13 @@ struct MaterialData {
     float AO;
 };
 
+// Basically a texture in all but name
+// The data at pixel (u,v) is located at u+v*size_x
+layout(std430, binding=7) buffer MeshIndexBuffer {
+    int mesh_indices[];
+};
+
+
 MaterialData get_material_data(Material material, vec2 tex_coord) {
     MaterialData material_data = MaterialData(material.albedo, material.F0, material.roughness, material.metalness, material.AO);
 
@@ -343,11 +350,11 @@ layout (binding = 0, rgba32f) uniform image2D framebuffer;
 layout (binding = 1, rgba32f) uniform image2D geometry;
 layout (binding = 2, rgba32f) uniform image2D normals;
 
-subroutine void Trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir);
+subroutine void Trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size);
 subroutine uniform Trace trace;
 
 subroutine(Trace)
-void realtime_trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir) {
+void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     vec4 col;
     vec4 geom;
     vec4 norms;
@@ -367,31 +374,21 @@ void realtime_trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir) {
     imageStore(framebuffer, pix, col);
     imageStore(geometry, pix, geom);
     imageStore(normals, pix, norms);
+
+    mesh_indices[pix.x+pix.y*size.x] = vert.mesh_index;
 }
 
 subroutine(Trace)
-void positional_trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir) {
-    vec4 col;
-    Vertex vert = get_vertex_data(ray_origin, ray_dir);
-    if (vert.mesh_index == -1) {
-        col = vec4(normalize(ray_dir)*FAR_PLANE, -1.0f);
-    } else {
-        vec4 col = vec4(vert.position.xyz, 1.0f);
-    }
-    imageStore(framebuffer, pix, col);
+void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
+    vec4 col = imageLoad(framebuffer, pix);
+    vec4 pos = imageLoad(geometry, pix);
+    vec4 norm = imageLoad(normals, pix);
+
+    int mesh_index = mesh_indices[pix.x+pix.y*size.x]+1;
+    imageStore(framebuffer, pix, vec4(mesh_index/5.0f));
 }
 
-subroutine(Trace)
-void normal_trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir) {
-    vec4 col;
-    Vertex vert = get_vertex_data(ray_origin, ray_dir);
-    if (vert.mesh_index == -1) {
-        col = 0.0f.xxxx;
-    } else {
-        vec4 col = normalize(vert.normal.xyz).xyzz;
-    }
-    imageStore(framebuffer, pix, col);
-}
+
 layout (local_size_x = 8, local_size_y = 8) in;
 
 void main() {
@@ -405,7 +402,7 @@ void main() {
 
     vec3 ray = mix(mix(ray00, ray10, tex_coords.x), mix(ray01, ray11, tex_coords.x), tex_coords.y);
 
-    trace(pix, eye, ray);
+    trace(eye, ray, pix, size);
 
     // uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y);
     // for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {

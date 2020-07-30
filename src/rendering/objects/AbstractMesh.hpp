@@ -8,6 +8,8 @@
 
 constexpr int mesh_size_in_opengl = 80;
 
+typedef uint32_t MeshIndex;
+
 class AbstractMesh : public QObject {
     Q_OBJECT;
 public:
@@ -28,7 +30,7 @@ public:
     void as_byte_array(unsigned char byte_array[mesh_size_in_opengl], const glm::mat4& transformation) const;
 
 protected:
-    int mesh_index;
+    MeshIndex mesh_index;
 };
 
 #endif

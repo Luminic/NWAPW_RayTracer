@@ -74,8 +74,9 @@ void MainWindow::resource_initialization() {
                 vertex.position = rotation_matrix * vertex.position;
         }
 
-        for (int i = 0; i < 10; i += increment)
-            test(dropper, &scene, model4d, i / 10.0f, j);
+        for (int i = 0; i < 10; i += increment) {
+            // test(dropper, &scene, model4d, i / 10.0f, j);
+        }
     }
 
     MaterialManager& material_manager = scene.get_material_manager();
