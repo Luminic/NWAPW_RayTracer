@@ -147,7 +147,8 @@ Texture* Renderer3D::render() {
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glUseProgram(0);
 
-    return &scene_normals;
+    // return &scene_normals;
+    return &render_result;
 }
 
 Renderer3DOptions* Renderer3D::get_options() {
