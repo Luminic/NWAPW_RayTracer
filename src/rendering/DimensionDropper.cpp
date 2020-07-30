@@ -137,6 +137,10 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
                     mesh3d_indices.push_back(inds[1]);
                     mesh3d_indices.push_back(inds[3]);
                     mesh3d_indices.push_back(inds[2]);
+
+                    mesh3d_indices.push_back(inds[2]);
+                    mesh3d_indices.push_back(inds[3]);
+                    mesh3d_indices.push_back(inds[0]);
                 }
             }
         }
