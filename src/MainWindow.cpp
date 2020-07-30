@@ -77,9 +77,11 @@ void MainWindow::resource_initialization() {
         // to have everything affected by the camera's
         // 4D rotation/position (which should be 4D settings
         // if we don't end up implementing an editor).
-        std::vector<Vertex>& model4d_vertices = dynamic_cast<DynamicMesh*>(model4d->meshes[0])->modify_vertices();
-        for (auto& vertex : model4d_vertices)
-            vertex.position = rotation_matrix * vertex.position;
+        for (auto mesh : model4d->meshes) {
+            std::vector<Vertex>& model4d_vertices = dynamic_cast<DynamicMesh*>(mesh)->modify_vertices();
+            for (auto& vertex : model4d_vertices)
+                vertex.position = rotation_matrix * vertex.position;
+        }
 
         for (int i = 0; i < 10; i += increment)
             test(dropper, &scene, model4d, i / 10.0f, j);
