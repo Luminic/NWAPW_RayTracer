@@ -23,7 +23,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>591</width>
+     <width>741</width>
      <height>601</height>
     </rect>
    </property>
@@ -32,7 +32,7 @@
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>630</x>
+     <x>770</x>
      <y>20</y>
      <width>411</width>
      <height>581</height>
@@ -47,7 +47,7 @@
     <bool>true</bool>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab3D">
     <property name="autoFillBackground">
@@ -94,6 +94,9 @@
     </widget>
    </widget>
    <widget class="QWidget" name="tab4D">
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
     <attribute name="title">
      <string>4D Settings</string>
     </attribute>

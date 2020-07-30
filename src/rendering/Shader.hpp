@@ -27,6 +27,8 @@ public:
     void set_float(const char* name, float value);
     void set_vec3(const char* name, const glm::vec3& value);
     void set_mat4(const char* name, const glm::mat4& value);
+
+    void use_subroutine(GLenum shader, const char* name);
 private:
     unsigned int id;
 };

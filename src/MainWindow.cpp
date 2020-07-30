@@ -34,15 +34,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     loader4d = new ModelLoader4D(this);
     dropper = new DimensionDropper(this);
 
-    /*
-    loadUiFile(parent, "src/MainWindow.ui");
-    Ui::MainWindow ui;
-    ui.setupUi(this);
-
-    // Load viewport into UI
-    QWidget *viewportWidget;
-    viewportWidget = findChild<QWidget*>("viewportWidget");
-    */
     viewport = new Viewport(this);
     connect(viewport, &Viewport::opengl_initialized, this, &MainWindow::resource_initialization);
 

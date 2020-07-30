@@ -32,6 +32,8 @@ Texture* Renderer3D::initialize(int width, int height) {
 
     glGetProgramiv(render_shader.get_id(), GL_COMPUTE_WORK_GROUP_SIZE, work_group_size);
     render_result.create(width, height);
+    scene_geometry.create(width, height);
+    scene_normals.create(width, height);
 
     // Setup the vertex shader
     ShaderStage vert_shader{GL_COMPUTE_SHADER, "src/rendering/shaders/vertex_shader.glsl"};
@@ -95,6 +97,8 @@ void Renderer3D::resize(int width, int height) {
     this->width = width;
     this->height = height;
     render_result.resize(width, height);
+    scene_geometry.resize(width, height);
+    scene_normals.resize(width, height);
     
     if (camera) {
         camera->update_perspective_matrix(float(width)/height);
@@ -116,6 +120,7 @@ Texture* Renderer3D::render() {
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
     glUseProgram(render_shader.get_id());
+    render_shader.use_subroutine(GL_COMPUTE_SHADER, "realtime_trace");
     render_shader.set_vec3("eye", camera->position);
     render_shader.set_vec3("ray00", eye_rays.r00);
     render_shader.set_vec3("ray10", eye_rays.r10);
@@ -128,6 +133,8 @@ Texture* Renderer3D::render() {
     set_textures();
 
     glBindImageTexture(0, render_result.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    glBindImageTexture(1, scene_geometry.get_id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(2, scene_normals.get_id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
     unsigned int worksize_x = round_up_to_pow_2(width);
     unsigned int worksize_y = round_up_to_pow_2(height);
@@ -135,10 +142,12 @@ Texture* Renderer3D::render() {
 
     // Clean up & make sure the shader has finished writing to the image
     glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(1, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(2, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glUseProgram(0);
 
-    return &render_result;
+    return &scene_normals;
 }
 
 Renderer3DOptions* Renderer3D::get_options() {

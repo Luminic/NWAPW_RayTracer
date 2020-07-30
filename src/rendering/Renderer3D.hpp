@@ -80,8 +80,8 @@ private:
 
     // Iterative rendering
     bool iterative_rendering;
-    // Texture scene_geometry;
-    // Texture scene_normals;
+    Texture scene_geometry;
+    Texture scene_normals;
 
     Scene* scene;
     void add_meshes_to_buffer();
