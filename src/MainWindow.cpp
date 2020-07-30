@@ -75,7 +75,7 @@ void MainWindow::resource_initialization() {
         }
 
         for (int i = 0; i < 10; i += increment) {
-            // test(dropper, &scene, model4d, i / 10.0f, j);
+            test(dropper, &scene, model4d, i / 10.0f, j);
         }
     }
 

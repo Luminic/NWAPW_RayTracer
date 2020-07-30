@@ -385,7 +385,7 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     vec4 norm = imageLoad(normals, pix);
 
     int mesh_index = mesh_indices[pix.x+pix.y*size.x]+1;
-    imageStore(framebuffer, pix, vec4(mesh_index/5.0f));
+    imageStore(framebuffer, pix, vec4(mesh_index/50.0f));
 }
 
 
