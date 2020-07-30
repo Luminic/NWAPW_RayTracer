@@ -191,24 +191,27 @@ float ray_plane_int(vec3 ray_origin, vec3 ray_dir, vec3 plane_point, vec3 plane_
 
 vec4 barycentric_coordinates(vec3 point, vec3 tri0, vec3 tri1, vec3 tri2) {
     /*
-    Returns the barycentric coordinates of point in the triangle tri0-2
+    Returns the barycentric coordinates of point if the point is in the triangle
     The w value is 1 if the point is inside of the triangle and -1 otherwise
     */
     float double_area_tri = length(cross(tri1-tri0, tri2-tri0));
 
     float area0 = length(cross(tri1-point, tri2-point)) / double_area_tri;
+    if (area0 > 1+EPSILON) return vec4(0, 0, 0, -1);
     float area1 = length(cross(tri0-point, tri2-point)) / double_area_tri;
+    if (area0+area1 > 1+EPSILON) return vec4(0, 0, 0, -1);
     float area2 = length(cross(tri0-point, tri1-point)) / double_area_tri;
+    if (area0+area1+area2 > 1+EPSILON) return vec4(0, 0, 0, -1);
 
-    if (area0+area1+area2-1 <= EPSILON) {
+    // if (area0+area1+area2-1 <= EPSILON) {
         // If the combined area of the 3 mini triangles equals the area of the triangle
         // the point is inside of the triangle
         return vec4(area0, area1, area2, 1);
-    } else {
-        // Otherwise, the point is outside of the triangle
-        // Still return the barycentric coordinates because they might still be useful
-        return vec4(area0, area1, area2, -1);
-    }
+    // } else {
+    //     // Otherwise, the point is outside of the triangle
+    //     // Still return the barycentric coordinates because they might still be useful
+    //     return vec4(area0, area1, area2, -1);
+    // }
 }
 
 void triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec3 ray_dir, inout float depth, inout Vertex vert) {
@@ -335,22 +338,60 @@ vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
     return vec4(color, 1.0f);
 }
 
-//subroutine vec4 Trace(vec3 ray_origin, vec3 ray_dir);
-//subroutine uniform Trace trace;
-
-//subroutine(Trace)
-vec4 trace(vec3 ray_origin, vec3 ray_dir) {
-    Vertex vert = get_vertex_data(ray_origin, ray_dir);
-    if (vert.mesh_index == -1) {
-        return texture(environment_map, ray_dir);
-    }
-    Material material = materials[meshes[vert.mesh_index].material_index];
-    MaterialData material_data = get_material_data(material, vert.tex_coord);
-
-    return shade(vert, normalize(ray_dir), material_data);
-}
 
 layout (binding = 0, rgba32f) uniform image2D framebuffer;
+layout (binding = 1, rgba32f) uniform image2D geometry;
+layout (binding = 2, rgba32f) uniform image2D normals;
+
+subroutine void Trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir);
+subroutine uniform Trace trace;
+
+subroutine(Trace)
+void realtime_trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir) {
+    vec4 col;
+    vec4 geom;
+    vec4 norms;
+    Vertex vert = get_vertex_data(ray_origin, ray_dir);
+    if (vert.mesh_index == -1) {
+        col = texture(environment_map, ray_dir);
+        geom = vec4(normalize(ray_dir)*FAR_PLANE, -1.0f);
+        norms = vec4(0.0f.xxx, -1.0f);
+    } else {
+        Material material = materials[meshes[vert.mesh_index].material_index];
+        MaterialData material_data = get_material_data(material, vert.tex_coord);
+
+        col = shade(vert, normalize(ray_dir), material_data);
+        geom = vec4(vert.position.xyz, 1.0f);
+        norms = vec4(normalize(vert.normal.xyz), 1.0f);
+    }
+    imageStore(framebuffer, pix, col);
+    imageStore(geometry, pix, geom);
+    imageStore(normals, pix, norms);
+}
+
+subroutine(Trace)
+void positional_trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir) {
+    vec4 col;
+    Vertex vert = get_vertex_data(ray_origin, ray_dir);
+    if (vert.mesh_index == -1) {
+        col = vec4(normalize(ray_dir)*FAR_PLANE, -1.0f);
+    } else {
+        vec4 col = vec4(vert.position.xyz, 1.0f);
+    }
+    imageStore(framebuffer, pix, col);
+}
+
+subroutine(Trace)
+void normal_trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir) {
+    vec4 col;
+    Vertex vert = get_vertex_data(ray_origin, ray_dir);
+    if (vert.mesh_index == -1) {
+        col = 0.0f.xxxx;
+    } else {
+        vec4 col = normalize(vert.normal.xyz).xyzz;
+    }
+    imageStore(framebuffer, pix, col);
+}
 layout (local_size_x = 8, local_size_y = 8) in;
 
 void main() {
@@ -364,12 +405,10 @@ void main() {
 
     vec3 ray = mix(mix(ray00, ray10, tex_coords.x), mix(ray01, ray11, tex_coords.x), tex_coords.y);
 
-    vec4 col = trace(eye, ray);
+    trace(pix, eye, ray);
 
     // uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y);
     // for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {
     //     prev_rand = rand(prev_rand);
     // }
-
-    imageStore(framebuffer, pix, col);
 }
