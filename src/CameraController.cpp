@@ -73,6 +73,10 @@ void CameraController::key_event(QKeyEvent* key) {
     }
 }
 
+void CameraController::update_fov(float fov_change) {
+    camera_3D->update_fov(fov_change);
+}
+
 void CameraController::set_camera_3D(Camera3D* camera_3D) {
     this->camera_3D = camera_3D;
 }

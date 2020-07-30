@@ -59,3 +59,8 @@ CornerRays Camera3D::get_corner_rays() {
 
     return corner_rays;
 }
+
+void Camera3D::update_fov(float fov_change) {
+    fov += fov_change;
+    update_perspective_matrix(aspect_ratio, fov);
+}

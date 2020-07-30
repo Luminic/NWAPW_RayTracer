@@ -36,6 +36,7 @@ public:
 
     void mouse_moved(float dx, float dy);
     void key_event(QKeyEvent* key);
+    void update_fov(float fov_change);
 
     void set_camera_3D(Camera3D* camera_3D);
 private:

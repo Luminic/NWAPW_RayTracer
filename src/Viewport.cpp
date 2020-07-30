@@ -82,6 +82,16 @@ void Viewport::mouseMoveEvent(QMouseEvent* event) {
     event->accept();
 }
 
+void Viewport::wheelEvent(QWheelEvent* event) {
+    QPoint angle_delta = event->angleDelta() / 120;
+
+    if (!angle_delta.isNull()) {
+        float fov_change = static_cast<float>(angle_delta.y()) / 5;
+        cam_controller.update_fov(fov_change);
+    }
+
+}
+
 void Viewport::capture_mouse() {
     mouse_captured = true;
     QPoint screen_center = mapToGlobal(QPoint(geometry().left()+geometry().width()/2, geometry().top()+geometry().height()/2));

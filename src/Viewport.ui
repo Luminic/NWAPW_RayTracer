@@ -85,6 +85,15 @@
       </item>
       <item row="0" column="1">
        <widget class="QCheckBox" name="iterativeRenderCheckBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -113,8 +122,25 @@
       <property name="topMargin">
        <number>5</number>
       </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Unused</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="1">
        <widget class="QSlider" name="unused4DSlider">
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
         <property name="minimum">
          <number>-2000</number>
         </property>
@@ -132,21 +158,38 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Unused</string>
-        </property>
-       </widget>
-      </item>
      </layout>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="controlsTab">
+    <attribute name="title">
+     <string>Controls</string>
+    </attribute>
+    <widget class="QPlainTextEdit" name="plainTextEdit">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>401</width>
+       <height>541</height>
+      </rect>
+     </property>
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="plainText">
+      <string>Escape: Toggle viewport mouse focus
+WASD: Move horizontally
+Space: Move up
+LShift: Move down
+MWheel: Change field of view</string>
+     </property>
     </widget>
    </widget>
   </widget>
