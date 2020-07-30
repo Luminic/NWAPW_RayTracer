@@ -23,10 +23,13 @@ uint32_t round_up_to_pow_2(uint32_t x) {
     return x;
 }
 
-Texture::Texture(QObject* parent) : QObject(parent) {}
+Texture::Texture(QObject* parent) : QObject(parent) {
+    id = 0;
+}
 
 Texture::~Texture() {
-    glDeleteTextures(1, &id);
+    if (id)
+        glDeleteTextures(1, &id);
 }
 
 void Texture::load(const char* path) {
