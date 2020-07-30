@@ -121,3 +121,8 @@ void Shader::set_mat4(const char* name, const glm::mat4& value) {
     unsigned int loc = glGetUniformLocation(id, name);
     glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
 }
+
+void Shader::use_subroutine(GLenum shader, const char* name) {
+    unsigned int index = glGetSubroutineIndex(id, shader, name);
+    glUniformSubroutinesuiv(shader, 1, &index);
+}

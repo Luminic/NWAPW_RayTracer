@@ -339,7 +339,7 @@ subroutine vec4 Trace(vec3 ray_origin, vec3 ray_dir);
 subroutine uniform Trace trace;
 
 subroutine(Trace)
-vec4 trace(vec3 ray_origin, vec3 ray_dir) {
+vec4 realtime_trace(vec3 ray_origin, vec3 ray_dir) {
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
     if (vert.mesh_index == -1) {
         return texture(environment_map, ray_dir);
@@ -348,6 +348,15 @@ vec4 trace(vec3 ray_origin, vec3 ray_dir) {
     MaterialData material_data = get_material_data(material, vert.tex_coord);
 
     return shade(vert, normalize(ray_dir), material_data);
+}
+
+subroutine(Trace)
+vec4 positional_trace(vec3 ray_origin, vec3 ray_dir) {
+    Vertex vert = get_vertex_data(ray_origin, ray_dir);
+    if (vert.mesh_index == -1) {
+        return 0.0f.xxxx;
+    }
+    return normalize(vert.normal.xyz).xyzz;
 }
 
 layout (binding = 0, rgba32f) uniform image2D framebuffer;

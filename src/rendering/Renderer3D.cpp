@@ -116,6 +116,7 @@ Texture* Renderer3D::render() {
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
     glUseProgram(render_shader.get_id());
+    render_shader.use_subroutine(GL_COMPUTE_SHADER, "realtime_trace");
     render_shader.set_vec3("eye", camera->position);
     render_shader.set_vec3("ray00", eye_rays.r00);
     render_shader.set_vec3("ray10", eye_rays.r10);
