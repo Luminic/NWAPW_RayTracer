@@ -69,7 +69,7 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
                         // the edge intersects
                         float t = a.w / (a.w - b.w);
 
-                        glm::vec3 intersection = { (1.0f - t) * a.x + t * b.x, (1.0f - t) * a.y + t * b.y, (1.0f - t) * a.z + t * b.z };
+                        glm::vec3 intersection((1.0f - t) * a.x + t * b.x, (1.0f - t) * a.y + t * b.y, (1.0f - t) * a.z + t * b.z);
                         triIntersections.push_back(intersection);
                     }
                 }
@@ -79,7 +79,13 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
                     tetraIntersections.push_back({triIntersections[0], triIntersections[1]});
             }
 
-            if (tetraIntersections.size()) // 3 or 4
+            // 3 = trigon (1 triangle)    (tetrahedron, hexahedron,             dodecahedron)
+            // 4 = tetragon (2 triangles) (tetrahedron, hexahedron, octahedron, dodecahedron)
+            // 5 = pentagon (3 triangles) (                                     dodecahedron)
+            // 6 = hexagon (4 triangles ) (             hexahedron, octahedron, dodecahedron)
+            // 7 = heptagon (5 triangles) (                                     dodecahedron)
+            // 8 = octagon (6 triangles)  (                                     dodecahedron)
+            if (tetraIntersections.size())
                intersections.push_back(tetraIntersections);
         }
 
@@ -141,7 +147,6 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
         std::vector<Index> indices;
         indices.reserve(mesh3d_indices.size());
 
-        std::vector<glm::vec4> normals;
         // for every triangle
         for (unsigned int i = 0; i < mesh3d_indices.size(); i += 3) {
             glm::vec3 p0 = mesh3d_vertices[mesh3d_indices[i+0]];
@@ -162,21 +167,9 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
             indices.push_back(i+2);
         }
 
-//        if (vertices.size()) {
-//            qDebug() << "Vertices:";
-//            for (const auto& vertex : vertices)
-//                qDebug() << vertex.position.x << vertex.position.y << vertex.position.z << ' ' << vertex.normal.x << vertex.normal.y << vertex.normal.z;
-//        }
-//        if (indices.size()) {
-//            qDebug() << "Indices:";
-//            for (unsigned int i = 0; i < indices.size(); i += 3)
-//              qDebug() << indices[i+0] << indices[i+1] << indices[i+2];
-//        }
-
-        if (vertices.size() && indices.size()) {
+        if (indices.size()) {
             qDebug() << "Mesh" << meshes3d.size() << "has" << vertices.size() << "vertices.";
             qDebug() << "Mesh" << meshes3d.size() << "has" << indices.size() << "indices.";
-            qDebug() << "Mesh" << meshes3d.size() << "has" << normals.size() << "indices.";
             qDebug() << "Mesh" << meshes3d.size() << "successfully dropped.";
             meshes3d.push_back(new DynamicMesh(vertices, indices, this));
         }

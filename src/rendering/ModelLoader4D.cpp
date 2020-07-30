@@ -48,7 +48,6 @@ Node* ModelLoader4D::load_model(const char* file_path) {
         } else if (tokens[0] == "vn") {
             normals.emplace_back(tokens[1].toFloat(), tokens[2].toFloat(), tokens[3].toFloat(), tokens[4].toFloat());
         } else if (tokens[0] == "f") {
-            qDebug() << tokens.size();
             for (unsigned char i = 1; i < face_indices; i++) {
                 QStringList vertex_data = tokens[i].split('/');
 
