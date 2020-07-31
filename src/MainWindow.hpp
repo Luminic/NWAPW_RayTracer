@@ -41,7 +41,7 @@ private:
     ModelLoader3D* loader3d;
     ModelLoader4D* loader4d;
     DimensionDropper* dropper;
-    QString modelPath;
+    QString model_path;
 };
 
 #endif

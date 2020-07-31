@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Ray Tracer");
     resize(1280, 640);
 
-    modelPath = "resources/models/pentachron.ob4";
+    model_path = "resources/models/pentachron.ob4";
 
     loader3d = new ModelLoader3D(this);
     loader4d = new ModelLoader4D(this);
@@ -58,7 +58,7 @@ void MainWindow::resource_initialization() {
 //    scene.add_root_node(model_root_node);
 
     // Must convert file paths from QStrings to char*
-    QByteArray char_model_path = modelPath.toLocal8Bit();
+    QByteArray char_model_path = model_path.toLocal8Bit();
     Node* model4d = loader4d->load_model(char_model_path);
 
     glm::mat4 rotation_matrix(1.0f);
@@ -165,5 +165,11 @@ void MainWindow::resource_initialization() {
 
 void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
+    /*
+    if (viewport->return_file_changed()) {
+        model_path = viewport->get_new_model_path();
+        resource_initialization();
+    }
+    */
     viewport->main_loop(dt);
 }

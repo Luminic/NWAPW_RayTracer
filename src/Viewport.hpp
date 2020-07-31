@@ -35,7 +35,12 @@ public:
 
     Renderer3DOptions* get_renderer_3D_options();
 
+    // Getters and setters
     float return_slider4D_val();
+    bool return_file_changed();
+    void set_file_changed(bool);
+
+    QString get_new_model_path() const;
 
 signals:
     void opengl_initialized();
@@ -53,10 +58,23 @@ private slots:
 
     void on_unused4DSlider_sliderMoved(int position);
 
+    void on_rotateXYSlider_sliderMoved(int position);
+
+    void on_rotateYZSlider_sliderMoved(int position);
+
+    void on_rotateZXSlider_sliderMoved(int position);
+
+    void on_rotateXWDSlider_sliderMoved(int position);
+
+    void on_rotateYWSlider_sliderMoved(int position);
+
+    void on_rotateZWSlider_sliderMoved(int position);
+
 private:
     void capture_mouse();
     void release_mouse();
     bool mouse_captured;
+    bool file_changed;
 
     OpenGLWidget gl_widget;
     Renderer3D renderer_3D;
@@ -71,7 +89,7 @@ private:
     QLabel* modelLabel;
     QString new_model_path;
 
-    float slider4Dvalue;
+    float slider_4D_val;
 };
 
 #endif
