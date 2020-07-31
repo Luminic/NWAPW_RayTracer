@@ -176,6 +176,7 @@ Texture* Renderer3D::render() {
 Texture* Renderer3D::iterative_render() {
     glUseProgram(render_shader.get_id());
     render_shader.use_subroutine(GL_COMPUTE_SHADER, "offline_trace");
+    render_shader.set_int("nr_iterations_done", nr_iterations_done);
     
     glBindImageTexture(0, render_result.get_id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glBindImageTexture(1, scene_geometry.get_id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
@@ -192,6 +193,7 @@ Texture* Renderer3D::iterative_render() {
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glUseProgram(0);
 
+    nr_iterations_done++;
     return &render_result;
 }
 
@@ -202,6 +204,7 @@ Renderer3DOptions* Renderer3D::get_options() {
 void Renderer3D::begin_iterative_rendering() {
     qDebug() << "beginning iterative rendering!";
     iterative_rendering = true;
+    nr_iterations_done = 1;
     iterative_rendering_texture_size[0] = width;
     iterative_rendering_texture_size[1] = height;
 }

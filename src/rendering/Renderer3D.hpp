@@ -95,6 +95,7 @@ private:
     // Iterative rendering
     Texture* iterative_render();
     bool iterative_rendering;
+    int nr_iterations_done;
     Texture scene_geometry;
     Texture scene_normals;
     int iterative_rendering_texture_size[2];
