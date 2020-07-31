@@ -12,3 +12,7 @@ void Renderer3DOptions::begin_iterative_rendering() {
 void Renderer3DOptions::end_iterative_rendering() {
     renderer_3D->end_iterative_rendering();
 }
+
+MeshIndex Renderer3DOptions::get_mesh_index_at(int x, int y) {
+    return renderer_3D->get_mesh_index_at(x, y);
+}

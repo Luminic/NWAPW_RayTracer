@@ -6,12 +6,15 @@
 uint32_t round_up_to_pow_2(uint32_t x);
 
 Renderer3D::Renderer3D(QObject* parent) : QObject(parent) {
+    opengl_widget = nullptr;
     camera = nullptr;
     scene = nullptr;
     options = new Renderer3DOptions(this, this);
 }
 
-Texture* Renderer3D::initialize(int width, int height) {
+Texture* Renderer3D::initialize(int width, int height, QOpenGLWidget* opengl_widget) {
+    this->opengl_widget = opengl_widget;
+
     initializeOpenGLFunctions();
     this->width = width;
     this->height = height;
@@ -86,6 +89,16 @@ Texture* Renderer3D::initialize(int width, int height) {
     glBufferData(GL_SHADER_STORAGE_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
     material_ssbo_size = 0;
 
+    // Initialized to the size of the render_texture for per-pixel mesh index results form render
+    glGenBuffers(1, &mesh_indices_ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_indices_ssbo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, mesh_indices_ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, width*height*sizeof(MeshIndex), nullptr, GL_DYNAMIC_READ);
+    qDebug() << "width:" << width << "height:" << height << "area:" << width*height;
+    qDebug() << "allocating" << width*height*sizeof(MeshIndex) << "bytes of memory";
+    mesh_indices_ssbo_size[0] = width;
+    mesh_indices_ssbo_size[1] = height;
+
     // Clean up
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT); // Not 100% sure if necessary but just in case
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
@@ -96,9 +109,17 @@ Texture* Renderer3D::initialize(int width, int height) {
 void Renderer3D::resize(int width, int height) {
     this->width = width;
     this->height = height;
-    render_result.resize(width, height);
-    scene_geometry.resize(width, height);
-    scene_normals.resize(width, height);
+    if (!iterative_rendering) {
+        render_result.resize(width, height);
+        scene_geometry.resize(width, height);
+        scene_normals.resize(width, height);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_indices_ssbo);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, width*height*sizeof(MeshIndex), nullptr, GL_DYNAMIC_READ);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        mesh_indices_ssbo_size[0] = width;
+        mesh_indices_ssbo_size[1] = height;
+    }
     
     if (camera) {
         camera->update_perspective_matrix(float(width)/height);
@@ -106,6 +127,10 @@ void Renderer3D::resize(int width, int height) {
 }
 
 Texture* Renderer3D::render() {
+    if (iterative_rendering) {
+        return iterative_render();
+    }
+
     camera->update_view_matrix();
     CornerRays eye_rays = camera->get_corner_rays();
 
@@ -133,8 +158,32 @@ Texture* Renderer3D::render() {
     set_textures();
 
     glBindImageTexture(0, render_result.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-    glBindImageTexture(1, scene_geometry.get_id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-    glBindImageTexture(2, scene_normals.get_id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(1, scene_geometry.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    glBindImageTexture(2, scene_normals.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+    unsigned int worksize_x = round_up_to_pow_2(width);
+    unsigned int worksize_y = round_up_to_pow_2(height);
+    glDispatchCompute(worksize_x/work_group_size[0], worksize_y/work_group_size[1], 1);
+
+    // Clean up & make sure the shader has finished writing to the image
+    glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(1, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(2, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    glUseProgram(0);
+
+    return &render_result;
+}
+
+Texture* Renderer3D::iterative_render() {
+    glUseProgram(render_shader.get_id());
+    render_shader.use_subroutine(GL_COMPUTE_SHADER, "offline_trace");
+    render_shader.set_int("nr_iterations_done", nr_iterations_done);
+    
+    glBindImageTexture(0, render_result.get_id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(1, scene_geometry.get_id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+    glBindImageTexture(2, scene_normals.get_id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 
     unsigned int worksize_x = round_up_to_pow_2(width);
     unsigned int worksize_y = round_up_to_pow_2(height);
@@ -147,7 +196,7 @@ Texture* Renderer3D::render() {
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glUseProgram(0);
 
-    // return &scene_normals;
+    nr_iterations_done++;
     return &render_result;
 }
 
@@ -156,11 +205,52 @@ Renderer3DOptions* Renderer3D::get_options() {
 }
 
 void Renderer3D::begin_iterative_rendering() {
+    qDebug() << "beginning iterative rendering!";
     iterative_rendering = true;
+    nr_iterations_done = 1;
+    iterative_rendering_texture_size[0] = width;
+    iterative_rendering_texture_size[1] = height;
 }
 
 void Renderer3D::end_iterative_rendering() {
+    qDebug() << "ending iterative rendering!";
     iterative_rendering = false;
+
+    // Resizing of these images is disabled when iterative rendering
+    // So we have to resize them now
+    if (iterative_rendering_texture_size[0] != width || iterative_rendering_texture_size[1] != height) {
+        render_result.resize(width, height);
+        scene_geometry.resize(width, height);
+        scene_normals.resize(width, height);
+    }
+    // mesh_indices_ssbo_size should be equal to iterative_rendering_texture_size
+    // but just in case I'll separate them
+    if (mesh_indices_ssbo_size[0] != width || mesh_indices_ssbo_size[1] != height) {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_indices_ssbo);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, width*height*sizeof(MeshIndex), nullptr, GL_DYNAMIC_READ);
+        qDebug() << "width:" << width << "height:" << height << "area:" << width*height;
+        qDebug() << "allocating" << width*height*sizeof(MeshIndex) << "bytes of memory";
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        mesh_indices_ssbo_size[0] = width;
+        mesh_indices_ssbo_size[1] = height;
+    }
+}
+
+MeshIndex Renderer3D::get_mesh_index_at(int x, int y) {
+    if (x >= mesh_indices_ssbo_size[0] || y >= mesh_indices_ssbo_size[1])
+        return -1;
+    if (opengl_widget) {
+        opengl_widget->makeCurrent();
+        MeshIndex mesh_index;
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_indices_ssbo);
+        int offset = x;
+        offset += (mesh_indices_ssbo_size[1]-y)*mesh_indices_ssbo_size[0];
+        offset *= sizeof(MeshIndex);
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, sizeof(MeshIndex), &mesh_index);
+        return mesh_index;
+    }
+    return -1;
 }
 
 void Renderer3D::add_meshes_to_buffer() {

@@ -10,11 +10,15 @@ class Renderer3D;
 // An interface for safely modifying the many options in Renderer3D
 // This class can only be created by the Renderer3D itself and should
 // be passed around as a pointer
+// See Renderer3D for function documentation
 class Renderer3DOptions : public QObject {
     Q_OBJECT;
 public:
+
     void begin_iterative_rendering();
     void end_iterative_rendering();
+
+    MeshIndex get_mesh_index_at(int x, int y);
 
 private:
     friend class Renderer3D;

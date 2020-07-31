@@ -33,7 +33,7 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
         // for each tetrahedron in the mesh
         for (size_t i = 0; i < mesh4d->size_indices(); i += 4) {
             // accumulate all intersections for each tetrahedron
-            std::vector<std::pair<glm::vec3, glm::vec3>> tetraIntersections;
+            std::vector<std::pair<glm::vec3, glm::vec3>> faceIntersections;
 
             // get the current tetrahedron
             constexpr unsigned char pointCount = 4;
@@ -76,17 +76,17 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
 
                 // if a single valid line intersection was found in the triangle
                 if (triIntersections.size() == 2 && !compare_vec3s(triIntersections[0])(triIntersections[1]))
-                    tetraIntersections.push_back({triIntersections[0], triIntersections[1]});
+                    faceIntersections.push_back({triIntersections[0], triIntersections[1]});
             }
 
-            // 3 = trigon (1 triangle)    (tetrahedron, hexahedron,             dodecahedron)
+            // 3 = trigon   (1 triangle ) (tetrahedron, hexahedron,             dodecahedron)
             // 4 = tetragon (2 triangles) (tetrahedron, hexahedron, octahedron, dodecahedron)
             // 5 = pentagon (3 triangles) (                                     dodecahedron)
-            // 6 = hexagon (4 triangles ) (             hexahedron, octahedron, dodecahedron)
+            // 6 = hexagon  (4 triangles) (             hexahedron, octahedron, dodecahedron)
             // 7 = heptagon (5 triangles) (                                     dodecahedron)
-            // 8 = octagon (6 triangles)  (                                     dodecahedron)
-            if (tetraIntersections.size())
-               intersections.push_back(tetraIntersections);
+            // 8 = octagon  (6 triangles) (                                     dodecahedron)
+            if (faceIntersections.size() > 2)
+               intersections.push_back(faceIntersections);
         }
 
         // assemble the intersection points into triangles
@@ -94,54 +94,77 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
         std::vector<Index> mesh3d_indices;
 
         // for all tetrahedron with intersections
-        for (const auto& tetraIntersection : intersections) {
-            // if one or two triangles were found
-            if (tetraIntersection.size() == 3 || tetraIntersection.size() == 4) {
-                // temporary pool of indices to add them in order
-                std::vector<Index> inds;
-                inds.reserve(8);
-                Index verts_added = 0;
+        for (const auto& faceIntersection : intersections) {
+            // temporary pool of indices to add them in order
+            std::vector<Index> inds;
+            inds.reserve(8);
+            Index verts_added = 0;
 
-                // only add the vertex positions if they are unique
-                for (const auto& line : tetraIntersection) {
-                    auto it_first = std::find_if(mesh3d_vertices.begin(), mesh3d_vertices.end(), compare_vec3s(line.first));
-                    if (it_first == mesh3d_vertices.end()) { inds.push_back((Index)mesh3d_vertices.size()); mesh3d_vertices.push_back(line.first); verts_added++; }
-                    else inds.push_back((Index)(it_first - mesh3d_vertices.begin()));
+            // only add the vertex positions if they are unique
+            for (const auto& line : faceIntersection) {
+                auto it_first = std::find_if(mesh3d_vertices.begin(), mesh3d_vertices.end(), compare_vec3s(line.first));
+                if (it_first == mesh3d_vertices.end()) { inds.push_back((Index)mesh3d_vertices.size()); mesh3d_vertices.push_back(line.first); verts_added++; }
+                else inds.push_back((Index)(it_first - mesh3d_vertices.begin()));
 
-                    auto it_second = std::find_if(mesh3d_vertices.begin(), mesh3d_vertices.end(), compare_vec3s(line.second));
-                    if (it_second == mesh3d_vertices.end()) { inds.push_back((Index)mesh3d_vertices.size()); mesh3d_vertices.push_back(line.second); verts_added++; }
-                    else inds.push_back((Index)(it_second - mesh3d_vertices.begin()));
-                }
+                auto it_second = std::find_if(mesh3d_vertices.begin(), mesh3d_vertices.end(), compare_vec3s(line.second));
+                if (it_second == mesh3d_vertices.end()) { inds.push_back((Index)mesh3d_vertices.size()); mesh3d_vertices.push_back(line.second); verts_added++; }
+                else inds.push_back((Index)(it_second - mesh3d_vertices.begin()));
+            }
 
-                // remove duplicate indices... weird, I know.
-                std::sort(inds.begin(), inds.end());
-                inds.erase(std::unique(inds.begin(), inds.end()), inds.end());
+            // remove duplicate indices... weird, I know.
+            std::sort(inds.begin(), inds.end());
+            inds.erase(std::unique(inds.begin(), inds.end()), inds.end());
 
-                // at certain angles, for example 90 degrees,
-                // triangles may be generated that have 0
-                // volume, that is all of their points are
-                // the same point, and since duplicates are
-                // removed, inds will be left with only one
-                // index, and adding any index other than
-                // inds[0] will result in a crash.
-                // if that happens, remove this intersection
-                if (inds.size() < tetraIntersection.size()) {
-                    mesh3d_vertices.erase(mesh3d_vertices.end() - verts_added, mesh3d_vertices.end());
-                    continue;
-                }
+            // at certain angles, for example 90 degrees,
+            // triangles may be generated that have 0
+            // volume, that is all of their points are
+            // the same point, and since duplicates are
+            // removed, inds will be left with only one
+            // index, and adding any index other than
+            // inds[0] will result in a crash.
+            // if that happens, remove this intersection
+            if (inds.size() < faceIntersection.size()) {
+                mesh3d_vertices.erase(mesh3d_vertices.end() - verts_added, mesh3d_vertices.end());
+                continue;
+            }
 
-                mesh3d_indices.push_back(inds[0]);
+            // Ideally, normals would be calculated here
+            // because all triangles in this face face
+            // the same direction, so they wouldn't have
+            // to be recalculated once per triangle.
+            // Another thing is that the best way I can
+            // think of rendering these is with triangle
+            // strips and use a restart index to separate
+            // each cell, with each point fed into a
+            // geometry shader.
+            // The only problem is how to get an arbitrary
+            // amount of vertices into the shader.
+            // For tetrahedral faces, it would be to use
+            // GL_QUADS instead of GL_TRIANGLES so four
+            // vertices are passed to the geometry shader.
+            // But for any other shape other than
+            // tetrahedron, such as cubes, octohedrons,
+            // etc. A restart index would be required ...
+            // scratch that, I just did some research and
+            // there's a primitive type called GL_PATCHES
+            // that lets the programmer decide how many
+            // vertices are a part of it.
+
+            // Sorry for the massive comment, I'm just
+            // documenting my thinking.
+
+            mesh3d_indices.push_back(inds[0]);
+            mesh3d_indices.push_back(inds[1]);
+            mesh3d_indices.push_back(inds[2]);
+            if (faceIntersection.size() == 4) {
                 mesh3d_indices.push_back(inds[1]);
+                mesh3d_indices.push_back(inds[3]);
                 mesh3d_indices.push_back(inds[2]);
-                if (tetraIntersection.size() == 4) {
-                    mesh3d_indices.push_back(inds[1]);
-                    mesh3d_indices.push_back(inds[3]);
-                    mesh3d_indices.push_back(inds[2]);
 
-                    mesh3d_indices.push_back(inds[2]);
-                    mesh3d_indices.push_back(inds[3]);
-                    mesh3d_indices.push_back(inds[0]);
-                }
+                // TODO: this is a hack
+                mesh3d_indices.push_back(inds[2]);
+                mesh3d_indices.push_back(inds[3]);
+                mesh3d_indices.push_back(inds[0]);
             }
         }
 

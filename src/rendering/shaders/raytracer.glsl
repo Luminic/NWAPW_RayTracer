@@ -118,6 +118,13 @@ struct MaterialData {
     float AO;
 };
 
+// Basically a texture in all but name
+// The data at pixel (u,v) is located at u+v*size_x
+layout(std430, binding=7) buffer MeshIndexBuffer {
+    int mesh_indices[];
+};
+
+
 MaterialData get_material_data(Material material, vec2 tex_coord) {
     MaterialData material_data = MaterialData(material.albedo, material.F0, material.roughness, material.metalness, material.AO);
 
@@ -214,7 +221,7 @@ vec4 barycentric_coordinates(vec3 point, vec3 tri0, vec3 tri1, vec3 tri2) {
     // }
 }
 
-void triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec3 ray_dir, inout float depth, inout Vertex vert) {
+bool triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec3 ray_dir, inout float depth, inout Vertex vert) {
     vec3 normal = cross(vec3(v1.position-v0.position), vec3(v2.position-v0.position));
     float rpi = ray_plane_int(ray_origin, ray_dir, v0.position.xyz, normalize(normal));
 
@@ -230,8 +237,10 @@ void triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec
             vert.normal = bc.x*v0.normal + bc.y*v1.normal + bc.z*v2.normal;
             vert.tex_coord = bc.x*v0.tex_coord + bc.y*v1.tex_coord + bc.z*v2.tex_coord;
             vert.mesh_index = v0.mesh_index;
+            return true;
         }
     }
+    return false;
 }
 
 Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
@@ -239,8 +248,7 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
     Returns an interpolated vertex from the intersection between the ray and the
     nearest triangle it collides with
 
-    If there is no triangle, the w component of position will be -1.0f
-    otherwise the w component will be 1.0f
+    If there is no triangle, the mesh_index will be -1
     */
     float depth = FAR_PLANE;
     Vertex vert = DEFUALT_VERTEX;
@@ -318,14 +326,13 @@ vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData materia
 #define SHADOWS 1
 #define AMBIENT_MULTIPLIER 0.5f
 #define BIAS 0.0001f
-vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
-    vec3 normal = vert.normal.xyz;
+vec4 shade(vec3 position, vec3 normal, vec3 ray_dir, MaterialData material) {
     // Make the normal always facing the camera
     normal = normalize(normal) * sign(dot(normal, -ray_dir));
 
     vec3 radiance = vec3(0.0f);
     #if SHADOWS
-        if (get_vertex_data(vert.position.xyz-SUN_DIR*(NEAR_PLANE-BIAS), SUN_DIR).mesh_index == -1)
+        if (get_vertex_data(position-SUN_DIR*(NEAR_PLANE-BIAS), SUN_DIR).mesh_index == -1)
             radiance += SUN_RADIANCE;
     #else
         radiance += SUN_RADIANCE;
@@ -340,58 +347,65 @@ vec4 shade(Vertex vert, vec3 ray_dir, MaterialData material) {
 
 
 layout (binding = 0, rgba32f) uniform image2D framebuffer;
+// Stores the x component of tex_coords in the w place
 layout (binding = 1, rgba32f) uniform image2D geometry;
+// Stores the y component of tex_coords in the w place
 layout (binding = 2, rgba32f) uniform image2D normals;
 
-subroutine void Trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir);
+subroutine void Trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size);
 subroutine uniform Trace trace;
 
 subroutine(Trace)
-void realtime_trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir) {
+void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     vec4 col;
     vec4 geom;
     vec4 norms;
     Vertex vert = get_vertex_data(ray_origin, ray_dir);
     if (vert.mesh_index == -1) {
         col = texture(environment_map, ray_dir);
-        geom = vec4(normalize(ray_dir)*FAR_PLANE, -1.0f);
-        norms = vec4(0.0f.xxx, -1.0f);
+        geom = vec4(normalize(ray_dir)*FAR_PLANE, 0.0f);
+        norms = 0.0f.xxxx;
     } else {
         Material material = materials[meshes[vert.mesh_index].material_index];
         MaterialData material_data = get_material_data(material, vert.tex_coord);
 
-        col = shade(vert, normalize(ray_dir), material_data);
-        geom = vec4(vert.position.xyz, 1.0f);
-        norms = vec4(normalize(vert.normal.xyz), 1.0f);
+        col = shade(vert.position.xyz, vert.normal.xyz, normalize(ray_dir), material_data);
+        geom = vec4(vert.position.xyz, vert.tex_coord.x);
+        norms = vec4(normalize(vert.normal.xyz), vert.tex_coord.y);
     }
     imageStore(framebuffer, pix, col);
     imageStore(geometry, pix, geom);
     imageStore(normals, pix, norms);
+
+    mesh_indices[pix.x+pix.y*size.x] = vert.mesh_index;
 }
 
-subroutine(Trace)
-void positional_trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir) {
-    vec4 col;
-    Vertex vert = get_vertex_data(ray_origin, ray_dir);
-    if (vert.mesh_index == -1) {
-        col = vec4(normalize(ray_dir)*FAR_PLANE, -1.0f);
-    } else {
-        vec4 col = vec4(vert.position.xyz, 1.0f);
-    }
-    imageStore(framebuffer, pix, col);
-}
+// So we can get the average of all iterations with equal weights
+uniform int nr_iterations_done;
 
 subroutine(Trace)
-void normal_trace(ivec2 pix, vec3 ray_origin, vec3 ray_dir) {
-    vec4 col;
-    Vertex vert = get_vertex_data(ray_origin, ray_dir);
-    if (vert.mesh_index == -1) {
-        col = 0.0f.xxxx;
-    } else {
-        vec4 col = normalize(vert.normal.xyz).xyzz;
+void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
+    vec4 col = imageLoad(framebuffer, pix);
+    vec4 pos = imageLoad(geometry, pix);
+    vec4 norm = imageLoad(normals, pix);
+    vec2 tex_coord = vec2(pos.w, norm.w);
+
+    int mesh_index = mesh_indices[pix.x+pix.y*size.x];
+
+    if (mesh_index == -1) {
+        imageStore(framebuffer, pix, vec4(col.xyz, 1.0f));
+        return;
     }
-    imageStore(framebuffer, pix, col);
+
+    Material material = materials[meshes[mesh_index].material_index];
+    MaterialData material_data = get_material_data(material, tex_coord);
+
+    vec4 new_col = shade(pos.xyz, norm.xyz, normalize(ray_dir), material_data);
+
+    imageStore(framebuffer, pix, mix(col, new_col, 1.0f/(nr_iterations_done+1)));
 }
+
+
 layout (local_size_x = 8, local_size_y = 8) in;
 
 void main() {
@@ -405,7 +419,7 @@ void main() {
 
     vec3 ray = mix(mix(ray00, ray10, tex_coords.x), mix(ray01, ray11, tex_coords.x), tex_coords.y);
 
-    trace(pix, eye, ray);
+    trace(eye, ray, pix, size);
 
     // uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y);
     // for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {
