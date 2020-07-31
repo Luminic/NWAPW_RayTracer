@@ -120,10 +120,10 @@ void Viewport::on_fileButton_clicked()
     modelLabel->setText(new_model_path);
 }
 
-// Goes from 1000 to 4000, but actual range from 1 to 4
-void Viewport::on_unused4DSlider_sliderMoved(int position)
+// Goes from 0 to 10000
+void Viewport::on_slice4DSlider_sliderMoved(int position)
 {
-    slider4Dvalue = position / 1000;
+    slider4Dvalue = position / 10000.0f;
 }
 
 float Viewport::return_slider4D_val() {

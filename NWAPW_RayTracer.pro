@@ -19,7 +19,7 @@ RESOURCES = resources.qrc
 
 INCLUDEPATH += .
 
-INCLUDEPATH += libraries/glm-0.9.9.8/glm/
+INCLUDEPATH += libraries/glm-0.9.9.8/
 INCLUDEPATH += libraries/stb_image/
 INCLUDEPATH += libraries/assimp-5.0.1/include/
 
