@@ -7,6 +7,7 @@
 #include <QtUiTools>
 #include <QApplication>
 #include <QTextStream>
+#include <QByteArray>
 
 #include "Viewport.hpp"
 #include "rendering/objects/Scene.hpp"
@@ -40,6 +41,7 @@ private:
     ModelLoader3D* loader3d;
     ModelLoader4D* loader4d;
     DimensionDropper* dropper;
+    QString modelPath;
 };
 
 #endif

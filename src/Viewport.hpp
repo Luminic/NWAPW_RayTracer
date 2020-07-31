@@ -7,11 +7,12 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <QWheelEvent>
-
+#include <QString>
 #include <QGridLayout>
 #include <QDebug>
 #include <QtUiTools>
 #include <QDesktopServices>
+#include <QFileDialog>
 
 #include "CameraController.hpp"
 #include "rendering/OpenGLWidget.hpp"
@@ -34,6 +35,8 @@ public:
 
     Renderer3DOptions* get_renderer_3D_options();
 
+    float return_slider4D_val();
+
 signals:
     void opengl_initialized();
 
@@ -45,6 +48,10 @@ protected:
 
 private slots:
     void on_iterativeRenderCheckBox_toggled(bool checked);
+
+    void on_fileButton_clicked();
+
+    void on_unused4DSlider_sliderMoved(int position);
 
 private:
     void capture_mouse();
@@ -61,6 +68,10 @@ private:
     Ui::Viewport ui;
 
     Settings3D* settings3D;
+    QLabel* modelLabel;
+    QString new_model_path;
+
+    float slider4Dvalue;
 };
 
 #endif

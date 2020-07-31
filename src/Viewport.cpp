@@ -18,6 +18,9 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
     ui.setupUi(this);
     setFocusPolicy(Qt::StrongFocus);
 
+    // Grab name of model label object
+    modelLabel = findChild<QLabel*>("modelLabel");
+
     // Setup viewport
     QGridLayout* layout = findChild<QGridLayout*>("gridLayout");
     layout->addWidget(&gl_widget, 0, 0);
@@ -109,4 +112,20 @@ void Viewport::release_mouse() {
 void Viewport::on_iterativeRenderCheckBox_toggled(bool checked)
 {
     settings3D->toggle_iterative_rendering(checked, get_renderer_3D_options());
+}
+
+void Viewport::on_fileButton_clicked()
+{
+    new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "C:/");
+    modelLabel->setText(new_model_path);
+}
+
+// Goes from 1000 to 4000, but actual range from 1 to 4
+void Viewport::on_unused4DSlider_sliderMoved(int position)
+{
+    slider4Dvalue = position / 1000;
+}
+
+float Viewport::return_slider4D_val() {
+    return slider4Dvalue;
 }
