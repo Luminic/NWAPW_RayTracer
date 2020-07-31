@@ -47,7 +47,7 @@
     <bool>true</bool>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab3D">
     <property name="autoFillBackground">
@@ -249,20 +249,23 @@
          </font>
         </property>
         <property name="text">
-         <string>Unused</string>
+         <string>3D Slice</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QSlider" name="unused4DSlider">
+       <widget class="QSlider" name="slice4DSlider">
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="minimum">
-         <number>1000</number>
+         <number>0</number>
         </property>
         <property name="maximum">
-         <number>4000</number>
+         <number>10000</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>

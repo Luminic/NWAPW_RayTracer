@@ -7,11 +7,9 @@ DynamicMesh::DynamicMesh(const std::vector<Vertex>& vertices, const std::vector<
 {}
 
 void DynamicMesh::set_mesh_index(int mesh_index) {
-    if (this->mesh_index != mesh_index) {
-        this->mesh_index = mesh_index;
-        for (unsigned int i=0; i<vertices.size(); i++) {
-            vertices[i].mesh_index = mesh_index;
-        }
+    this->mesh_index = mesh_index;
+    for (unsigned int i=0; i<vertices.size(); i++) {
+        vertices[i].mesh_index = mesh_index;
     }
 }
 

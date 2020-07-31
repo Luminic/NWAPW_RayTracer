@@ -56,7 +56,7 @@ private slots:
 
     void on_fileButton_clicked();
 
-    void on_unused4DSlider_sliderMoved(int position);
+    void on_slice4DSlider_sliderMoved(int position);
 
     void on_rotateXYSlider_sliderMoved(int position);
 
@@ -89,7 +89,7 @@ private:
     QLabel* modelLabel;
     QString new_model_path;
 
-    float slider_4D_val;
+    float slider4Dvalue = 0.0f;
 };
 
 #endif

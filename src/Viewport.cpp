@@ -127,10 +127,10 @@ void Viewport::on_fileButton_clicked()
     file_changed = 1;
 }
 
-// Goes from 1000 to 4000, but actual range from 1 to 4
-void Viewport::on_unused4DSlider_sliderMoved(int position)
+// Goes from 0 to 10000
+void Viewport::on_slice4DSlider_sliderMoved(int position)
 {
-    slider_4D_val = position / 1000;
+    slider4Dvalue = position / 10000.0f;
 }
 
 float Viewport::return_slider4D_val() {

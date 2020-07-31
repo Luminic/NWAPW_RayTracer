@@ -42,6 +42,11 @@ private:
     ModelLoader4D* loader4d;
     DimensionDropper* dropper;
     QString model_path;
+
+    // TODO: move this to somewhere more suitable
+    Node* model4d = nullptr;
+    Node* sliced_node = nullptr;
+    float previous_slice = 0.0f;
 };
 
 #endif
