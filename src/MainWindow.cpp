@@ -51,34 +51,18 @@ void MainWindow::resource_initialization() {
 
     // Must convert file paths from QStrings to char*
     QByteArray char_model_path = model_path.toLocal8Bit();
-    Node* model4d = loader4d->load_model(char_model_path);
-
-    glm::mat4 rotation_matrix(1.0f);
-    constexpr char axis1 = 0, axis2 = 3, increment = 2;
-    for (int j = 0; j < 10; j += increment) {
-        float rotation = glm::radians(j * 10.0f);
-        rotation_matrix[axis1][axis1] = cosf(rotation); rotation_matrix[axis1][axis2] = -sinf(rotation);
-        rotation_matrix[axis2][axis1] = sinf(rotation); rotation_matrix[axis2][axis2] = cosf(rotation);
-
-        // TODO: put this in vertex_shader.glsl around line 97
-        // to have everything affected by the camera's
-        // 4D rotation/position (which should be 4D settings
-        // if we don't end up implementing an editor).
-        for (auto mesh : model4d->meshes) {
-            std::vector<Vertex>& model4d_vertices = dynamic_cast<DynamicMesh*>(mesh)->modify_vertices();
-            for (auto& vertex : model4d_vertices)
-                vertex.position = rotation_matrix * vertex.position;
-        }
-
-        for (int i = 0; i < 10; i += increment) {
-            test(dropper, &scene, model4d, i / 10.0f, j);
-        }
-    QByteArray char_model_path = modelPath.toLocal8Bit();
     model4d = loader4d->load_model(char_model_path);
+    // cache it here so any model3ds can use it
+    // as long as MainWindow owns model4d it's fine
+    // but that's less than ideal
+    model4d->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
 
     sliced_node = dropper->drop(model4d, 0.0f);
     if (sliced_node) {
-        sliced_node->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
+        // TODO: these only apply to the first model
+        // for some reason and not after the slider
+        // is changed...?
+        sliced_node->transformation = model4d->transformation;
         for (auto mesh : sliced_node->meshes)
             mesh->material_index = 0;
 
@@ -162,20 +146,14 @@ void MainWindow::resource_initialization() {
     scene.add_static_mesh((AbstractMesh*)mesh1);
     scene.add_dynamic_mesh((AbstractMesh*)mesh2);
     scene.add_dynamic_mesh((AbstractMesh*)mesh3);
+
 }
 
 void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
-    /*
-    if (viewport->return_file_changed()) {
-        model_path = viewport->get_new_model_path();
-        resource_initialization();
-    }
-    */
     viewport->main_loop(dt);
 
-    // normal range is [0,1]
-    float slice = viewport->return_slider4D_val()/* * 3.0f - 1.0f*/; // [-1,2]
+    float slice = viewport->return_slider4D_val();
     // this is fine to exactly compare these
     // float values because they will only be
     // exactly equal when the user hasn't
@@ -184,6 +162,7 @@ void MainWindow::main_loop() {
     if (previous_slice != slice) {
         previous_slice = slice;
 
+        // range is [-2,2]
         Node* new_sliced_node = dropper->drop(model4d, slice);
         // TODO: make this support more than one mesh
         // the reason I didn't do it right now is because

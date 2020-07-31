@@ -58,16 +58,11 @@ private slots:
 
     void on_slice4DSlider_sliderMoved(int position);
 
-    void on_rotateXYSlider_sliderMoved(int position);
-
-    void on_rotateYZSlider_sliderMoved(int position);
-
-    void on_rotateZXSlider_sliderMoved(int position);
-
-    void on_rotateXWDSlider_sliderMoved(int position);
-
+    void on_rotateXSlider_sliderMoved(int position);
+    void on_rotateYSlider_sliderMoved(int position);
+    void on_rotateZSlider_sliderMoved(int position);
+    void on_rotateXWSlider_sliderMoved(int position);
     void on_rotateYWSlider_sliderMoved(int position);
-
     void on_rotateZWSlider_sliderMoved(int position);
 
 private:

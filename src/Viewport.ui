@@ -114,7 +114,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QSlider" name="rotateXYSlider">
+       <widget class="QSlider" name="rotateYSlider">
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
@@ -167,7 +167,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QSlider" name="rotateYZSlider">
+       <widget class="QSlider" name="rotateZSlider">
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
@@ -192,7 +192,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QSlider" name="rotateZXSlider">
+       <widget class="QSlider" name="rotateXSlider">
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
@@ -259,7 +259,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="minimum">
-         <number>0</number>
+         <number>-10000</number>
         </property>
         <property name="maximum">
          <number>10000</number>
@@ -288,7 +288,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Rotate X</string>
+         <string>Rotate XW</string>
         </property>
        </widget>
       </item>
@@ -302,7 +302,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Rotate Y</string>
+         <string>Rotate YW</string>
         </property>
        </widget>
       </item>
@@ -316,7 +316,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Rotate Z</string>
+         <string>Rotate ZW</string>
         </property>
        </widget>
       </item>

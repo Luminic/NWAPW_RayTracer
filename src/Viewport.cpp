@@ -127,52 +127,43 @@ void Viewport::on_fileButton_clicked()
     file_changed = 1;
 }
 
-// Goes from 0 to 10000
-void Viewport::on_slice4DSlider_sliderMoved(int position)
-{
-    slider4Dvalue = position / 10000.0f;
+// in: (int)[-10000,10000], out: (float)[-2,2]
+void Viewport::on_slice4DSlider_sliderMoved(int position) {
+    slider4Dvalue = position / 5000.0f;
 }
 
 float Viewport::return_slider4D_val() {
-    return slider_4D_val;
+    return slider4Dvalue;
 }
 
-bool Viewport::return_file_changed()
-{
+bool Viewport::return_file_changed() {
     return file_changed;
 }
 
-void Viewport::set_file_changed(bool new_bool)
-{
+void Viewport::set_file_changed(bool new_bool) {
     file_changed = new_bool;
 }
 
-void Viewport::on_rotateXYSlider_sliderMoved(int position)
-{
-
+void Viewport::on_rotateXSlider_sliderMoved(int position) {
+    qDebug() << position;
 }
 
-void Viewport::on_rotateYZSlider_sliderMoved(int position)
-{
-
+void Viewport::on_rotateYSlider_sliderMoved(int position) {
+    qDebug() << position;
 }
 
-void Viewport::on_rotateZXSlider_sliderMoved(int position)
-{
-
+void Viewport::on_rotateZSlider_sliderMoved(int position) {
+    qDebug() << position;
 }
 
-void Viewport::on_rotateXWDSlider_sliderMoved(int position)
-{
-
+void Viewport::on_rotateXWSlider_sliderMoved(int position) {
+    qDebug() << position;
 }
 
-void Viewport::on_rotateYWSlider_sliderMoved(int position)
-{
-
+void Viewport::on_rotateYWSlider_sliderMoved(int position) {
+    qDebug() << position;
 }
 
-void Viewport::on_rotateZWSlider_sliderMoved(int position)
-{
-
+void Viewport::on_rotateZWSlider_sliderMoved(int position) {
+    qDebug() << position;
 }
