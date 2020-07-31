@@ -143,27 +143,3 @@ bool Viewport::return_file_changed() {
 void Viewport::set_file_changed(bool new_bool) {
     file_changed = new_bool;
 }
-
-void Viewport::on_rotateXSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
-
-void Viewport::on_rotateYSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
-
-void Viewport::on_rotateZSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
-
-void Viewport::on_rotateXWSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
-
-void Viewport::on_rotateYWSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
-
-void Viewport::on_rotateZWSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
