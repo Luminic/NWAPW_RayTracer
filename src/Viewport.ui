@@ -187,7 +187,7 @@
       <string>Escape: Toggle viewport mouse focus
 WASD: Move horizontally
 Space: Move up
-LShift: Move down
+Shift: Move down
 MWheel: Change field of view</string>
      </property>
     </widget>
