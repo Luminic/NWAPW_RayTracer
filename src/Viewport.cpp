@@ -33,6 +33,7 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
 
     // Setup 3D settings ui
     settings3D = new Settings3D(this);
+    file_changed = 0;
 
 }
 
@@ -88,7 +89,7 @@ void Viewport::mouseMoveEvent(QMouseEvent* event) {
 void Viewport::wheelEvent(QWheelEvent* event) {
     QPoint angle_delta = event->angleDelta() / 120;
 
-    if (!angle_delta.isNull()) {
+    if (!angle_delta.isNull() && mouse_captured) {
         float fov_change = static_cast<float>(angle_delta.y()) / 5;
         cam_controller.update_fov(fov_change);
     }
@@ -109,6 +110,11 @@ void Viewport::release_mouse() {
     setMouseTracking(false);
 }
 
+QString Viewport::get_new_model_path() const
+{
+    return new_model_path;
+}
+
 void Viewport::on_iterativeRenderCheckBox_toggled(bool checked)
 {
     settings3D->toggle_iterative_rendering(checked, get_renderer_3D_options());
@@ -116,16 +122,48 @@ void Viewport::on_iterativeRenderCheckBox_toggled(bool checked)
 
 void Viewport::on_fileButton_clicked()
 {
-    new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "C:/");
+    new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "C:/", ("Model Files (*.obj *.ob4)"));
     modelLabel->setText(new_model_path);
+    file_changed = 1;
 }
 
-// Goes from 1000 to 4000, but actual range from 1 to 4
-void Viewport::on_unused4DSlider_sliderMoved(int position)
-{
-    slider4Dvalue = position / 1000;
+// in: (int)[-10000,10000], out: (float)[-2,2]
+void Viewport::on_slice4DSlider_sliderMoved(int position) {
+    slider4Dvalue = position / 5000.0f;
 }
 
 float Viewport::return_slider4D_val() {
     return slider4Dvalue;
+}
+
+bool Viewport::return_file_changed() {
+    return file_changed;
+}
+
+void Viewport::set_file_changed(bool new_bool) {
+    file_changed = new_bool;
+}
+
+void Viewport::on_rotateXSlider_sliderMoved(int position) {
+    qDebug() << position;
+}
+
+void Viewport::on_rotateYSlider_sliderMoved(int position) {
+    qDebug() << position;
+}
+
+void Viewport::on_rotateZSlider_sliderMoved(int position) {
+    qDebug() << position;
+}
+
+void Viewport::on_rotateXWSlider_sliderMoved(int position) {
+    qDebug() << position;
+}
+
+void Viewport::on_rotateYWSlider_sliderMoved(int position) {
+    qDebug() << position;
+}
+
+void Viewport::on_rotateZWSlider_sliderMoved(int position) {
+    qDebug() << position;
 }
