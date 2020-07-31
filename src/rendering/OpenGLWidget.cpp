@@ -88,7 +88,7 @@ void OpenGLWidget::initializeGL() {
     frame_shader.validate();
 
     if (renderer) {
-        render_result = renderer->initialize(width(), height(), this);
+        render_result = renderer->initialize(width(), height(), context(), context()->surface());
     } else {
         render_result = new Texture(this);
         render_result->load("resources/textures/awesomeface.png");
@@ -101,7 +101,7 @@ void OpenGLWidget::set_renderer(Renderer3D* renderer) {
     this->renderer = renderer;
     if (context()) {
         makeCurrent();
-        render_result = renderer->initialize(width(), height(), this);
+        render_result = renderer->initialize(width(), height(), context(), context()->surface());
         doneCurrent();
     }
 }

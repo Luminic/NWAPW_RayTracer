@@ -2,7 +2,6 @@
 #define RENDERER_HPP
 
 #include <QObject>
-#include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_5_Core>
 #include <vector>
 
@@ -23,10 +22,10 @@ public:
     Renderer3D(QObject* parent=nullptr);
     virtual ~Renderer3D() {}
 
-    // QOpenGLWidget is needed for some functions so context can be made current
+    // Context and surface are needed for some functions so context can be made current
     // Other functions assume the context to already be current
-    // Assumes the context is current
-    Texture* initialize(int width, int height, QOpenGLWidget* opengl_widget=nullptr);
+    // This function assumes the context is already current
+    Texture* initialize(int width, int height, QOpenGLContext* opengl_context=nullptr, QSurface* surface=nullptr);
 
     // Creates renders of size w,h
     // Warning: The render result will still be the old size if iterative rendering
@@ -54,13 +53,14 @@ public:
 
     // Doesn't need the context to be current: it sets opengl_widget's context as
     // current instead
-    // If opengl_widget is null, returns -1 (no mesh) by default
+    // If opengl_context or surface is null, returns -1 (no mesh) by default
     MeshIndex get_mesh_index_at(int x, int y);
 
 private:
     // Used pretty much only to set context
     // Can be null; if so, functions that need this will return their defaults
-    QOpenGLWidget* opengl_widget;
+    QOpenGLContext* opengl_context;
+    QSurface* surface;
 
     Texture environment_map;
 

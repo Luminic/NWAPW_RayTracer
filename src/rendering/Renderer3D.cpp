@@ -6,14 +6,16 @@
 uint32_t round_up_to_pow_2(uint32_t x);
 
 Renderer3D::Renderer3D(QObject* parent) : QObject(parent) {
-    opengl_widget = nullptr;
+    opengl_context = nullptr;
+    surface = nullptr;
     camera = nullptr;
     scene = nullptr;
     options = new Renderer3DOptions(this, this);
 }
 
-Texture* Renderer3D::initialize(int width, int height, QOpenGLWidget* opengl_widget) {
-    this->opengl_widget = opengl_widget;
+Texture* Renderer3D::initialize(int width, int height, QOpenGLContext* opengl_context, QSurface* surface) {
+    this->opengl_context = opengl_context;
+    this->surface = surface;
 
     initializeOpenGLFunctions();
     this->width = width;
@@ -239,8 +241,8 @@ void Renderer3D::end_iterative_rendering() {
 MeshIndex Renderer3D::get_mesh_index_at(int x, int y) {
     if (x >= mesh_indices_ssbo_size[0] || y >= mesh_indices_ssbo_size[1])
         return -1;
-    if (opengl_widget) {
-        opengl_widget->makeCurrent();
+    if (opengl_context && surface) {
+        opengl_context->makeCurrent(surface);
         MeshIndex mesh_index;
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_indices_ssbo);
