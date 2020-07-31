@@ -33,9 +33,9 @@
    <property name="geometry">
     <rect>
      <x>770</x>
-     <y>20</y>
+     <y>130</y>
      <width>411</width>
-     <height>581</height>
+     <height>471</height>
     </rect>
    </property>
    <property name="font">
@@ -47,7 +47,7 @@
     <bool>true</bool>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab3D">
     <property name="autoFillBackground">
@@ -142,10 +142,10 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="minimum">
-         <number>-2000</number>
+         <number>1000</number>
         </property>
         <property name="maximum">
-         <number>2000</number>
+         <number>4000</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -231,6 +231,39 @@ MWheel: Change field of view</string>
    <property name="textInteractionFlags">
     <set>Qt::TextBrowserInteraction</set>
    </property>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>770</x>
+     <y>10</y>
+     <width>160</width>
+     <height>88</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="modelFileVerticalLayout">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Loaded Model:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="modelLabel">
+      <property name="text">
+       <string>File Name Here</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="fileButton">
+      <property name="text">
+       <string>Load New Model</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
