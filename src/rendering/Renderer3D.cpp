@@ -6,12 +6,15 @@
 uint32_t round_up_to_pow_2(uint32_t x);
 
 Renderer3D::Renderer3D(QObject* parent) : QObject(parent) {
+    opengl_widget = nullptr;
     camera = nullptr;
     scene = nullptr;
     options = new Renderer3DOptions(this, this);
 }
 
-Texture* Renderer3D::initialize(int width, int height) {
+Texture* Renderer3D::initialize(int width, int height, QOpenGLWidget* opengl_widget) {
+    this->opengl_widget = opengl_widget;
+
     initializeOpenGLFunctions();
     this->width = width;
     this->height = height;
@@ -231,6 +234,23 @@ void Renderer3D::end_iterative_rendering() {
         mesh_indices_ssbo_size[0] = width;
         mesh_indices_ssbo_size[1] = height;
     }
+}
+
+MeshIndex Renderer3D::get_mesh_index_at(int x, int y) {
+    if (x >= mesh_indices_ssbo_size[0] || y >= mesh_indices_ssbo_size[1])
+        return -1;
+    if (opengl_widget) {
+        opengl_widget->makeCurrent();
+        MeshIndex mesh_index;
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_indices_ssbo);
+        int offset = x;
+        offset += (mesh_indices_ssbo_size[1]-y)*mesh_indices_ssbo_size[0];
+        offset *= sizeof(MeshIndex);
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, sizeof(MeshIndex), &mesh_index);
+        return mesh_index;
+    }
+    return -1;
 }
 
 void Renderer3D::add_meshes_to_buffer() {

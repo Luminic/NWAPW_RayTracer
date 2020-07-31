@@ -2,6 +2,7 @@
 #define RENDERER_HPP
 
 #include <QObject>
+#include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_5_Core>
 #include <vector>
 
@@ -22,14 +23,20 @@ public:
     Renderer3D(QObject* parent=nullptr);
     virtual ~Renderer3D() {}
 
-    Texture* initialize(int width, int height);
+    // QOpenGLWidget is needed for some functions so context can be made current
+    // Other functions assume the context to already be current
+    // Assumes the context is current
+    Texture* initialize(int width, int height, QOpenGLWidget* opengl_widget=nullptr);
+
     // Creates renders of size w,h
     // Warning: The render result will still be the old size if iterative rendering
     // is on
+    // Assumes the context is current
     void resize(int width, int height);
 
     // Render new frame (iterative rendering off)
     // or improve previous frame (iterative rendering on)
+    // Assumes the context is current
     Texture* render();
 
     void set_scene(Scene* scene);
@@ -45,7 +52,16 @@ public:
     void begin_iterative_rendering();
     void end_iterative_rendering();
 
+    // Doesn't need the context to be current: it sets opengl_widget's context as
+    // current instead
+    // If opengl_widget is null, returns -1 (no mesh) by default
+    MeshIndex get_mesh_index_at(int x, int y);
+
 private:
+    // Used pretty much only to set context
+    // Can be null; if so, functions that need this will return their defaults
+    QOpenGLWidget* opengl_widget;
+
     Texture environment_map;
 
     Shader render_shader;
@@ -87,7 +103,7 @@ private:
     int height;
 
     // Per-pixel mesh indices (output of render)
-    // The data at pixel (u,v) is located at u+v*size_x
+    // The data at pixel (u,v) is located at u+v*size_x where size_x is mesh_indices_ssbo_size[0]
     unsigned int mesh_indices_ssbo;
     // Per-pixel indices so size is split into width & height (actual buffer size is width*height)
     int mesh_indices_ssbo_size[2];

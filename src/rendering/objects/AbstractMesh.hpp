@@ -8,7 +8,7 @@
 
 constexpr int mesh_size_in_opengl = 80;
 
-typedef uint32_t MeshIndex;
+typedef int32_t MeshIndex;
 
 class AbstractMesh : public QObject {
     Q_OBJECT;
