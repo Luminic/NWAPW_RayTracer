@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Ray Tracer");
     resize(1280, 640);
 
-    modelPath = "resources/models/pentachron.ob4";
+    model_path = "resources/models/pentachron.ob4";
 
     loader3d = new ModelLoader3D(this);
     loader4d = new ModelLoader4D(this);
@@ -50,6 +50,29 @@ void MainWindow::resource_initialization() {
 //    scene.add_root_node(model_root_node);
 
     // Must convert file paths from QStrings to char*
+    QByteArray char_model_path = model_path.toLocal8Bit();
+    Node* model4d = loader4d->load_model(char_model_path);
+
+    glm::mat4 rotation_matrix(1.0f);
+    constexpr char axis1 = 0, axis2 = 3, increment = 2;
+    for (int j = 0; j < 10; j += increment) {
+        float rotation = glm::radians(j * 10.0f);
+        rotation_matrix[axis1][axis1] = cosf(rotation); rotation_matrix[axis1][axis2] = -sinf(rotation);
+        rotation_matrix[axis2][axis1] = sinf(rotation); rotation_matrix[axis2][axis2] = cosf(rotation);
+
+        // TODO: put this in vertex_shader.glsl around line 97
+        // to have everything affected by the camera's
+        // 4D rotation/position (which should be 4D settings
+        // if we don't end up implementing an editor).
+        for (auto mesh : model4d->meshes) {
+            std::vector<Vertex>& model4d_vertices = dynamic_cast<DynamicMesh*>(mesh)->modify_vertices();
+            for (auto& vertex : model4d_vertices)
+                vertex.position = rotation_matrix * vertex.position;
+        }
+
+        for (int i = 0; i < 10; i += increment) {
+            test(dropper, &scene, model4d, i / 10.0f, j);
+        }
     QByteArray char_model_path = modelPath.toLocal8Bit();
     model4d = loader4d->load_model(char_model_path);
 
@@ -143,6 +166,12 @@ void MainWindow::resource_initialization() {
 
 void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
+    /*
+    if (viewport->return_file_changed()) {
+        model_path = viewport->get_new_model_path();
+        resource_initialization();
+    }
+    */
     viewport->main_loop(dt);
 
     // normal range is [0,1]
