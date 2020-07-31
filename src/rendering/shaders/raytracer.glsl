@@ -22,7 +22,7 @@ struct Vertex {
 
     // Total Size: 48
 };
-#define DEFUALT_VERTEX Vertex(vec4(0.0f,0.0f,0.0f,-1.0f), vec4(0.0f), vec2(0.0f), -1)
+#define DEFAULT_VERTEX Vertex(vec4(0.0f,0.0f,0.0f,-1.0f), vec4(0.0f), vec2(0.0f), -1)
 
 layout (std140, binding=0) buffer VertexBuffer {
     Vertex vertices[];
@@ -210,24 +210,16 @@ vec4 barycentric_coordinates(vec3 point, vec3 tri0, vec3 tri1, vec3 tri2) {
     float area2 = length(cross(tri0-point, tri1-point)) / double_area_tri;
     if (area0+area1+area2 > 1+EPSILON) return vec4(0, 0, 0, -1);
 
-    // if (area0+area1+area2-1 <= EPSILON) {
-        // If the combined area of the 3 mini triangles equals the area of the triangle
-        // the point is inside of the triangle
-        return vec4(area0, area1, area2, 1);
-    // } else {
-    //     // Otherwise, the point is outside of the triangle
-    //     // Still return the barycentric coordinates because they might still be useful
-    //     return vec4(area0, area1, area2, -1);
-    // }
+    return vec4(area0, area1, area2, 1);
 }
 
-bool triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec3 ray_dir, inout float depth, inout Vertex vert) {
+bool triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec3 ray_dir, float offset, inout float depth, inout Vertex vert) {
     vec3 normal = cross(vec3(v1.position-v0.position), vec3(v2.position-v0.position));
     float rpi = ray_plane_int(ray_origin, ray_dir, v0.position.xyz, normalize(normal));
 
     // If the ray intersects the triangle
     float dist = rpi*length(ray_dir);
-    if (dist >= NEAR_PLANE && dist <= depth) {
+    if (dist >= offset && dist <= depth) {
         vec3 intersection_point = ray_origin + rpi*ray_dir;
         vec4 bc = barycentric_coordinates(intersection_point, v0.position.xyz, v1.position.xyz, v2.position.xyz);
         // If the point is inside of the triangle
@@ -243,28 +235,28 @@ bool triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec
     return false;
 }
 
-Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir) {
+Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir, float offset, float max_dist) {
     /*
     Returns an interpolated vertex from the intersection between the ray and the
     nearest triangle it collides with
 
     If there is no triangle, the mesh_index will be -1
     */
-    float depth = FAR_PLANE;
-    Vertex vert = DEFUALT_VERTEX;
+    float depth = max_dist;
+    Vertex vert = DEFAULT_VERTEX;
     for (int i=0; i<static_indices.length()/3; i++) {
         Vertex v0 = vertices[static_indices[i*3]];
         Vertex v1 = vertices[static_indices[i*3+1]];
         Vertex v2 = vertices[static_indices[i*3+2]];
 
-        triangle_intersection(v0, v1, v2, ray_origin, ray_dir, depth, vert);
+        triangle_intersection(v0, v1, v2, ray_origin, ray_dir, offset, depth, vert);
     }
     for (int i=0; i<dynamic_indices.length()/3; i++) {
         Vertex v0 = vertices[dynamic_indices[i*3]   + static_vertices.length()];
         Vertex v1 = vertices[dynamic_indices[i*3+1] + static_vertices.length()];
         Vertex v2 = vertices[dynamic_indices[i*3+2] + static_vertices.length()];
 
-        triangle_intersection(v0, v1, v2, ray_origin, ray_dir, depth, vert);
+        triangle_intersection(v0, v1, v2, ray_origin, ray_dir, offset, depth, vert);
     }
     return vert;
 }
@@ -318,30 +310,44 @@ vec3 cook_torrance_BRDF(vec3 view, vec3 normal, vec3 light, MaterialData materia
     return kD*lambertian_diffuse + numer/max(denom, 0.001f);
 }
 
-// TODO: make make some of these (especially shadows)
-// uniforms so they can be controlled in settings
-#define OFFSET 0.0001f
-#define SUN_DIR  normalize(vec3(-0.2f, 1.0f, 0.2f))
-#define SUN_RADIANCE vec3(3.0f);
 #define SHADOWS 1
-#define AMBIENT_MULTIPLIER 0.5f
+
+struct Light {
+    vec3 direction;
+    vec3 radiance;
+    float ambient_multiplier;
+};
+
+// TODO: Make the sun a uniform
+#define DEFAULT_SUN Light(normalize(vec3(-0.2f, 1.0f, 0.2f)), vec3(3.0f), 0.5f)
 #define BIAS 0.0001f
+
+vec3 calculate_light(vec3 position, vec3 normal, vec3 ray_dir, MaterialData material, Light light) {
+    #if SHADOWS
+        if (get_vertex_data(position, light.direction, BIAS, FAR_PLANE).mesh_index != -1) {
+            return material.albedo.rgb * material.AO * light.ambient_multiplier;
+        }
+    #endif
+    vec3 color = cook_torrance_BRDF(-ray_dir, normal, light.direction, material);
+    color *= light.radiance * max(dot(normal, light.direction), 0.0f);
+    color += material.albedo.rgb * material.AO * light.ambient_multiplier;
+    return color;
+}
+
+#define OFFSET 0.0001f
 vec4 shade(vec3 position, vec3 normal, vec3 ray_dir, MaterialData material) {
     // Make the normal always facing the camera
     normal = normalize(normal) * sign(dot(normal, -ray_dir));
-
-    vec3 radiance = vec3(0.0f);
-    #if SHADOWS
-        if (get_vertex_data(position-SUN_DIR*(NEAR_PLANE-BIAS), SUN_DIR).mesh_index == -1)
-            radiance += SUN_RADIANCE;
-    #else
-        radiance += SUN_RADIANCE;
-    #endif
-
-    vec3 color = cook_torrance_BRDF(-ray_dir, normal, SUN_DIR, material);
-    color *= radiance * max(dot(normal, SUN_DIR), 0.0f);
     
-    color += material.albedo.rgb * material.AO * AMBIENT_MULTIPLIER;
+    vec3 color = calculate_light(position, normal, ray_dir, material, DEFAULT_SUN);
+    return vec4(color, 1.0f);
+}
+
+vec4 offline_shade(vec3 position, vec3 normal, vec3 ray_dir, MaterialData material) {
+    // Make the normal always facing the camera
+    normal = normalize(normal) * sign(dot(normal, -ray_dir));
+    
+    vec3 color = calculate_light(position, normal, ray_dir, material, DEFAULT_SUN);
     return vec4(color, 1.0f);
 }
 
@@ -360,7 +366,7 @@ void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     vec4 col;
     vec4 geom;
     vec4 norms;
-    Vertex vert = get_vertex_data(ray_origin, ray_dir);
+    Vertex vert = get_vertex_data(ray_origin, ray_dir, NEAR_PLANE, FAR_PLANE);
     if (vert.mesh_index == -1) {
         col = texture(environment_map, ray_dir);
         geom = vec4(normalize(ray_dir)*FAR_PLANE, 0.0f);
