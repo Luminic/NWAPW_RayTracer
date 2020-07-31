@@ -52,17 +52,10 @@ void MainWindow::resource_initialization() {
     // Must convert file paths from QStrings to char*
     QByteArray char_model_path = modelPath.toLocal8Bit();
     model4d = loader4d->load_model(char_model_path);
-    // cache it here so any model3ds can use it
-    // as long as MainWindow owns model4d it's fine
-    // but that's less than ideal
-    model4d->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
 
     sliced_node = dropper->drop(model4d, 0.0f);
     if (sliced_node) {
-        // TODO: these only apply to the first model
-        // for some reason and not after the slider
-        // is changed...?
-        sliced_node->transformation = model4d->transformation;
+        sliced_node->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
         for (auto mesh : sliced_node->meshes)
             mesh->material_index = 0;
 
@@ -146,7 +139,6 @@ void MainWindow::resource_initialization() {
     scene.add_static_mesh((AbstractMesh*)mesh1);
     scene.add_dynamic_mesh((AbstractMesh*)mesh2);
     scene.add_dynamic_mesh((AbstractMesh*)mesh3);
-
 }
 
 void MainWindow::main_loop() {
@@ -162,7 +154,6 @@ void MainWindow::main_loop() {
     // which is what I want
     if (previous_slice != slice) {
         previous_slice = slice;
-        qDebug() << "changing slice";
 
         Node* new_sliced_node = dropper->drop(model4d, slice);
         // TODO: make this support more than one mesh

@@ -15,13 +15,11 @@
 #include "rendering/objects/DynamicMesh.hpp"
 #include "rendering/ModelLoader3D.hpp"
 #include "rendering/ModelLoader4D.hpp"
+#include "rendering/DimensionDropper.hpp"
 
 #include "Settings3D.hpp"
 #include "Settings4D.hpp"
 #include "ui_MainWindow.h"
-
-// TODO: temp
-#include "rendering/DimensionDropper.hpp"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT;
@@ -47,6 +45,13 @@ private:
     Node* model4d = nullptr;
     Node* sliced_node = nullptr;
     float previous_slice = 0.0f;
+
+    float prev_rotation_xy = 0.0f;
+    float prev_rotation_xz = 0.0f;
+    float prev_rotation_xw = 0.0f;
+    float prev_rotation_yz = 0.0f;
+    float prev_rotation_yw = 0.0f;
+    float prev_rotation_zw = 0.0f;
 };
 
 #endif

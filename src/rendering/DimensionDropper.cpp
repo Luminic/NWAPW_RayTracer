@@ -195,9 +195,9 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
         }
 
         if (indices.size()) {
-            qDebug() << "Mesh" << meshes3d.size() << "has" << vertices.size() << "vertices.";
-            qDebug() << "Mesh" << meshes3d.size() << "has" << indices.size() << "indices.";
-            qDebug() << "Mesh" << meshes3d.size() << "successfully dropped.";
+//            qDebug() << "Mesh" << meshes3d.size() << "has" << vertices.size() << "vertices.";
+//            qDebug() << "Mesh" << meshes3d.size() << "has" << indices.size() << "indices.";
+//            qDebug() << "Mesh" << meshes3d.size() << "successfully dropped.";
             meshes3d.push_back(new DynamicMesh(vertices, indices, this));
         }
     }
