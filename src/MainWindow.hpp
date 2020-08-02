@@ -27,9 +27,31 @@ public:
     MainWindow(QWidget* parent=nullptr);
     virtual ~MainWindow() {}
 
+    float return_slider4D_val();
+    bool return_file_changed();
+    void set_file_changed(bool);
+
+    QString get_new_model_path() const;
+
+private slots:
+    void on_iterativeRenderCheckBox_toggled(bool checked);
+
+    void on_fileButton_clicked();
+
+    void on_slice4DSlider_sliderMoved(int position);
+
+    void on_rotateXSlider_sliderMoved(int position);
+    void on_rotateYSlider_sliderMoved(int position);
+    void on_rotateZSlider_sliderMoved(int position);
+    void on_rotateXWSlider_sliderMoved(int position);
+    void on_rotateYWSlider_sliderMoved(int position);
+    void on_rotateZWSlider_sliderMoved(int position);
+
 private:
     void resource_initialization();
     void main_loop();
+
+    Ui::MainWindow ui;
 
     QTimer timer;
     QElapsedTimer elapsedTimer;
@@ -52,6 +74,13 @@ private:
     float prev_rotation_yz = 0.0f;
     float prev_rotation_yw = 0.0f;
     float prev_rotation_zw = 0.0f;
+
+    Settings3D* settings3D;
+    QLabel* modelLabel;
+    QString new_model_path;
+
+    float slider4Dvalue = 0.0f;
+    bool file_changed;
 };
 
 #endif

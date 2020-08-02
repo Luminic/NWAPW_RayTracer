@@ -12,17 +12,11 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
     // Propagate opengl signals
     connect(&gl_widget, &OpenGLWidget::opengl_initialized, this, &Viewport::opengl_initialized);
 
-    // Load UI
-    loadUiFile(parent, "src/Viewport.ui");
-
-    ui.setupUi(this);
     setFocusPolicy(Qt::StrongFocus);
 
-    // Grab name of model label object
-    modelLabel = findChild<QLabel*>("modelLabel");
-
     // Setup viewport
-    QGridLayout* layout = findChild<QGridLayout*>("gridLayout");
+    QGridLayout* layout = new QGridLayout(this);
+    layout->setMargin(0);
     layout->addWidget(&gl_widget, 0, 0);
 
     renderer_3D.set_camera(&camera_3D);
@@ -30,11 +24,6 @@ Viewport::Viewport(QWidget* parent) : QWidget(parent), gl_widget(this), renderer
     gl_widget.set_renderer(&renderer_3D);
 
     mouse_captured = false;
-
-    // Setup 3D settings ui
-    settings3D = new Settings3D(this);
-    file_changed = 0;
-
 }
 
 void Viewport::main_loop(float dt) {
@@ -108,62 +97,4 @@ void Viewport::release_mouse() {
     mouse_captured = false;
     releaseMouse();
     setMouseTracking(false);
-}
-
-QString Viewport::get_new_model_path() const
-{
-    return new_model_path;
-}
-
-void Viewport::on_iterativeRenderCheckBox_toggled(bool checked)
-{
-    settings3D->toggle_iterative_rendering(checked, get_renderer_3D_options());
-}
-
-void Viewport::on_fileButton_clicked()
-{
-    new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "C:/", ("Model Files (*.obj *.ob4)"));
-    modelLabel->setText(new_model_path);
-    file_changed = 1;
-}
-
-// in: (int)[-10000,10000], out: (float)[-2,2]
-void Viewport::on_slice4DSlider_sliderMoved(int position) {
-    slider4Dvalue = position / 5000.0f;
-}
-
-float Viewport::return_slider4D_val() {
-    return slider4Dvalue;
-}
-
-bool Viewport::return_file_changed() {
-    return file_changed;
-}
-
-void Viewport::set_file_changed(bool new_bool) {
-    file_changed = new_bool;
-}
-
-void Viewport::on_rotateXSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
-
-void Viewport::on_rotateYSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
-
-void Viewport::on_rotateZSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
-
-void Viewport::on_rotateXWSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
-
-void Viewport::on_rotateYWSlider_sliderMoved(int position) {
-    qDebug() << position;
-}
-
-void Viewport::on_rotateZWSlider_sliderMoved(int position) {
-    qDebug() << position;
 }

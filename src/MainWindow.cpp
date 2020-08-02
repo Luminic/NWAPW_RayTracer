@@ -20,7 +20,7 @@ static void print_matrix(const glm::mat4& matrix) {
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("Ray Tracer");
-    resize(1280, 640);
+    ui.setupUi(this);
 
     model_path = "resources/models/pentachron.ob4";
 
@@ -33,6 +33,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     viewport->set_scene(&scene);
     setCentralWidget(viewport);
+
+    // Setup 3D settings ui
+    modelLabel = findChild<QLabel*>("modelLabel");
+    settings3D = new Settings3D(this);
+    file_changed = 0;
 
     show();
 
@@ -153,7 +158,7 @@ void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
     viewport->main_loop(dt);
 
-    float slice = viewport->return_slider4D_val();
+    float slice = return_slider4D_val();
     // this is fine to exactly compare these
     // float values because they will only be
     // exactly equal when the user hasn't
@@ -191,4 +196,65 @@ void MainWindow::main_loop() {
             indices.insert(indices.begin(), new_indices.begin(), new_indices.end());
         }
     }
+}
+
+QString MainWindow::get_new_model_path() const
+{
+    return new_model_path;
+}
+
+void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked)
+{
+    qDebug() << "checked";
+    settings3D->toggle_iterative_rendering(checked, viewport->get_renderer_3D_options());
+}
+
+void MainWindow::on_fileButton_clicked()
+{
+    new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "C:/", ("Model Files (*.obj *.ob4)"));
+    modelLabel->setText(new_model_path);
+    file_changed = 1;
+}
+
+
+
+// in: (int)[-10000,10000], out: (float)[-2,2]
+void MainWindow::on_slice4DSlider_sliderMoved(int position) {
+    slider4Dvalue = position / 5000.0f;
+}
+
+float MainWindow::return_slider4D_val() {
+    return slider4Dvalue;
+}
+
+bool MainWindow::return_file_changed() {
+    return file_changed;
+}
+
+void MainWindow::set_file_changed(bool new_bool) {
+    file_changed = new_bool;
+}
+
+void MainWindow::on_rotateXSlider_sliderMoved(int position) {
+    qDebug() << position;
+}
+
+void MainWindow::on_rotateYSlider_sliderMoved(int position) {
+    qDebug() << position;
+}
+
+void MainWindow::on_rotateZSlider_sliderMoved(int position) {
+    qDebug() << position;
+}
+
+void MainWindow::on_rotateXWSlider_sliderMoved(int position) {
+    qDebug() << position;
+}
+
+void MainWindow::on_rotateYWSlider_sliderMoved(int position) {
+    qDebug() << position;
+}
+
+void MainWindow::on_rotateZWSlider_sliderMoved(int position) {
+    qDebug() << position;
 }

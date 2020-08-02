@@ -1,7 +1,7 @@
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
 
-#include "ui_Viewport.h"
+// #include "ui_Viewport.h"
 
 #include <QWidget>
 #include <QApplication>
@@ -35,13 +35,6 @@ public:
 
     Renderer3DOptions* get_renderer_3D_options();
 
-    // Getters and setters
-    float return_slider4D_val();
-    bool return_file_changed();
-    void set_file_changed(bool);
-
-    QString get_new_model_path() const;
-
 signals:
     void opengl_initialized();
 
@@ -50,20 +43,6 @@ protected:
     void keyReleaseEvent(QKeyEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
-
-private slots:
-    void on_iterativeRenderCheckBox_toggled(bool checked);
-
-    void on_fileButton_clicked();
-
-    void on_slice4DSlider_sliderMoved(int position);
-
-    void on_rotateXSlider_sliderMoved(int position);
-    void on_rotateYSlider_sliderMoved(int position);
-    void on_rotateZSlider_sliderMoved(int position);
-    void on_rotateXWSlider_sliderMoved(int position);
-    void on_rotateYWSlider_sliderMoved(int position);
-    void on_rotateZWSlider_sliderMoved(int position);
 
 private:
     void capture_mouse();
@@ -78,13 +57,6 @@ private:
     CameraController cam_controller;
 
     Scene* scene;
-    Ui::Viewport ui;
-
-    Settings3D* settings3D;
-    QLabel* modelLabel;
-    QString new_model_path;
-
-    float slider4Dvalue = 0.0f;
 };
 
 #endif
