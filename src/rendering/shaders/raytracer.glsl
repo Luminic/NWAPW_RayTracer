@@ -456,10 +456,11 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
 
     // vec4 new_col = shade(pos.xyz, norm.xyz, normalize(ray_dir), material_data);
 
-    uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y+nr_iterations_done*11);
-    for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {
-        prev_rand = rand(prev_rand);
-    }
+    // uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y+nr_iterations_done*11);
+    uint prev_rand = rand(nr_iterations_done);
+    // for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {
+    //     prev_rand = rand(prev_rand);
+    // }
     float r1 = ((prev_rand >> 3) & uint((1<<16) -1)) / (65535.0f/TWO_PI); // Should be in the range 0-2pi
     prev_rand = rand(prev_rand);
     float r2 = ((prev_rand >> 3) & uint((1<<16) -1)) / 65535.0f; // Should be in the range 0-1
