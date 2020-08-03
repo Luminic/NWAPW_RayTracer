@@ -238,11 +238,13 @@ void MainWindow::main_loop() {
 
         // Reset input for next update
         viewport->reset_pressed();
-    }
 
-    // If the user has a mesh selected
-    if (selected_mesh) {
+        qDebug() << "Selected Mesh" << selected_mesh;
 
+        // If the user has a mesh selected
+        if (selected_mesh) {
+
+        }
     }
 }
 

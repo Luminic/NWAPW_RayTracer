@@ -247,7 +247,7 @@ MeshIndex Renderer3D::get_mesh_index_at(int x, int y) {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_indices_ssbo);
         int offset = x;
-        offset += (mesh_indices_ssbo_size[1]-y)*mesh_indices_ssbo_size[0];
+        offset += (mesh_indices_ssbo_size[1]-(y+1))*mesh_indices_ssbo_size[0];
         offset *= sizeof(MeshIndex);
         glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, sizeof(MeshIndex), &mesh_index);
         return mesh_index;
