@@ -68,12 +68,20 @@ private:
     Node* sliced_node = nullptr;
     float previous_slice = 0.0f;
 
-    float prev_rotation_xy = 0.0f;
-    float prev_rotation_xz = 0.0f;
+    float prev_rotation_x = 0.0f;
+    float prev_rotation_y = 0.0f;
+    float prev_rotation_z = 0.0f;
     float prev_rotation_xw = 0.0f;
-    float prev_rotation_yz = 0.0f;
     float prev_rotation_yw = 0.0f;
     float prev_rotation_zw = 0.0f;
+
+    float xSliderValue = 0.0f;
+    float ySliderValue = 0.0f;
+    float zSliderValue = 0.0f;
+    float xwSliderValue = 0.0f;
+    float ywSliderValue = 0.0f;
+    float zwSliderValue = 0.0f;
+    void update_transformation();
 
     Settings3D* settings3D;
     QLabel* modelLabel;

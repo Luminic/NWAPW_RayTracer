@@ -13,9 +13,21 @@ static glm::mat4 transform(const glm::vec3& position, float rotation, const glm:
     return glm::translate(glm::rotate(glm::scale(glm::mat4(1.0f), scalar), rotation, rotation_axis), position);
 }
 
+static void rotate(glm::mat4& matrix, float angle, unsigned char first, unsigned char second) {
+    matrix[first][first]  *= cosf(angle); matrix[first][second]  *= -sinf(angle);
+    matrix[second][first] *= sinf(angle); matrix[second][second] *=  cosf(angle);
+}
+
 static void print_matrix(const glm::mat4& matrix) {
     for (unsigned char i = 0; i < 4; i++)
         qDebug() << matrix[i][0] << matrix[i][1] << matrix[i][2] << matrix[i][3];
+}
+
+void MainWindow::update_transformation() {
+    sliced_node->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
+    sliced_node->transformation = glm::rotate(sliced_node->transformation, glm::radians(prev_rotation_x), glm::vec3(1.0f, 0.0f, 0.0f));
+    sliced_node->transformation = glm::rotate(sliced_node->transformation, glm::radians(prev_rotation_y), glm::vec3(0.0f, 1.0f, 0.0f));
+    sliced_node->transformation = glm::rotate(sliced_node->transformation, glm::radians(prev_rotation_z), glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
@@ -57,20 +69,27 @@ void MainWindow::resource_initialization() {
     // Must convert file paths from QStrings to char*
     QByteArray char_model_path = model_path.toLocal8Bit();
     model4d = loader4d->load_model(char_model_path);
-    // cache it here so any model3ds can use it
-    // as long as MainWindow owns model4d it's fine
-    // but that's less than ideal
-    model4d->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
+
+    // TODO: applying the rotation matrix to the
+    // model before it's been dropped used to work
+    // now it's acting as if it happens after.???
+    glm::mat4 rotation(1.0f);
+    rotate(rotation,                glm::radians(prev_rotation_xw), 0, 3);
+    rotate(model4d->transformation, glm::radians(prev_rotation_yw), 1, 3);
+    rotate(model4d->transformation, glm::radians(prev_rotation_zw), 2, 3);
+
+    for (auto mesh : model4d->meshes) {
+        std::vector<Vertex>& model4d_vertices = dynamic_cast<DynamicMesh*>(mesh)->modify_vertices();
+        for (auto& vertex : model4d_vertices)
+            vertex.position = rotation * vertex.position;
+    }
 
     sliced_node = dropper->drop(model4d, 0.0f);
     if (sliced_node) {
-        // TODO: these only apply to the first model
-        // for some reason and not after the slider
-        // is changed...?
-        sliced_node->transformation = model4d->transformation;
+        // TODO: apply to all models
+        update_transformation();
         for (auto mesh : sliced_node->meshes)
             mesh->material_index = 0;
-
         scene.add_root_node(sliced_node);
     }
 
@@ -158,13 +177,21 @@ void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
     viewport->main_loop(dt);
 
+    prev_rotation_x = xSliderValue;
+    prev_rotation_y = ySliderValue;
+    prev_rotation_z = zSliderValue;
+    prev_rotation_xw = xwSliderValue;
+    prev_rotation_yw = ywSliderValue;
+    prev_rotation_zw = zwSliderValue;
+    update_transformation();
+
     float slice = return_slider4D_val();
     // this is fine to exactly compare these
     // float values because they will only be
     // exactly equal when the user hasn't
     // moved the slider since the last update
     // which is what I want
-    if (previous_slice != slice) {
+    // if (previous_slice != slice) {
         previous_slice = slice;
 
         // range is [-2,2]
@@ -195,7 +222,7 @@ void MainWindow::main_loop() {
             vertices.insert(vertices.begin(), new_vertices.begin(), new_vertices.end());
             indices.insert(indices.begin(), new_indices.begin(), new_indices.end());
         }
-    }
+    // }
 }
 
 QString MainWindow::get_new_model_path() const
@@ -216,8 +243,6 @@ void MainWindow::on_fileButton_clicked()
     file_changed = 1;
 }
 
-
-
 // in: (int)[-10000,10000], out: (float)[-2,2]
 void MainWindow::on_slice4DSlider_sliderMoved(int position) {
     slider4Dvalue = position / 5000.0f;
@@ -236,25 +261,25 @@ void MainWindow::set_file_changed(bool new_bool) {
 }
 
 void MainWindow::on_rotateXSlider_sliderMoved(int position) {
-    qDebug() << position;
+    xSliderValue = position / 10.0f;
 }
 
 void MainWindow::on_rotateYSlider_sliderMoved(int position) {
-    qDebug() << position;
+    ySliderValue = position / 10.0f;
 }
 
 void MainWindow::on_rotateZSlider_sliderMoved(int position) {
-    qDebug() << position;
+    zSliderValue = position / 10.0f;
 }
 
 void MainWindow::on_rotateXWSlider_sliderMoved(int position) {
-    qDebug() << position;
+    xwSliderValue = position / 10.0f;
 }
 
 void MainWindow::on_rotateYWSlider_sliderMoved(int position) {
-    qDebug() << position;
+    ywSliderValue = position / 10.0f;
 }
 
 void MainWindow::on_rotateZWSlider_sliderMoved(int position) {
-    qDebug() << position;
+    zwSliderValue = position / 10.0f;
 }
