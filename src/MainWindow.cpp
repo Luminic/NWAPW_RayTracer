@@ -13,10 +13,12 @@ static glm::mat4 transform(const glm::vec3& position, float rotation, const glm:
     return glm::translate(glm::rotate(glm::scale(glm::mat4(1.0f), scalar), rotation, rotation_axis), position);
 }
 
+// x=0, y=1, z=2, w=3, >3=error
 static void rotate(glm::mat4& matrix, float angle, unsigned char first, unsigned char second) {
     matrix[first][first]  *= cosf(angle); matrix[first][second]  *= -sinf(angle);
     matrix[second][first] *= sinf(angle); matrix[second][second] *=  cosf(angle);
 }
+
 
 static void print_matrix(const glm::mat4& matrix) {
     for (unsigned char i = 0; i < 4; i++)
@@ -186,12 +188,14 @@ void MainWindow::main_loop() {
     update_transformation();
 
     float slice = return_slider4D_val();
+
     // this is fine to exactly compare these
     // float values because they will only be
     // exactly equal when the user hasn't
     // moved the slider since the last update
     // which is what I want
-    // if (previous_slice != slice) {
+
+    //if (previous_slice != slice) {
         previous_slice = slice;
 
         // range is [-2,2]
@@ -222,6 +226,7 @@ void MainWindow::main_loop() {
             vertices.insert(vertices.begin(), new_vertices.begin(), new_vertices.end());
             indices.insert(indices.begin(), new_indices.begin(), new_indices.end());
         }
+
     // }
 }
 
