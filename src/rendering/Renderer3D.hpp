@@ -51,8 +51,12 @@ public:
     void begin_iterative_rendering();
     void end_iterative_rendering();
 
-    // Doesn't need the context to be current: it sets opengl_widget's context as
-    // current instead
+    // The following functions don't need the context to be current: they sets
+    // opengl_widget's context as current instead
+    
+    // Returns true for success and false for failure
+    // Fails if opengl_context is null, surface is null, or if iterative rendering is active
+    bool modify_sunlight(const glm::vec3& direction, const glm::vec3& radiance, float ambient_multiplier=0.0f);
     // If opengl_context or surface is null, returns -1 (no mesh) by default
     MeshIndex get_mesh_index_at(int x, int y);
 

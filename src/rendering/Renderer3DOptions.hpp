@@ -18,6 +18,7 @@ public:
     void begin_iterative_rendering();
     void end_iterative_rendering();
 
+    bool modify_sunlight(const glm::vec3& direction, const glm::vec3& radiance, float ambient_multiplier=0.0f);
     MeshIndex get_mesh_index_at(int x, int y);
 
 private:

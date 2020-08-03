@@ -27,11 +27,8 @@ public:
     virtual ~MainWindow() {}
 
     float return_slider4D_val();
-    bool return_file_changed();
-    void set_file_changed(bool);
 
-    QString get_new_model_path() const;
-
+    QString truncate_path(QString path);
 private slots:
     void on_iterativeRenderCheckBox_toggled(bool checked);
 
@@ -85,10 +82,9 @@ private:
 
     Settings3D* settings3D;
     QLabel* modelLabel;
-    QString new_model_path;
 
     float slider4Dvalue = 0.0f;
-    bool file_changed;
+
 };
 
 #endif

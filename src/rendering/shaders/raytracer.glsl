@@ -319,8 +319,7 @@ struct Light {
     float ambient_multiplier;
 };
 
-// TODO: Make the sun a uniform
-#define DEFAULT_SUN Light(normalize(vec3(-0.2f, 1.0f, 0.2f)), vec3(3.0f), 0.5f)
+uniform Light sunlight = Light(normalize(vec3(-0.2f, 1.0f, 0.2f)), vec3(3.0f), 0.5f);
 #define BIAS 0.0001f
 
 vec3 calculate_light(vec3 position, vec3 normal, vec3 ray_dir, MaterialData material, Light light) {
@@ -340,7 +339,7 @@ vec4 shade(vec3 position, vec3 normal, vec3 ray_dir, MaterialData material) {
     // Make the normal always facing the camera
     normal = normalize(normal) * sign(dot(normal, -ray_dir));
     
-    vec3 color = calculate_light(position, normal, ray_dir, material, DEFAULT_SUN);
+    vec3 color = calculate_light(position, normal, ray_dir, material, sunlight);
     return vec4(color, 1.0f);
 }
 
@@ -348,7 +347,7 @@ vec4 offline_shade(vec3 position, vec3 normal, vec3 ray_dir, MaterialData materi
     // Make the normal always facing the camera
     normal = normalize(normal) * sign(dot(normal, -ray_dir));
     
-    vec3 color = calculate_light(position, normal, ray_dir, material, DEFAULT_SUN);
+    vec3 color = calculate_light(position, normal, ray_dir, material, sunlight);
     return vec4(color, 1.0f);
 }
 
@@ -376,13 +375,9 @@ void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
         Material material = materials[meshes[vert.mesh_index].material_index];
         MaterialData material_data = get_material_data(material, vert.tex_coord);
 
-        // col = texture(environment_map, -normalize(vert.normal.xyz)*sign(dot(vert.normal.xyz, ray_dir)));
         col = shade(vert.position.xyz, vert.normal.xyz, normalize(ray_dir), material_data);
         geom = vec4(vert.position.xyz, vert.tex_coord.x);
         norms = vec4(normalize(vert.normal.xyz), vert.tex_coord.y);
-
-        // col = texture(environment_map, normalize(norms.xyz)*sign(dot(norms.xyz, -ray_dir)));
-        // col = vec4(max(normalize(norms.xyz)*sign(dot(norms.xyz, -ray_dir)), 0.0f.xxx), 1.0f);
     }
     imageStore(framebuffer, pix, col);
     imageStore(geometry, pix, geom);
@@ -410,9 +405,8 @@ mat3 rotate_a_to_b(vec3 a, vec3 b) {
     b = normalize(b);
     // create axis-angle rotation
     vec3 rot_axis = -normalize(cross(a,b));
-    // if (abs(rot_axis).x <= EPSILON && abs(rot_axis).y <= EPSILON && abs(rot_axis).z <= EPSILON)
-    //     return mat3(1.0f);
     float cos_theta = dot(a, b);
+    // return proper matrices for parallel vectors
     if (abs(cos_theta-1) <= EPSILON) {
         return mat3(1.0f);
     } else if (abs(cos_theta+1) <= EPSILON) {
@@ -421,8 +415,6 @@ mat3 rotate_a_to_b(vec3 a, vec3 b) {
     // convert to quaternion
     float sin_half_theta = sqrt((1-cos_theta)/2); // trig functions are avoided by using trig identities
     float cos_half_theta = sqrt((1+cos_theta)/2);
-    // float sin_half_theta = sin(theta/2);
-    // float cos_half_theta = cos(theta/2);
     vec4 q = vec4(
         rot_axis * sin_half_theta,
         cos_half_theta
@@ -452,12 +444,8 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     }
 
     Material material = materials[meshes[mesh_index].material_index];
-    // Material material = materials[0];
     MaterialData material_data = get_material_data(material, tex_coord);
 
-    // vec4 new_col = shade(pos.xyz, norm.xyz, normalize(ray_dir), material_data);
-
-    // uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y+nr_iterations_done*11);
     uint prev_rand = rand(nr_iterations_done);
     for (int i=0; i<nr_iterations_done%10; i++) {
         prev_rand = rand(prev_rand);
@@ -475,29 +463,14 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     vec3 new_col;
     if (vert.mesh_index == -1) {
         new_col = texture(environment_map, sample_dir).rgb;
-        // new_col = 0.0f.xxxx;
-        // new_col = vec4(0.0f);
-        // new_col = vec4(pos);
     } else {
-        // new_col = texture(environment_map, sample_dir);
-        // new_col = vec4(sample_dir, 1.0f);
         Material sample_material = materials[meshes[vert.mesh_index].material_index];
         MaterialData sample_material_data = get_material_data(sample_material, vert.tex_coord);
-        // return 
-        // new_col = sample_material_data.albedo.xyzz;
         new_col = shade(vert.position.xyz, vert.normal.xyz, normalize(sample_dir), sample_material_data).rgb;
-
-        // new_col = (vert.mesh_index+1)/5.0f.xxxx;
     }
     Light light_ray = Light(sample_dir, new_col, 0.1f);
-    vec3 light_influence = calculate_light(pos.xyz, normal, ray_dir, material_data, light_ray);
-    // position, normal, ray_dir, material, DEFAULT_SUN
+    vec3 light_influence = calculate_light(pos.xyz, normal, normalize(ray_dir), material_data, light_ray);
 
-    // light_influence = clamp(light_influence, 0.0f, 2.0f);
-
-
-    // imageStore(framebuffer, pix, vec4(max(sample_dir,0.0f.xxx), 1.0f));
-    // imageStore(framebuffer, pix, vec4(light_influence,1.0f));
     imageStore(framebuffer, pix, mix(col, col+vec4(light_influence,1.0f), 1.0f/(nr_iterations_done+1)));
 }
 
@@ -515,8 +488,5 @@ void main() {
 
     vec3 ray = mix(mix(ray00, ray10, tex_coords.x), mix(ray01, ray11, tex_coords.x), tex_coords.y);
 
-    // if (pix.x>500)
-    // imageStore(framebuffer, pix, 2/5.0f.xxxx);
-    // else
     trace(eye, ray, pix, size);
 }
