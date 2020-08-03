@@ -319,8 +319,7 @@ struct Light {
     float ambient_multiplier;
 };
 
-// TODO: Make the sun a uniform
-#define DEFAULT_SUN Light(normalize(vec3(-0.2f, 1.0f, 0.2f)), vec3(3.0f), 0.5f)
+uniform Light sunlight = Light(normalize(vec3(-0.2f, 1.0f, 0.2f)), vec3(3.0f), 0.5f);
 #define BIAS 0.0001f
 
 vec3 calculate_light(vec3 position, vec3 normal, vec3 ray_dir, MaterialData material, Light light) {
@@ -340,7 +339,7 @@ vec4 shade(vec3 position, vec3 normal, vec3 ray_dir, MaterialData material) {
     // Make the normal always facing the camera
     normal = normalize(normal) * sign(dot(normal, -ray_dir));
     
-    vec3 color = calculate_light(position, normal, ray_dir, material, DEFAULT_SUN);
+    vec3 color = calculate_light(position, normal, ray_dir, material, sunlight);
     return vec4(color, 1.0f);
 }
 
@@ -348,7 +347,7 @@ vec4 offline_shade(vec3 position, vec3 normal, vec3 ray_dir, MaterialData materi
     // Make the normal always facing the camera
     normal = normalize(normal) * sign(dot(normal, -ray_dir));
     
-    vec3 color = calculate_light(position, normal, ray_dir, material, DEFAULT_SUN);
+    vec3 color = calculate_light(position, normal, ray_dir, material, sunlight);
     return vec4(color, 1.0f);
 }
 

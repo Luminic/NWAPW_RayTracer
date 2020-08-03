@@ -232,6 +232,20 @@ void Renderer3D::end_iterative_rendering() {
     }
 }
 
+
+bool Renderer3D::modify_sunlight(const glm::vec3& direction, const glm::vec3& radiance, float ambient_multiplier) {
+    if (opengl_context && surface && (!iterative_rendering)) {
+        opengl_context->makeCurrent(surface);
+        glUseProgram(render_shader.get_id());
+        render_shader.set_vec3("sunlight.direction", direction);
+        render_shader.set_vec3("sunlight.radiance", radiance);
+        render_shader.set_float("sunlight.ambient_multiplier", ambient_multiplier);
+        glUseProgram(0);
+        return true;
+    }
+    return false;
+}
+
 MeshIndex Renderer3D::get_mesh_index_at(int x, int y) {
     if (x >= mesh_indices_ssbo_size[0] || y >= mesh_indices_ssbo_size[1] || x < 0 || y < 0)
         return -1;
