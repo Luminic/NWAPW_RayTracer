@@ -264,6 +264,7 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir, float offset, float max_di
 // PBR Shading
 
 #define PI 3.1415926535f
+#define TWO_PI 6.28318531f
 
 float NDF_trowbridge_reitz_GGX(vec3 normal, vec3 halfway, float alpha) {
     float a2 = alpha * alpha;
@@ -375,9 +376,13 @@ void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
         Material material = materials[meshes[vert.mesh_index].material_index];
         MaterialData material_data = get_material_data(material, vert.tex_coord);
 
+        // col = texture(environment_map, -normalize(vert.normal.xyz)*sign(dot(vert.normal.xyz, ray_dir)));
         col = shade(vert.position.xyz, vert.normal.xyz, normalize(ray_dir), material_data);
         geom = vec4(vert.position.xyz, vert.tex_coord.x);
         norms = vec4(normalize(vert.normal.xyz), vert.tex_coord.y);
+
+        // col = texture(environment_map, normalize(norms.xyz)*sign(dot(norms.xyz, -ray_dir)));
+        // col = vec4(max(normalize(norms.xyz)*sign(dot(norms.xyz, -ray_dir)), 0.0f.xxx), 1.0f);
     }
     imageStore(framebuffer, pix, col);
     imageStore(geometry, pix, geom);
@@ -389,12 +394,55 @@ void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
 // So we can get the average of all iterations with equal weights
 uniform int nr_iterations_done;
 
+vec3 uniform_hemisphere_sample(float r1, float r2) {
+    // r1 should be in the range 0-2pi (theta)
+    // r2 should be in the range 0-1 (will become phi)
+    // returns a sample in cartesian coordinates w/ length of 1
+    // the hemisphere is oriented towards +z
+    float sin_phi = sqrt(-r2 * (r2 - 2.0f));
+    float cos_phi = 1-r2;
+    return vec3(sin(r1)*sin_phi, cos(r1)*sin_phi, cos_phi);
+}
+
+mat3 rotate_a_to_b(vec3 a, vec3 b) {
+    // returns a rotation matrix that rotates a to b
+    a = normalize(a);
+    b = normalize(b);
+    // create axis-angle rotation
+    vec3 rot_axis = -normalize(cross(a,b));
+    // if (abs(rot_axis).x <= EPSILON && abs(rot_axis).y <= EPSILON && abs(rot_axis).z <= EPSILON)
+    //     return mat3(1.0f);
+    float cos_theta = dot(a, b);
+    if (abs(cos_theta-1) <= EPSILON) {
+        return mat3(1.0f);
+    } else if (abs(cos_theta+1) <= EPSILON) {
+        return mat3(1.0f)*-1;
+    }
+    // convert to quaternion
+    float sin_half_theta = sqrt((1-cos_theta)/2); // trig functions are avoided by using trig identities
+    float cos_half_theta = sqrt((1+cos_theta)/2);
+    // float sin_half_theta = sin(theta/2);
+    // float cos_half_theta = cos(theta/2);
+    vec4 q = vec4(
+        rot_axis * sin_half_theta,
+        cos_half_theta
+    );
+    // convert to rotation matrix
+    return mat3(
+        1-2*q.y*q.y-2*q.z*q.z, 2*q.x*q.y-2*q.z*q.w,   2*q.x*q.z+2*q.y*q.w,
+        2*q.x*q.y+2*q.z*q.w,   1-2*q.x*q.x-2*q.z*q.z, 2*q.y*q.z-2*q.x*q.w,
+        2*q.x*q.z-2*q.y*q.w,   2*q.y*q.z+2*q.x*q.w,   1-2*q.x*q.x-2*q.y*q.y
+    );
+}
+
 subroutine(Trace)
 void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     vec4 col = imageLoad(framebuffer, pix);
     vec4 pos = imageLoad(geometry, pix);
     vec4 norm = imageLoad(normals, pix);
     vec2 tex_coord = vec2(pos.w, norm.w);
+    vec3 normal = norm.xyz;
+    normal = normalize(vec3(normal)) * sign(dot(vec3(normal), -ray_dir));
 
     int mesh_index = mesh_indices[pix.x+pix.y*size.x];
 
@@ -406,9 +454,47 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     Material material = materials[meshes[mesh_index].material_index];
     MaterialData material_data = get_material_data(material, tex_coord);
 
-    vec4 new_col = shade(pos.xyz, norm.xyz, normalize(ray_dir), material_data);
+    // vec4 new_col = shade(pos.xyz, norm.xyz, normalize(ray_dir), material_data);
 
-    imageStore(framebuffer, pix, mix(col, new_col, 1.0f/(nr_iterations_done+1)));
+    uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y+nr_iterations_done*11);
+    for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {
+        prev_rand = rand(prev_rand);
+    }
+    float r1 = ((prev_rand >> 3) & uint((1<<16) -1)) / (65535.0f/TWO_PI); // Should be in the range 0-2pi
+    prev_rand = rand(prev_rand);
+    float r2 = ((prev_rand >> 3) & uint((1<<16) -1)) / 65535.0f; // Should be in the range 0-1
+
+    // hemisphere oriented towards +z
+    vec3 sample_dir = uniform_hemisphere_sample(r1,r2);
+    // orient the hemisphere to the normal
+    sample_dir = rotate_a_to_b(vec3(0.0f,0.0f,1.0f), normal)*sample_dir;
+
+    Vertex vert = get_vertex_data(pos.xyz, sample_dir, BIAS, FAR_PLANE);
+    vec3 new_col;
+    if (vert.mesh_index == -1) {
+        new_col = texture(environment_map, sample_dir).rgb;
+        // new_col = 0.0f.xxxx;
+        // new_col = vec4(0.0f);
+        // new_col = vec4(pos);
+    } else {
+        // new_col = texture(environment_map, sample_dir);
+        // new_col = vec4(sample_dir, 1.0f);
+        Material sample_material = materials[meshes[vert.mesh_index].material_index];
+        MaterialData sample_material_data = get_material_data(sample_material, vert.tex_coord);
+        // return 
+        // new_col = sample_material_data.albedo.xyzz;
+        new_col = shade(vert.position.xyz, vert.normal.xyz, normalize(sample_dir), sample_material_data).rgb;
+
+        // new_col = (vert.mesh_index+1)/5.0f.xxxx;
+    }
+    Light light_ray = Light(sample_dir, new_col, 0.1f);
+    vec3 light_influence = calculate_light(pos.xyz, normal, ray_dir, material_data, light_ray);
+    // position, normal, ray_dir, material, DEFAULT_SUN
+
+
+    // imageStore(framebuffer, pix, vec4(max(sample_dir,0.0f.xxx), 1.0f));
+    // imageStore(framebuffer, pix, new_col);
+    imageStore(framebuffer, pix, mix(col, col+vec4(light_influence,1.0f), 1.0f/(nr_iterations_done+1)));
 }
 
 
@@ -425,10 +511,8 @@ void main() {
 
     vec3 ray = mix(mix(ray00, ray10, tex_coords.x), mix(ray01, ray11, tex_coords.x), tex_coords.y);
 
+    // if (pix.x>500)
+    // imageStore(framebuffer, pix, 2/5.0f.xxxx);
+    // else
     trace(eye, ray, pix, size);
-
-    // uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y);
-    // for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {
-    //     prev_rand = rand(prev_rand);
-    // }
 }
