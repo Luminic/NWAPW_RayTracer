@@ -239,7 +239,7 @@ void Renderer3D::end_iterative_rendering() {
 }
 
 MeshIndex Renderer3D::get_mesh_index_at(int x, int y) {
-    if (x >= mesh_indices_ssbo_size[0] || y >= mesh_indices_ssbo_size[1])
+    if (x >= mesh_indices_ssbo_size[0] || y >= mesh_indices_ssbo_size[1] || x < 0 || y < 0)
         return -1;
     if (opengl_context && surface) {
         opengl_context->makeCurrent(surface);

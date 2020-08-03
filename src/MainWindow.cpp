@@ -228,21 +228,31 @@ void MainWindow::main_loop() {
         }
 
     // }
+
+    if (viewport->is_mouse_pressed()) {
+        // Get the selected mesh
+        selected_mesh = scene.get_mesh(viewport->get_selected_mesh_index());
+
+        // Reset input for next update
+        viewport->reset_pressed();
+    }
+
+    // If the user has a mesh selected
+    if (selected_mesh) {
+
+    }
 }
 
-QString MainWindow::get_new_model_path() const
-{
+QString MainWindow::get_new_model_path() const {
     return new_model_path;
 }
 
-void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked)
-{
-    qDebug() << "checked";
+void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked) {
     settings3D->toggle_iterative_rendering(checked, viewport->get_renderer_3D_options());
 }
 
-void MainWindow::on_fileButton_clicked()
-{
+void MainWindow::on_fileButton_clicked() {
+    // TODO: have to use a preprocessor statement to include C: or not if on Windows or Linux
     new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "C:/", ("Model Files (*.obj *.ob4)"));
     modelLabel->setText(new_model_path);
     file_changed = 1;
