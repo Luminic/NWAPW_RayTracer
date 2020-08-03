@@ -21,13 +21,6 @@ INCLUDEPATH += .
 
 INCLUDEPATH += libraries/glm-0.9.9.8/
 INCLUDEPATH += libraries/stb_image/
-INCLUDEPATH += libraries/assimp-5.0.1/include/
-
-win32: LIBS += -L$$PWD/libraries/assimp-5.0.1/lib/ -lassimp-vc142-mt
-unix:!macx: LIBS += -L$$PWD/libraries/assimp-5.0.1/lib/ -lassimp
-
-INCLUDEPATH += $$PWD/libraries/assimp-5.0.1/include
-DEPENDPATH += $$PWD/libraries/assimp-5.0.1/include
 
 # You can make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.

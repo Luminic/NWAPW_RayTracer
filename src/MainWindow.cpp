@@ -19,7 +19,6 @@ static void rotate(glm::mat4& matrix, float angle, unsigned char first, unsigned
     matrix[second][first] *= sinf(angle); matrix[second][second] *=  cosf(angle);
 }
 
-
 static void print_matrix(const glm::mat4& matrix) {
     for (unsigned char i = 0; i < 4; i++)
         qDebug() << matrix[i][0] << matrix[i][1] << matrix[i][2] << matrix[i][3];

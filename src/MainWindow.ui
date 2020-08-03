@@ -16,6 +16,18 @@
   <widget class="QWidget" name="placeholder_widget"/>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>400</width>
+     <height>421</height>
+    </size>
+   </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
@@ -32,7 +44,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab3D">
         <property name="autoFillBackground">
@@ -196,6 +208,54 @@
               <number>1000</number>
              </property>
             </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Move X</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Move Y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_12">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Move Z</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
            </item>
           </layout>
          </item>
@@ -369,6 +429,22 @@
               <number>1000</number>
              </property>
             </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_13">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Move W</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QDoubleSpinBox" name="doubleSpinBox_4"/>
            </item>
           </layout>
          </item>
