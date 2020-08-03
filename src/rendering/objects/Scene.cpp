@@ -118,3 +118,19 @@ int Scene::get_nr_dynamic_indices() {
     }
     return nr_dynamic_indices;
 }
+
+AbstractMesh* Scene::get_mesh(int mesh_index) const {
+    // Easy first check
+    if (mesh_index < 0)
+        return nullptr;
+
+    int static_mesh_size = (int)static_meshes.size();
+    int dynamic_mesh_index = mesh_index - static_mesh_size;
+
+    if (mesh_index < static_mesh_size)
+        return static_meshes[mesh_index];
+    else if (dynamic_mesh_index < (int)dynamic_meshes.size())
+        return dynamic_meshes[dynamic_mesh_index];
+    else
+        return nullptr;
+}
