@@ -12,11 +12,11 @@ struct vert {
 
 bool operator==(const vert& vert1, const vert& vert2);
 
-class ModelLoader4D : public QObject {
+class ModelLoader : public QObject {
     Q_OBJECT;
 public:
-    ModelLoader4D(QObject* parent=nullptr) : QObject(parent) {}
-    virtual ~ModelLoader4D() {}
+    ModelLoader(QObject* parent=nullptr) : QObject(parent) {}
+    virtual ~ModelLoader() {}
 
     Node* load_model(const char* file_path);
 private:

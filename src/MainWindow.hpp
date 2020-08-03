@@ -13,8 +13,7 @@
 #include "rendering/objects/Scene.hpp"
 #include "rendering/objects/StaticMesh.hpp"
 #include "rendering/objects/DynamicMesh.hpp"
-#include "rendering/ModelLoader3D.hpp"
-#include "rendering/ModelLoader4D.hpp"
+#include "rendering/ModelLoader.hpp"
 #include "rendering/DimensionDropper.hpp"
 
 #include "Settings3D.hpp"
@@ -58,8 +57,7 @@ private:
 
     Scene scene; // if viewport and loader are pointers, should this?
     Viewport* viewport;
-    ModelLoader3D* loader3d;
-    ModelLoader4D* loader4d;
+    ModelLoader* loader;
     DimensionDropper* dropper;
     QString model_path;
 

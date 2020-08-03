@@ -1,4 +1,4 @@
-#include "ModelLoader4D.hpp"
+#include "ModelLoader.hpp"
 #include <QFile>
 #include <QDebug>
 #include <glm/glm.hpp>
@@ -12,7 +12,7 @@ bool operator==(const vert& vert1, const vert& vert2) {
 }
 
 // NOTE: this does NOT handle any malformed files
-Node* ModelLoader4D::load_model(const char* file_path) {
+Node* ModelLoader::load_model(const char* file_path) {
     QFile file(file_path);
 
     if (!file.open(QIODevice::ReadOnly)) {
@@ -81,7 +81,7 @@ Node* ModelLoader4D::load_model(const char* file_path) {
     return new Node(meshes, this);
 }
 
-void ModelLoader4D::store_mesh(const std::vector<vert>& verts,
+void ModelLoader::store_mesh(const std::vector<vert>& verts,
                 const std::vector<Index>& indices,
                 const std::vector<glm::vec4>& positions,
                 const std::vector<glm::vec4>& normals,

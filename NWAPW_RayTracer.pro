@@ -40,6 +40,7 @@ DEPENDPATH += $$PWD/libraries/assimp-5.0.1/include
 HEADERS += src/MainWindow.hpp \
            src/Viewport.hpp \
            src/CameraController.hpp \
+           src/rendering/ModelLoader.hpp \
            src/rendering/OpenGLWidget.hpp \
            src/rendering/Shader.hpp \
            src/rendering/Texture.hpp \
@@ -55,8 +56,6 @@ HEADERS += src/MainWindow.hpp \
            src/rendering/objects/Scene.hpp \
            src/rendering/objects/Material.hpp \
            src/rendering/objects/MaterialManager.hpp \
-           src/rendering/ModelLoader3D.hpp \
-           src/rendering/ModelLoader4D.hpp \
            src/rendering/DimensionDropper.hpp \
            src/Settings3D.hpp \
            src/Settings4D.hpp
@@ -65,6 +64,7 @@ SOURCES += src/main.cpp \
            src/MainWindow.cpp \
            src/Viewport.cpp \
            src/CameraController.cpp \
+           src/rendering/ModelLoader.cpp \
            src/rendering/OpenGLWidget.cpp \
            src/rendering/Shader.cpp \
            src/rendering/Texture.cpp \
@@ -78,8 +78,6 @@ SOURCES += src/main.cpp \
            src/rendering/objects/Scene.cpp \
            src/rendering/objects/Material.cpp \
            src/rendering/objects/MaterialManager.cpp \
-           src/rendering/ModelLoader3D.cpp \
-           src/rendering/ModelLoader4D.cpp \
            src/rendering/DimensionDropper.cpp \
            src/Settings3D.cpp \
            src/Settings4D.cpp

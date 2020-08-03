@@ -38,8 +38,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     model_path = "resources/models/pentachron.ob4";
 
-    loader3d = new ModelLoader3D(this);
-    loader4d = new ModelLoader4D(this);
+    loader = new ModelLoader(this);
     dropper = new DimensionDropper(this);
 
     viewport = new Viewport(this);
@@ -70,7 +69,7 @@ void MainWindow::resource_initialization() {
 
     // Must convert file paths from QStrings to char*
     QByteArray char_model_path = model_path.toLocal8Bit();
-    model4d = loader4d->load_model(char_model_path);
+    model4d = loader->load_model(char_model_path);
 
     // TODO: applying the rotation matrix to the
     // model before it's been dropped used to work
@@ -93,6 +92,12 @@ void MainWindow::resource_initialization() {
         for (auto mesh : sliced_node->meshes)
             mesh->material_index = 0;
         scene.add_root_node(sliced_node);
+    }
+
+    Node* model = loader->load_model("resources/models/dodecahedron.obj");
+    if (model) {
+        model->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 0.0f, 0.0f));
+        scene.add_root_node(model);
     }
 
     MaterialManager& material_manager = scene.get_material_manager();
@@ -172,7 +177,6 @@ void MainWindow::resource_initialization() {
     scene.add_static_mesh((AbstractMesh*)mesh1);
     scene.add_dynamic_mesh((AbstractMesh*)mesh2);
     scene.add_dynamic_mesh((AbstractMesh*)mesh3);
-
 }
 
 void MainWindow::main_loop() {
