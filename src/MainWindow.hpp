@@ -27,9 +27,31 @@ public:
     MainWindow(QWidget* parent=nullptr);
     virtual ~MainWindow() {}
 
+    float return_slider4D_val();
+    bool return_file_changed();
+    void set_file_changed(bool);
+
+    QString get_new_model_path() const;
+
+private slots:
+    void on_iterativeRenderCheckBox_toggled(bool checked);
+
+    void on_fileButton_clicked();
+
+    void on_slice4DSlider_sliderMoved(int position);
+
+    void on_rotateXSlider_sliderMoved(int position);
+    void on_rotateYSlider_sliderMoved(int position);
+    void on_rotateZSlider_sliderMoved(int position);
+    void on_rotateXWSlider_sliderMoved(int position);
+    void on_rotateYWSlider_sliderMoved(int position);
+    void on_rotateZWSlider_sliderMoved(int position);
+
 private:
     void resource_initialization();
     void main_loop();
+
+    Ui::MainWindow ui;
 
     QTimer timer;
     QElapsedTimer elapsedTimer;
@@ -46,13 +68,27 @@ private:
     Node* sliced_node = nullptr;
     float previous_slice = 0.0f;
 
-    float prev_rotation_x  = 0.0f;
-    float prev_rotation_y  = 0.0f;
-    float prev_rotation_z  = 0.0f;
+    float prev_rotation_x = 0.0f;
+    float prev_rotation_y = 0.0f;
+    float prev_rotation_z = 0.0f;
     float prev_rotation_xw = 0.0f;
     float prev_rotation_yw = 0.0f;
     float prev_rotation_zw = 0.0f;
+
+    float xSliderValue = 0.0f;
+    float ySliderValue = 0.0f;
+    float zSliderValue = 0.0f;
+    float xwSliderValue = 0.0f;
+    float ywSliderValue = 0.0f;
+    float zwSliderValue = 0.0f;
     void update_transformation();
+
+    Settings3D* settings3D;
+    QLabel* modelLabel;
+    QString new_model_path;
+
+    float slider4Dvalue = 0.0f;
+    bool file_changed;
 };
 
 #endif
