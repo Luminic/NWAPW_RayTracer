@@ -1,6 +1,8 @@
 #ifndef MAIN_WINDOW_HPP
 #define MAIN_WINDOW_HPP
 
+#include <string>
+
 #include <QMainWindow>
 #include <QElapsedTimer>
 #include <QTimer>
@@ -51,6 +53,8 @@ private:
     void resource_initialization();
     void main_loop();
 
+    QString truncate_path(QString path);
+
     Ui::MainWindow ui;
 
     QTimer timer;
@@ -87,10 +91,8 @@ private:
 
     Settings3D* settings3D;
     QLabel* modelLabel;
-    QString new_model_path;
 
     float slider4Dvalue = 0.0f;
-    bool file_changed;
 };
 
 #endif

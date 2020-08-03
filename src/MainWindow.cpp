@@ -50,8 +50,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     // Setup 3D settings ui
     modelLabel = findChild<QLabel*>("modelLabel");
+    modelLabel->setText(truncate_path(model_path));
     settings3D = new Settings3D(this);
-    file_changed = 0;
 
     show();
 
@@ -243,8 +243,11 @@ void MainWindow::main_loop() {
     }
 }
 
-QString MainWindow::get_new_model_path() const {
-    return new_model_path;
+QString MainWindow::truncate_path(QString path)
+{
+    QString truncated;
+    truncated = path.section('/', -1);
+    return truncated;
 }
 
 void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked) {
@@ -252,9 +255,11 @@ void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked) {
 }
 
 void MainWindow::on_fileButton_clicked() {
-    new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "C:/", ("Model Files (*.obj *.ob4)"));
-    modelLabel->setText(new_model_path);
-    file_changed = 1;
+    model_path = QFileDialog::getOpenFileName(this, "Load a model", "C:/", ("Model Files (*.obj *.ob4)"));
+    QString truncated_path = truncate_path(model_path);
+    modelLabel->setText(truncated_path);
+
+    model4d = loader4d->load_model(model_path.toLocal8Bit());
 }
 
 // in: (int)[-10000,10000], out: (float)[-2,2]
@@ -264,14 +269,6 @@ void MainWindow::on_slice4DSlider_sliderMoved(int position) {
 
 float MainWindow::return_slider4D_val() {
     return slider4Dvalue;
-}
-
-bool MainWindow::return_file_changed() {
-    return file_changed;
-}
-
-void MainWindow::set_file_changed(bool new_bool) {
-    file_changed = new_bool;
 }
 
 void MainWindow::on_rotateXSlider_sliderMoved(int position) {
