@@ -452,18 +452,19 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     }
 
     Material material = materials[meshes[mesh_index].material_index];
+    // Material material = materials[0];
     MaterialData material_data = get_material_data(material, tex_coord);
 
     // vec4 new_col = shade(pos.xyz, norm.xyz, normalize(ray_dir), material_data);
 
     // uint prev_rand = uint(gl_GlobalInvocationID.x*size.y+gl_GlobalInvocationID.y+nr_iterations_done*11);
     uint prev_rand = rand(nr_iterations_done);
-    // for (int i=0; i<(gl_GlobalInvocationID.y+gl_GlobalInvocationID.x)/10; i++) {
-    //     prev_rand = rand(prev_rand);
-    // }
-    float r1 = ((prev_rand >> 3) & uint((1<<16) -1)) / (65535.0f/TWO_PI); // Should be in the range 0-2pi
+    for (int i=0; i<nr_iterations_done%10; i++) {
+        prev_rand = rand(prev_rand);
+    }
+    float r1 = ((prev_rand >> 8) & uint((1<<16) -1)) / (65535.0f/TWO_PI); // Should be in the range 0-2pi
     prev_rand = rand(prev_rand);
-    float r2 = ((prev_rand >> 3) & uint((1<<16) -1)) / 65535.0f; // Should be in the range 0-1
+    float r2 = ((prev_rand >> 8) & uint((1<<16) -1)) / 65535.0f; // Should be in the range 0-1
 
     // hemisphere oriented towards +z
     vec3 sample_dir = uniform_hemisphere_sample(r1,r2);
@@ -492,9 +493,11 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     vec3 light_influence = calculate_light(pos.xyz, normal, ray_dir, material_data, light_ray);
     // position, normal, ray_dir, material, DEFAULT_SUN
 
+    // light_influence = clamp(light_influence, 0.0f, 2.0f);
+
 
     // imageStore(framebuffer, pix, vec4(max(sample_dir,0.0f.xxx), 1.0f));
-    // imageStore(framebuffer, pix, new_col);
+    // imageStore(framebuffer, pix, vec4(light_influence,1.0f));
     imageStore(framebuffer, pix, mix(col, col+vec4(light_influence,1.0f), 1.0f/(nr_iterations_done+1)));
 }
 
