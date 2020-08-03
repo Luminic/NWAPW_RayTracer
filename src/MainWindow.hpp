@@ -81,7 +81,7 @@ private:
     float zwSliderValue = 0.0f;
     void update_transformation();
 
-    AbstractMesh* selected_mesh = nullptr;
+    Node* selected_node = nullptr;
 
     Settings3D* settings3D;
     QLabel* modelLabel;

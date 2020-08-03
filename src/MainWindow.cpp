@@ -25,10 +25,12 @@ static void print_matrix(const glm::mat4& matrix) {
 }
 
 void MainWindow::update_transformation() {
-    sliced_node->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
-    sliced_node->transformation = glm::rotate(sliced_node->transformation, glm::radians(prev_rotation_x), glm::vec3(1.0f, 0.0f, 0.0f));
-    sliced_node->transformation = glm::rotate(sliced_node->transformation, glm::radians(prev_rotation_y), glm::vec3(0.0f, 1.0f, 0.0f));
-    sliced_node->transformation = glm::rotate(sliced_node->transformation, glm::radians(prev_rotation_z), glm::vec3(0.0f, 0.0f, 1.0f));
+    if (selected_node) {
+        selected_node->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(prev_rotation_x), glm::vec3(1.0f, 0.0f, 0.0f));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(prev_rotation_y), glm::vec3(0.0f, 1.0f, 0.0f));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(prev_rotation_z), glm::vec3(0.0f, 0.0f, 1.0f));
+    }
 }
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
@@ -233,17 +235,20 @@ void MainWindow::main_loop() {
     // }
 
     if (viewport->is_mouse_pressed()) {
-        // Get the selected mesh
-        selected_mesh = scene.get_mesh(viewport->get_selected_mesh_index());
-
         // Reset input for next update
         viewport->reset_pressed();
+
+        // Get the selected mesh
+        AbstractMesh* selected_mesh = scene.get_mesh(viewport->get_selected_mesh_index());
 
         qDebug() << "Selected Mesh" << selected_mesh;
 
         // If the user has a mesh selected
         if (selected_mesh) {
-
+            selected_node = selected_mesh->get_node_parent();
+            qDebug() << "Selected Node" << selected_node;
+        } else {
+            selected_node = nullptr;
         }
     }
 }
@@ -259,7 +264,7 @@ void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked) {
 void MainWindow::on_fileButton_clicked() {
     // TODO: have to use a preprocessor statement to include C: or not if on Windows or Linux
     new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "C:/", ("Model Files (*.obj *.ob4)"));
-    modelLabel->setText(new_model_path);
+    modelLabel->setText(new_model_path.length() ? new_model_path : "File Name Here");
     file_changed = 1;
 }
 

@@ -3,7 +3,10 @@
 
 Node::Node(QObject* parent) : QObject(parent), transformation(1.0f) {}
 
-Node::Node(const std::vector<AbstractMesh*>& meshes, QObject* parent) : QObject(parent), transformation(1.0f), meshes(meshes) {}
+Node::Node(const std::vector<AbstractMesh*>& meshes, QObject* parent) : QObject(parent), transformation(1.0f), meshes(meshes) {
+    for (const auto mesh : meshes)
+        mesh->set_node_parent(this);
+}
 
 Node::Node(glm::mat4 transformation, QObject* parent) : QObject(parent), transformation(transformation) {}
 
@@ -11,7 +14,10 @@ Node::Node(glm::mat4 transformation, const std::vector<AbstractMesh*>& meshes, Q
     QObject(parent),
     transformation(transformation),
     meshes(meshes)
-{}
+{
+    for (const auto mesh : meshes)
+        mesh->set_node_parent(this);
+}
 
 void Node::add_mesh_data(std::vector<unsigned char>& resulting_mesh_data, glm::mat4 parent_transformation) {
     parent_transformation *= transformation;
