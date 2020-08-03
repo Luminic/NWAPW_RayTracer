@@ -27,7 +27,7 @@ Texture* Renderer3D::initialize(int width, int height, QOpenGLContext* opengl_co
         camera->update_perspective_matrix(float(width)/height);
     }
 
-    environment_map.load_cube_map("resources/textures/sunny_vondelpark_4k.hdr", 512);
+    environment_map.load_cube_map("resources/textures/lakeside_4k.hdr", 512);
 
     // Setup the render shader
     ShaderStage comp_shader{GL_COMPUTE_SHADER, "src/rendering/shaders/raytracer.glsl"};
@@ -96,8 +96,6 @@ Texture* Renderer3D::initialize(int width, int height, QOpenGLContext* opengl_co
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_indices_ssbo);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, mesh_indices_ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, width*height*sizeof(MeshIndex), nullptr, GL_DYNAMIC_READ);
-    qDebug() << "width:" << width << "height:" << height << "area:" << width*height;
-    qDebug() << "allocating" << width*height*sizeof(MeshIndex) << "bytes of memory";
     mesh_indices_ssbo_size[0] = width;
     mesh_indices_ssbo_size[1] = height;
 
@@ -207,7 +205,6 @@ Renderer3DOptions* Renderer3D::get_options() {
 }
 
 void Renderer3D::begin_iterative_rendering() {
-    qDebug() << "beginning iterative rendering!";
     iterative_rendering = true;
     nr_iterations_done = 1;
     iterative_rendering_texture_size[0] = width;
@@ -215,7 +212,6 @@ void Renderer3D::begin_iterative_rendering() {
 }
 
 void Renderer3D::end_iterative_rendering() {
-    qDebug() << "ending iterative rendering!";
     iterative_rendering = false;
 
     // Resizing of these images is disabled when iterative rendering
@@ -230,8 +226,6 @@ void Renderer3D::end_iterative_rendering() {
     if (mesh_indices_ssbo_size[0] != width || mesh_indices_ssbo_size[1] != height) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_indices_ssbo);
         glBufferData(GL_SHADER_STORAGE_BUFFER, width*height*sizeof(MeshIndex), nullptr, GL_DYNAMIC_READ);
-        qDebug() << "width:" << width << "height:" << height << "area:" << width*height;
-        qDebug() << "allocating" << width*height*sizeof(MeshIndex) << "bytes of memory";
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
         mesh_indices_ssbo_size[0] = width;
         mesh_indices_ssbo_size[1] = height;
