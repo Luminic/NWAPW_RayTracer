@@ -13,10 +13,12 @@ static glm::mat4 transform(const glm::vec3& position, float rotation, const glm:
     return glm::translate(glm::rotate(glm::scale(glm::mat4(1.0f), scalar), rotation, rotation_axis), position);
 }
 
+// x=0, y=1, z=2, w=3, >3=error
 static void rotate(glm::mat4& matrix, float angle, unsigned char first, unsigned char second) {
     matrix[first][first]  *= cosf(angle); matrix[first][second]  *= -sinf(angle);
     matrix[second][first] *= sinf(angle); matrix[second][second] *=  cosf(angle);
 }
+
 
 static void print_matrix(const glm::mat4& matrix) {
     for (unsigned char i = 0; i < 4; i++)
@@ -186,12 +188,14 @@ void MainWindow::main_loop() {
     update_transformation();
 
     float slice = return_slider4D_val();
+
     // this is fine to exactly compare these
     // float values because they will only be
     // exactly equal when the user hasn't
     // moved the slider since the last update
     // which is what I want
-    // if (previous_slice != slice) {
+
+    //if (previous_slice != slice) {
         previous_slice = slice;
 
         // range is [-2,2]
@@ -222,22 +226,32 @@ void MainWindow::main_loop() {
             vertices.insert(vertices.begin(), new_vertices.begin(), new_vertices.end());
             indices.insert(indices.begin(), new_indices.begin(), new_indices.end());
         }
+
     // }
+
+    if (viewport->is_mouse_pressed()) {
+        // Get the selected mesh
+        selected_mesh = scene.get_mesh(viewport->get_selected_mesh_index());
+
+        // Reset input for next update
+        viewport->reset_pressed();
+    }
+
+    // If the user has a mesh selected
+    if (selected_mesh) {
+
+    }
 }
 
-QString MainWindow::get_new_model_path() const
-{
+QString MainWindow::get_new_model_path() const {
     return new_model_path;
 }
 
-void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked)
-{
-    qDebug() << "checked";
+void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked) {
     settings3D->toggle_iterative_rendering(checked, viewport->get_renderer_3D_options());
 }
 
-void MainWindow::on_fileButton_clicked()
-{
+void MainWindow::on_fileButton_clicked() {
     new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "C:/", ("Model Files (*.obj *.ob4)"));
     modelLabel->setText(new_model_path);
     file_changed = 1;

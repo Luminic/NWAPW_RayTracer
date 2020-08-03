@@ -40,6 +40,25 @@ Renderer3DOptions* Viewport::get_renderer_3D_options() {
     return renderer_3D.get_options();
 }
 
+void Viewport::reset_pressed() {
+    mouse_pressed = false;
+}
+
+bool Viewport::is_mouse_pressed() const {
+    return mouse_pressed;
+}
+
+int Viewport::get_selected_mesh_index() {
+    QPoint mouse_pos = QCursor::pos() - mapToGlobal(QPoint(geometry().left(), geometry().top()));
+    return renderer_3D.get_options()->get_mesh_index_at(mouse_pos.x(), mouse_pos.y());
+}
+
+void Viewport::mousePressEvent(QMouseEvent *event) {
+    mouse_pressed = true;
+    // just to get rid of the warning, but not necessary
+    event->accept();
+}
+
 void Viewport::keyPressEvent(QKeyEvent* event) {
     switch (event->key()) {
         case Qt::Key_Home:
@@ -82,7 +101,6 @@ void Viewport::wheelEvent(QWheelEvent* event) {
         float fov_change = static_cast<float>(angle_delta.y()) / 5;
         cam_controller.update_fov(fov_change);
     }
-
 }
 
 void Viewport::capture_mouse() {
@@ -98,3 +116,4 @@ void Viewport::release_mouse() {
     releaseMouse();
     setMouseTracking(false);
 }
+

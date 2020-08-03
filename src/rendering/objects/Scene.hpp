@@ -31,6 +31,7 @@ public:
     int get_nr_dynamic_vertices();
     int get_nr_dynamic_indices();
 
+    AbstractMesh* get_mesh(int mesh_index) const;
 private:
     MaterialManager material_manager;
 
