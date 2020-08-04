@@ -26,10 +26,10 @@ static void print_matrix(const glm::mat4& matrix) {
 
 void MainWindow::update_transformation() {
     if (selected_node) {
-        selected_node->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, 0.0f, 0.0f));
-        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(prev_rotation_x), glm::vec3(1.0f, 0.0f, 0.0f));
-        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(prev_rotation_y), glm::vec3(0.0f, 1.0f, 0.0f));
-        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(prev_rotation_z), glm::vec3(0.0f, 0.0f, 1.0f));
+        selected_node->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(position_x, position_y, position_z));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_x), glm::vec3(1.0f, 0.0f, 0.0f));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_y), glm::vec3(0.0f, 1.0f, 0.0f));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_z), glm::vec3(0.0f, 0.0f, 1.0f));
     }
 }
 
@@ -64,10 +64,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 void MainWindow::resource_initialization() {
     qDebug() << "resource initialization";
 
-//    Node* model_root_node = loader3d->load_model("resources/models/dodecahedron.obj");
-//    model_root_node->transformation = glm::translate(glm::mat4(0.5f), glm::vec3(0.0f, 0.0f, 0.0f));
-//    scene.add_root_node(model_root_node);
-
     // Must convert file paths from QStrings to char*
     QByteArray char_model_path = model_path.toLocal8Bit();
     model4d = loader->load_model(char_model_path);
@@ -76,9 +72,9 @@ void MainWindow::resource_initialization() {
     // model before it's been dropped used to work
     // now it's acting as if it happens after.???
     glm::mat4 rotation(1.0f);
-    rotate(rotation,                glm::radians(prev_rotation_xw), 0, 3);
-    rotate(model4d->transformation, glm::radians(prev_rotation_yw), 1, 3);
-    rotate(model4d->transformation, glm::radians(prev_rotation_zw), 2, 3);
+    rotate(rotation, glm::radians(rotation_xw), 0, 3);
+    rotate(rotation, glm::radians(rotation_yw), 1, 3);
+    rotate(rotation, glm::radians(rotation_zw), 2, 3);
 
     for (auto mesh : model4d->meshes) {
         std::vector<Vertex>& model4d_vertices = dynamic_cast<DynamicMesh*>(mesh)->modify_vertices();
@@ -89,7 +85,6 @@ void MainWindow::resource_initialization() {
     sliced_node = dropper->drop(model4d, 0.0f);
     if (sliced_node) {
         // TODO: apply to all models
-        update_transformation();
         for (auto mesh : sliced_node->meshes)
             mesh->material_index = 0;
         scene.add_root_node(sliced_node);
@@ -184,15 +179,7 @@ void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
     viewport->main_loop(dt);
 
-    prev_rotation_x = xSliderValue;
-    prev_rotation_y = ySliderValue;
-    prev_rotation_z = zSliderValue;
-    prev_rotation_xw = xwSliderValue;
-    prev_rotation_yw = ywSliderValue;
-    prev_rotation_zw = zwSliderValue;
     update_transformation();
-
-    float slice = return_slider4D_val();
 
     // this is fine to exactly compare these
     // float values because they will only be
@@ -201,10 +188,10 @@ void MainWindow::main_loop() {
     // which is what I want
 
     //if (previous_slice != slice) {
-        previous_slice = slice;
+        previous_slice = position_w;
 
         // range is [-2,2]
-        Node* new_sliced_node = dropper->drop(model4d, slice);
+        Node* new_sliced_node = dropper->drop(model4d, position_w);
         // TODO: make this support more than one mesh
         // the reason I didn't do it right now is because
         // if DimensionDropper slices a mesh and gets no
@@ -279,37 +266,4 @@ void MainWindow::on_fileButton_clicked() {
         delete model4d;
         model4d = loader->load_model(model_path.toLocal8Bit());
     }
-}
-
-// in: (int)[-10000,10000], out: (float)[-2,2]
-void MainWindow::on_slice4DSlider_sliderMoved(int position) {
-    slider4Dvalue = position / 5000.0f;
-}
-
-float MainWindow::return_slider4D_val() {
-    return slider4Dvalue;
-}
-
-void MainWindow::on_rotateXSlider_sliderMoved(int position) {
-    xSliderValue = position / 10.0f;
-}
-
-void MainWindow::on_rotateYSlider_sliderMoved(int position) {
-    ySliderValue = position / 10.0f;
-}
-
-void MainWindow::on_rotateZSlider_sliderMoved(int position) {
-    zSliderValue = position / 10.0f;
-}
-
-void MainWindow::on_rotateXWSlider_sliderMoved(int position) {
-    xwSliderValue = position / 10.0f;
-}
-
-void MainWindow::on_rotateYWSlider_sliderMoved(int position) {
-    ywSliderValue = position / 10.0f;
-}
-
-void MainWindow::on_rotateZWSlider_sliderMoved(int position) {
-    zwSliderValue = position / 10.0f;
 }
