@@ -67,7 +67,7 @@ private:
     float rotation_x = 0.0f;
     float rotation_y = 0.0f;
     float rotation_z = 0.0f;
-    float rotation_xw = 60.0f;
+    float rotation_xw = 0.0f;
     float rotation_yw = 0.0f;
     float rotation_zw = 0.0f;
 
