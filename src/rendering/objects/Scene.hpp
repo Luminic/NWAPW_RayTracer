@@ -14,10 +14,14 @@ public:
     MaterialManager& get_material_manager();
 
     void add_root_node(Node* root_node);
+    // returns true if root_node is in root_nodes
+    // returns false if root_node was not found in root_nodes
+    bool remove_root_node(Node* root_node);
     const std::vector<Node*>& get_root_nodes();
 
     // Orphaned is true if the mesh is not a part of a node
     void add_static_mesh(AbstractMesh* static_mesh, bool orphaned=true);
+    bool remove_static_mesh(AbstractMesh* static_mesh);
     const std::vector<AbstractMesh*>& get_static_meshes() const;
     std::vector<AbstractMesh*>& get_static_meshes_modifiable();
     bool static_meshes_modified(bool set_to_false=false);
@@ -26,6 +30,7 @@ public:
 
     // Orphaned is true if the mesh is not a part of a node
     void add_dynamic_mesh(AbstractMesh* dynamic_mesh, bool orphaned=true);
+    bool remove_dynamic_mesh(AbstractMesh* static_mesh);
     const std::vector<AbstractMesh*>& get_dynamic_meshes() const;
     std::vector<AbstractMesh*>& get_dynamic_meshes_modifiable();
     int get_nr_dynamic_vertices();
@@ -38,6 +43,7 @@ private:
     // root_nodes[0] is the scene node where orphaned meshes are put
     std::vector<Node*> root_nodes;
     void add_node_meshes(Node* node);
+    void remove_node_meshes(Node* node);
 
     std::vector<AbstractMesh*> static_meshes;
     bool modified_static_meshes;
