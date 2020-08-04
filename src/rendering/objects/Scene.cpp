@@ -45,6 +45,7 @@ void Scene::add_static_mesh(AbstractMesh* static_mesh, bool orphaned) {
     if (nr_static_indices >= 0) nr_static_indices += static_mesh->size_indices();
 
     if (orphaned) {
+        static_mesh->set_node_parent(root_nodes[0]);
         root_nodes[0]->meshes.push_back(static_mesh);
     }
 }
@@ -91,6 +92,7 @@ int Scene::get_nr_static_indices() {
 void Scene::add_dynamic_mesh(AbstractMesh* dynamic_mesh, bool orphaned) {
     dynamic_meshes.push_back(dynamic_mesh);
     if (orphaned) {
+        dynamic_mesh->set_node_parent(root_nodes[0]);
         root_nodes[0]->meshes.push_back(dynamic_mesh);
     }
 }

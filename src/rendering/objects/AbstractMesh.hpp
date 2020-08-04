@@ -6,6 +6,8 @@
 #include "Vertex.hpp"
 #include "Material.hpp"
 
+class Node;
+
 constexpr int mesh_size_in_opengl = 80;
 
 typedef int32_t MeshIndex;
@@ -29,8 +31,11 @@ public:
 
     void as_byte_array(unsigned char byte_array[mesh_size_in_opengl], const glm::mat4& transformation) const;
 
+    inline void set_node_parent(Node* parent) { node_parent = parent; }
+    inline Node* get_node_parent() const { return node_parent; }
 protected:
     MeshIndex mesh_index;
+    Node* node_parent = nullptr;
 };
 
 #endif
