@@ -468,6 +468,7 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
         MaterialData sample_material_data = get_material_data(sample_material, vert.tex_coord);
         new_col = shade(vert.position.xyz, vert.normal.xyz, normalize(sample_dir), sample_material_data).rgb;
     }
+    clamp(new_col, 0.0f.xxx, 5.0f.xxx);
     Light light_ray = Light(sample_dir, new_col, 0.1f);
     vec3 light_influence = calculate_light(pos.xyz, normal, normalize(ray_dir), material_data, light_ray);
 
