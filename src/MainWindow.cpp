@@ -15,8 +15,8 @@ static glm::mat4 transform(const glm::vec3& position, float rotation, const glm:
 
 // x=0, y=1, z=2, w=3, >3=error
 static void rotate(glm::mat4& matrix, float angle, unsigned char first, unsigned char second) {
-    matrix[first][first]  *= cosf(angle); matrix[first][second]  *= -sinf(angle);
-    matrix[second][first] *= sinf(angle); matrix[second][second] *=  cosf(angle);
+    matrix[first][first]  = cosf(angle); matrix[first][second]  = -sinf(angle);
+    matrix[second][first] = sinf(angle); matrix[second][second] =  cosf(angle);
 }
 
 static void print_matrix(const glm::mat4& matrix) {
@@ -68,9 +68,7 @@ void MainWindow::resource_initialization() {
     QByteArray char_model_path = model_path.toLocal8Bit();
     model4d = loader->load_model(char_model_path);
 
-    // TODO: applying the rotation matrix to the
-    // model before it's been dropped used to work
-    // now it's acting as if it happens after.???
+    // TODO: move this to main_loop
     glm::mat4 rotation(1.0f);
     rotate(rotation, glm::radians(rotation_xw), 0, 3);
     rotate(rotation, glm::radians(rotation_yw), 1, 3);
