@@ -183,6 +183,7 @@ void MainWindow::main_loop() {
         // Get the old mesh's vertices and indices
         // TODO: crashes here when a model is loaded with more meshes than the last one
         // and when loading a model with fewer meshes than the last one, the extra ones stay behind
+        // the fix should go where the dynamic file loading is (down a bit)
         DynamicMesh* old_sliced_mesh = dynamic_cast<DynamicMesh*>(sliced_node->meshes[i]);
         std::vector<Vertex>& vertices = old_sliced_mesh->modify_vertices();
         std::vector<Index>& indices = old_sliced_mesh->modify_indices();
@@ -229,13 +230,16 @@ void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked) {
 }
 
 void MainWindow::on_fileButton_clicked() {
-    model_path = QFileDialog::getOpenFileName(this, "Load a model", ".", ("Model Files (*.obj *.ob4)"));
-    QString truncated_path = truncate_path(model_path);
+    QString new_model_path = QFileDialog::getOpenFileName(this, "Load a model", ".", ("Model Files (*.obj *.ob4)"));
+    if (new_model_path != model_path) {
+        model_path = new_model_path;
+        QString truncated_path = truncate_path(model_path);
 
-    if (truncated_path.length()) {
-        modelLabel->setText(truncated_path);
-        delete loaded_model;
-        loaded_model = loader->load_model(model_path.toLocal8Bit());
+        if (truncated_path.length()) {
+            modelLabel->setText(truncated_path);
+            delete loaded_model;
+            loaded_model = loader->load_model(model_path.toLocal8Bit());
+        }
     }
 }
 
