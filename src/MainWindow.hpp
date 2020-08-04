@@ -29,19 +29,19 @@ private slots:
     void on_iterativeRenderCheckBox_toggled(bool checked);
     void on_fileButton_clicked();
 
-    inline void on_rotateXSlider_sliderMoved(int position)  { rotation_x  = position / 10.0f; }
-    inline void on_rotateYSlider_sliderMoved(int position)  { rotation_y  = position / 10.0f; }
-    inline void on_rotateZSlider_sliderMoved(int position)  { rotation_z  = position / 10.0f; }
-    inline void on_rotateXWSlider_sliderMoved(int position) { rotation_xw = position / 10.0f; }
-    inline void on_rotateYWSlider_sliderMoved(int position) { rotation_yw = position / 10.0f; }
-    inline void on_rotateZWSlider_sliderMoved(int position) { rotation_zw = position / 10.0f; }
+    inline void on_rotateXSlider_sliderMoved(int position)  { rotation_x  = position / 10.0f; update_transformation(); }
+    inline void on_rotateYSlider_sliderMoved(int position)  { rotation_y  = position / 10.0f; update_transformation(); }
+    inline void on_rotateZSlider_sliderMoved(int position)  { rotation_z  = position / 10.0f; update_transformation(); }
+    inline void on_rotateXWSlider_sliderMoved(int position) { rotation_xw = position / 10.0f; update_rotation(); }
+    inline void on_rotateYWSlider_sliderMoved(int position) { rotation_yw = position / 10.0f; update_rotation(); }
+    inline void on_rotateZWSlider_sliderMoved(int position) { rotation_zw = position / 10.0f; update_rotation(); }
 
     // in: (int)[-10000,10000], out: (float)[-2,2]
     inline void on_slice4DSlider_sliderMoved(int position) { position_w = position / 5000.0f; }
 
-    inline void on_moveXInput_valueChanged(double value) { position_x = (float)value; }
-    inline void on_moveYInput_valueChanged(double value) { position_y = (float)value; }
-    inline void on_moveZInput_valueChanged(double value) { position_z = (float)value; }
+    inline void on_moveXInput_valueChanged(double value) { position_x = (float)value; update_transformation(); }
+    inline void on_moveYInput_valueChanged(double value) { position_y = (float)value; update_transformation(); }
+    inline void on_moveZInput_valueChanged(double value) { position_z = (float)value; update_transformation(); }
 
 private:
     void resource_initialization();
@@ -59,9 +59,10 @@ private:
     QString model_path;
 
     // TODO: move this to somewhere more suitable
-    Node* model4d = nullptr;
+    Node* loaded_model = nullptr;
+    glm::mat4 model_rotation;
+    bool fourD = false;
     Node* sliced_node = nullptr;
-    float previous_slice = 0.0f;
 
     float rotation_x = 0.0f;
     float rotation_y = 0.0f;
@@ -76,6 +77,7 @@ private:
     float position_w = 0.0f;
 
     void update_transformation();
+    void update_rotation();
 
     Node* selected_node = nullptr;
 
