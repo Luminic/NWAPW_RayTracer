@@ -54,11 +54,9 @@ int Viewport::get_selected_mesh_index() {
 }
 
 void Viewport::mousePressEvent(QMouseEvent *event) {
-    if (mouse_captured) {
-        mouse_pressed = true;
-        // just to get rid of the warning, but not necessary
-        event->accept();
-    }
+    mouse_pressed = true;
+    // just to get rid of the warning, but not necessary
+    event->accept();
 }
 
 void Viewport::keyPressEvent(QKeyEvent* event) {

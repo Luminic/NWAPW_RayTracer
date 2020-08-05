@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), model_rotation(1.
     ui.setupUi(this);
 
     QDir dir;
-    model_path = dir.absoluteFilePath("resources/models/two_pentachrons.ob4");
+    model_path = dir.absoluteFilePath("resources/models/pentachoron.ob4");
 
     loader = new ModelLoader(this);
     dropper = new DimensionDropper(this);
