@@ -91,6 +91,7 @@ bool Scene::remove_static_mesh(AbstractMesh* static_mesh) {
 
     if (nr_static_vertices >= 0) nr_static_vertices -= static_mesh->size_vertices();
     if (nr_static_indices >= 0) nr_static_indices -= static_mesh->size_indices();
+    return true;
 }
 
 const std::vector<AbstractMesh*>& Scene::get_static_meshes() const {
@@ -151,6 +152,7 @@ bool Scene::remove_dynamic_mesh(AbstractMesh* dynamic_mesh) {
     if (dynamic_mesh_it != root_nodes[0]->meshes.end()) {
         root_nodes[0]->meshes.erase(dynamic_mesh_it);
     }
+    return true;
 }
 
 const std::vector<AbstractMesh*>& Scene::get_dynamic_meshes() const {
