@@ -32,6 +32,10 @@ public:
     CameraController(float mouse_sensitivity=3.0f, float speed=3.0f, QObject* parent=nullptr);
     virtual ~CameraController() {}
 
+    /**
+     * @brief main_loop updates camera position and vision
+     * @param dt how fast the camera moves
+     */
     void main_loop(float dt);
 
     void mouse_moved(float dx, float dy);
