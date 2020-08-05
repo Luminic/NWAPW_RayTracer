@@ -37,8 +37,10 @@ Texture* Renderer3D::initialize(int width, int height, QOpenGLContext* opengl_co
 
     glGetProgramiv(render_shader.get_id(), GL_COMPUTE_WORK_GROUP_SIZE, work_group_size);
     render_result.create(width, height);
-    scene_geometry.create(width, height);
-    scene_normals.create(width, height);
+    scene_indices.create(width, height, GL_RGBA32I, true);
+    scene_barycentric_coordinates.create(width, height);
+    direct_illumination.create(width, height);
+    indirect_illumination.create(width, height);
 
     // Setup the vertex shader
     ShaderStage vert_shader{GL_COMPUTE_SHADER, "src/rendering/shaders/vertex_shader.glsl"};
@@ -111,8 +113,10 @@ void Renderer3D::resize(int width, int height) {
     this->height = height;
     if (!iterative_rendering) {
         render_result.resize(width, height);
-        scene_geometry.resize(width, height);
-        scene_normals.resize(width, height);
+        scene_indices.resize(width, height);
+        scene_barycentric_coordinates.resize(width, height);
+        direct_illumination.resize(width, height);
+        indirect_illumination.resize(width, height);
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh_indices_ssbo);
         glBufferData(GL_SHADER_STORAGE_BUFFER, width*height*sizeof(MeshIndex), nullptr, GL_DYNAMIC_READ);
@@ -158,8 +162,10 @@ Texture* Renderer3D::render() {
     set_textures();
 
     glBindImageTexture(0, render_result.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-    glBindImageTexture(1, scene_geometry.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-    glBindImageTexture(2, scene_normals.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    glBindImageTexture(1, scene_indices.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
+    glBindImageTexture(2, scene_barycentric_coordinates.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    glBindImageTexture(3, direct_illumination.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    // glBindImageTexture(4, indirect_illumination.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
     unsigned int worksize_x = round_up_to_pow_2(width);
     unsigned int worksize_y = round_up_to_pow_2(height);
@@ -169,6 +175,8 @@ Texture* Renderer3D::render() {
     glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glBindImageTexture(1, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glBindImageTexture(2, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(3, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    // glBindImageTexture(4, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     glUseProgram(0);
@@ -182,8 +190,10 @@ Texture* Renderer3D::iterative_render() {
     render_shader.set_int("nr_iterations_done", nr_iterations_done);
     
     glBindImageTexture(0, render_result.get_id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-    glBindImageTexture(1, scene_geometry.get_id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-    glBindImageTexture(2, scene_normals.get_id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+    glBindImageTexture(1, scene_indices.get_id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32I);
+    glBindImageTexture(2, scene_barycentric_coordinates.get_id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+    glBindImageTexture(3, direct_illumination.get_id(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+    glBindImageTexture(4, indirect_illumination.get_id(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
     unsigned int worksize_x = round_up_to_pow_2(width);
     unsigned int worksize_y = round_up_to_pow_2(height);
@@ -193,6 +203,8 @@ Texture* Renderer3D::iterative_render() {
     glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glBindImageTexture(1, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glBindImageTexture(2, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(3, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(4, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glUseProgram(0);
 
@@ -218,8 +230,10 @@ void Renderer3D::end_iterative_rendering() {
     // So we have to resize them now
     if (iterative_rendering_texture_size[0] != width || iterative_rendering_texture_size[1] != height) {
         render_result.resize(width, height);
-        scene_geometry.resize(width, height);
-        scene_normals.resize(width, height);
+        scene_indices.resize(width, height);
+        scene_barycentric_coordinates.resize(width, height);
+        direct_illumination.resize(width, height);
+        indirect_illumination.resize(width, height);
     }
     // mesh_indices_ssbo_size should be equal to iterative_rendering_texture_size
     // but just in case I'll separate them
