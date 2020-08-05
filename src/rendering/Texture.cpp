@@ -50,9 +50,10 @@ void Texture::load(QImage img, GLenum internal_format) {
     glTexImage2D(GL_TEXTURE_2D, 0, internal_format, img.width(), img.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
 }
 
-void Texture::create(unsigned int width, unsigned int height, GLenum internal_format) {
+void Texture::create(unsigned int width, unsigned int height, GLenum internal_format, bool is_int_type) {
     initializeOpenGLFunctions();
     this->internal_format = internal_format;
+    this->is_int_type = is_int_type;
 
     glGenTextures(1, &id);
 
@@ -60,7 +61,7 @@ void Texture::create(unsigned int width, unsigned int height, GLenum internal_fo
     glBindTexture(GL_TEXTURE_2D, id);
 
     set_params(TextureOptions::default_2D_options());
-    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)0);
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, is_int_type ? GL_RGBA_INTEGER : GL_RGBA, is_int_type ? GL_INT : GL_UNSIGNED_BYTE, (void*)0);
 }
 
 void Texture::load_cube_map(const char* equirectangular_path, unsigned int size) {
@@ -121,8 +122,8 @@ void Texture::set_params(TextureOptions texture_options, unsigned int tex_id) {
     if (tex_id == 0) {
         tex_id = id;
     }
-
-    glBindTexture(GL_TEXTURE_2D, tex_id);
+    
+    glBindTexture(texture_options.texture_type, tex_id);
 
     for (auto options_pair : texture_options.options) {
         glTextureParameteri(tex_id, options_pair.first, options_pair.second);
@@ -132,7 +133,7 @@ void Texture::set_params(TextureOptions texture_options, unsigned int tex_id) {
 void Texture::resize(unsigned int width, unsigned int height) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, id);
-    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)0);
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, is_int_type ? GL_RGBA_INTEGER : GL_RGBA, is_int_type ? GL_INT : GL_UNSIGNED_BYTE, (void*)0);
 }
 
 unsigned int Texture::get_id() {

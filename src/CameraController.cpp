@@ -11,12 +11,14 @@ CameraController::CameraController(float mouse_sensitivity, float speed, QObject
 }
 
 void CameraController::main_loop(float dt) {
+    // Rotate camera according to mouse input
     camera_3D->yaw_pitch_roll[0] += mouse_movement[0]*mouse_sensitivity*dt;
     camera_3D->yaw_pitch_roll[1] -= mouse_movement[1]*mouse_sensitivity*dt;
     camera_3D->yaw_pitch_roll[1] = glm::clamp(camera_3D->yaw_pitch_roll[1], -89.0f, 89.0f);
     mouse_movement[0] = 0.0f;
     mouse_movement[1] = 0.0f;
 
+    // Move camera according to keyboard input
     CameraDirectionVectors cdv = camera_3D->get_camera_direction_vectors();
     glm::vec3 current_movement(0.0f);
     if (movement.front) {
@@ -50,6 +52,7 @@ void CameraController::key_event(QKeyEvent* key) {
     if (key->type() != QEvent::KeyPress && key->type() != QEvent::KeyRelease) 
         return;
 
+    // Set movement state according to user input
     bool pressed = key->type() == QEvent::KeyPress;
     switch (key->key()) {
         case Qt::Key_W:
@@ -73,6 +76,10 @@ void CameraController::key_event(QKeyEvent* key) {
     }
 }
 
+/**
+ * @brief CameraController::update_fov modifies the camera fov
+ * @param fov_change
+ */
 void CameraController::update_fov(float fov_change) {
     camera_3D->update_fov(fov_change);
 }

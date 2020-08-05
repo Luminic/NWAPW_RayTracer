@@ -196,7 +196,7 @@ float ray_plane_int(vec3 ray_origin, vec3 ray_dir, vec3 plane_point, vec3 plane_
     return numer/denom;
 }
 
-vec4 barycentric_coordinates(vec3 point, vec3 tri0, vec3 tri1, vec3 tri2) {
+vec4 get_barycentric_coordinates(vec3 point, vec3 tri0, vec3 tri1, vec3 tri2) {
     /*
     Returns the barycentric coordinates of point if the point is in the triangle
     The w value is 1 if the point is inside of the triangle and -1 otherwise
@@ -213,7 +213,7 @@ vec4 barycentric_coordinates(vec3 point, vec3 tri0, vec3 tri1, vec3 tri2) {
     return vec4(area0, area1, area2, 1);
 }
 
-bool triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec3 ray_dir, float offset, inout float depth, inout Vertex vert) {
+bool triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec3 ray_dir, float offset, inout float depth, inout Vertex vert, inout vec3 barycentric_coordinates) {
     vec3 normal = cross(vec3(v1.position-v0.position), vec3(v2.position-v0.position));
     float rpi = ray_plane_int(ray_origin, ray_dir, v0.position.xyz, normalize(normal));
 
@@ -221,7 +221,7 @@ bool triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec
     float dist = rpi*length(ray_dir);
     if (dist >= offset && dist <= depth) {
         vec3 intersection_point = ray_origin + rpi*ray_dir;
-        vec4 bc = barycentric_coordinates(intersection_point, v0.position.xyz, v1.position.xyz, v2.position.xyz);
+        vec4 bc = get_barycentric_coordinates(intersection_point, v0.position.xyz, v1.position.xyz, v2.position.xyz);
         // If the point is inside of the triangle
         if (bc.w > 0.0f) {
             depth = dist;
@@ -229,13 +229,14 @@ bool triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec
             vert.normal = bc.x*v0.normal + bc.y*v1.normal + bc.z*v2.normal;
             vert.tex_coord = bc.x*v0.tex_coord + bc.y*v1.tex_coord + bc.z*v2.tex_coord;
             vert.mesh_index = v0.mesh_index;
+            barycentric_coordinates = bc.xyz;
             return true;
         }
     }
     return false;
 }
 
-Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir, float offset, float max_dist) {
+Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir, float offset, float max_dist, out ivec3 indices, out vec3 barycentric_coordinates) {
     /*
     Returns an interpolated vertex from the intersection between the ray and the
     nearest triangle it collides with
@@ -249,17 +250,36 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir, float offset, float max_di
         Vertex v1 = vertices[static_indices[i*3+1]];
         Vertex v2 = vertices[static_indices[i*3+2]];
 
-        triangle_intersection(v0, v1, v2, ray_origin, ray_dir, offset, depth, vert);
+        if (triangle_intersection(v0, v1, v2, ray_origin, ray_dir, offset, depth, vert, barycentric_coordinates)) {
+            indices = ivec3(
+                static_indices[i*3],
+                static_indices[i*3+1],
+                static_indices[i*3+2]
+            );
+        }
     }
     for (int i=0; i<dynamic_indices.length()/3; i++) {
         Vertex v0 = vertices[dynamic_indices[i*3]   + static_vertices.length()];
         Vertex v1 = vertices[dynamic_indices[i*3+1] + static_vertices.length()];
         Vertex v2 = vertices[dynamic_indices[i*3+2] + static_vertices.length()];
 
-        triangle_intersection(v0, v1, v2, ray_origin, ray_dir, offset, depth, vert);
+        if (triangle_intersection(v0, v1, v2, ray_origin, ray_dir, offset, depth, vert, barycentric_coordinates)) {
+            indices = ivec3(
+                dynamic_indices[i*3]+static_vertices.length(),
+                dynamic_indices[i*3+1]+static_vertices.length(),
+                dynamic_indices[i*3+2]+static_vertices.length()
+            );
+        }
     }
     return vert;
 }
+
+Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir, float offset, float max_dist) {
+    ivec3 indices;
+    vec3 barycentric_coordinates;
+    return get_vertex_data(ray_origin, ray_dir, offset, max_dist, indices, barycentric_coordinates);
+}
+
 
 // PBR Shading
 
@@ -352,11 +372,11 @@ vec4 offline_shade(vec3 position, vec3 normal, vec3 ray_dir, MaterialData materi
 }
 
 
-layout (binding = 0, rgba32f) uniform image2D framebuffer;
-// Stores the x component of tex_coords in the w place
-layout (binding = 1, rgba32f) uniform image2D geometry;
-// Stores the y component of tex_coords in the w place
-layout (binding = 2, rgba32f) uniform image2D normals;
+layout (binding = 0, rgba32f) restrict uniform image2D framebuffer;
+layout (binding = 1, rgba32i) restrict uniform iimage2D per_pixel_indices;
+layout (binding = 2, rgba32f) restrict uniform image2D scene_barycentric_coordinates;
+layout (binding = 3, rgba32f) restrict uniform image2D direct_illumination;
+layout (binding = 4, rgba32f) restrict uniform image2D indirect_illumination;
 
 subroutine void Trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size);
 subroutine uniform Trace trace;
@@ -364,24 +384,29 @@ subroutine uniform Trace trace;
 subroutine(Trace)
 void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     vec4 col;
-    vec4 geom;
-    vec4 norms;
-    Vertex vert = get_vertex_data(ray_origin, ray_dir, NEAR_PLANE, FAR_PLANE);
+    // vec4 geom;
+    // vec4 norms;
+    ivec3 vert_indices;
+    vec3 barycentric_coordinates;
+    Vertex vert = get_vertex_data(ray_origin, ray_dir, NEAR_PLANE, FAR_PLANE, vert_indices, barycentric_coordinates);
     if (vert.mesh_index == -1) {
         col = texture(environment_map, ray_dir);
-        geom = vec4(normalize(ray_dir)*FAR_PLANE, 0.0f);
-        norms = 0.0f.xxxx;
+        // geom = vec4(normalize(ray_dir)*FAR_PLANE, 0.0f);
+        // norms = 0.0f.xxxx;
     } else {
         Material material = materials[meshes[vert.mesh_index].material_index];
         MaterialData material_data = get_material_data(material, vert.tex_coord);
 
         col = shade(vert.position.xyz, vert.normal.xyz, normalize(ray_dir), material_data);
-        geom = vec4(vert.position.xyz, vert.tex_coord.x);
-        norms = vec4(normalize(vert.normal.xyz), vert.tex_coord.y);
+        // geom = vec4(vert.position.xyz, vert.tex_coord.x);
+        // norms = vec4(normalize(vert.normal.xyz), vert.tex_coord.y);
     }
+
     imageStore(framebuffer, pix, col);
-    imageStore(geometry, pix, geom);
-    imageStore(normals, pix, norms);
+    imageStore(per_pixel_indices, pix, ivec4(vert_indices,1));
+    imageStore(scene_barycentric_coordinates, pix, vec4(barycentric_coordinates, 1.0f));
+    imageStore(direct_illumination, pix, col);
+    imageStore(indirect_illumination, pix, vec4(0.0f));
 
     mesh_indices[pix.x+pix.y*size.x] = vert.mesh_index;
 }
@@ -430,9 +455,14 @@ mat3 rotate_a_to_b(vec3 a, vec3 b) {
 subroutine(Trace)
 void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     vec4 col = imageLoad(framebuffer, pix);
-    vec4 pos = imageLoad(geometry, pix);
-    vec4 norm = imageLoad(normals, pix);
-    vec2 tex_coord = vec2(pos.w, norm.w);
+    ivec3 inds = imageLoad(per_pixel_indices, pix).xyz;
+    vec3 bc = imageLoad(scene_barycentric_coordinates, pix).xyz;
+    Vertex v0 = vertices[inds[0]];
+    Vertex v1 = vertices[inds[1]];
+    Vertex v2 = vertices[inds[2]];
+    vec4 pos = bc.x*v0.position + bc.y*v1.position + bc.z*v2.position;
+    vec4 norm = bc.x*v0.normal + bc.y*v1.normal + bc.z*v2.normal;
+    vec2 tex_coord = bc.x*v0.tex_coord + bc.y*v1.tex_coord + bc.z*v2.tex_coord;
     vec3 normal = norm.xyz;
     normal = normalize(vec3(normal)) * sign(dot(vec3(normal), -ray_dir));
 
@@ -442,7 +472,7 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
         imageStore(framebuffer, pix, vec4(col.xyz, 1.0f));
         return;
     }
-
+    
     Material material = materials[meshes[mesh_index].material_index];
     MaterialData material_data = get_material_data(material, tex_coord);
 
@@ -468,11 +498,16 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
         MaterialData sample_material_data = get_material_data(sample_material, vert.tex_coord);
         new_col = shade(vert.position.xyz, vert.normal.xyz, normalize(sample_dir), sample_material_data).rgb;
     }
-    clamp(new_col, 0.0f.xxx, 5.0f.xxx);
+    // clamp(new_col, 0.0f.xxx, 5.0f.xxx);
     Light light_ray = Light(sample_dir, new_col, 0.1f);
     vec3 light_influence = calculate_light(pos.xyz, normal, normalize(ray_dir), material_data, light_ray);
 
-    imageStore(framebuffer, pix, mix(col, col+vec4(light_influence,1.0f), 1.0f/(nr_iterations_done+1)));
+    vec3 direct_illum = imageLoad(direct_illumination, pix).rgb;
+    vec3 indirect_illum = imageLoad(indirect_illumination, pix).rgb;
+    indirect_illum = mix(indirect_illum, light_influence*TWO_PI, 1.0f/(nr_iterations_done+1));
+    
+    imageStore(framebuffer, pix, vec4(direct_illum+indirect_illum, 1.0f));
+    imageStore(indirect_illumination, pix, vec4(indirect_illum, 1.0f));
 }
 
 
