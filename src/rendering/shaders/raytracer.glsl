@@ -166,7 +166,7 @@ uint rand(uint prev_rand) {
 
 // Ray-Triangle Intersection
 
-#define EPSILON 0.00001f
+#define EPSILON 0.000001f
 #define NEAR_PLANE 0.1f
 #define FAR_PLANE 100.0f
 
@@ -195,7 +195,7 @@ float ray_plane_int(vec3 ray_origin, vec3 ray_dir, vec3 plane_point, vec3 plane_
 
     return numer/denom;
 }
-#define TRIANGLE_INTERSECTION_EPSILON 0.00001f
+#define TRIANGLE_INTERSECTION_EPSILON 0.0001f
 vec4 get_barycentric_coordinates(vec3 point, vec3 tri0, vec3 tri1, vec3 tri2) {
     /*
     Returns the barycentric coordinates of point if the point is in the triangle
