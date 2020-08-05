@@ -80,6 +80,11 @@ void MainWindow::resource_initialization() {
     mat.metalness_ti = material_manager.add_texture(metalness_texture);
     int metal_material = material_manager.add_material(mat);
 
+    // Node* monkey = loader->load_model("resources/models/monkey.obj");
+    // for (auto m : monkey->meshes)
+    //     m->material_index = metal_material;
+    // scene.add_root_node(monkey);
+
     Vertex verts[8] = {
         // Floor
         Vertex(glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)),

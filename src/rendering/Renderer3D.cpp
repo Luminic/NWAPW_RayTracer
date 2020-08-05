@@ -165,7 +165,7 @@ Texture* Renderer3D::render() {
     glBindImageTexture(1, scene_indices.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32I);
     glBindImageTexture(2, scene_barycentric_coordinates.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
     glBindImageTexture(3, direct_illumination.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-    // glBindImageTexture(4, indirect_illumination.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    glBindImageTexture(4, indirect_illumination.get_id(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
     unsigned int worksize_x = round_up_to_pow_2(width);
     unsigned int worksize_y = round_up_to_pow_2(height);
@@ -176,7 +176,7 @@ Texture* Renderer3D::render() {
     glBindImageTexture(1, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glBindImageTexture(2, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glBindImageTexture(3, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-    // glBindImageTexture(4, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(4, 0, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     glUseProgram(0);

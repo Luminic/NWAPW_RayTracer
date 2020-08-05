@@ -372,11 +372,11 @@ vec4 offline_shade(vec3 position, vec3 normal, vec3 ray_dir, MaterialData materi
 }
 
 
-layout (binding = 0, rgba32f) uniform image2D framebuffer;
-layout (binding = 1, rgba32i) uniform iimage2D per_pixel_indices;
-layout (binding = 2, rgba32f) uniform image2D scene_barycentric_coordinates;
-layout (binding = 3, rgba32f) uniform image2D direct_illumination;
-layout (binding = 4, rgba32f) uniform image2D indirect_illumination;
+layout (binding = 0, rgba32f) restrict uniform image2D framebuffer;
+layout (binding = 1, rgba32i) restrict uniform iimage2D per_pixel_indices;
+layout (binding = 2, rgba32f) restrict uniform image2D scene_barycentric_coordinates;
+layout (binding = 3, rgba32f) restrict uniform image2D direct_illumination;
+layout (binding = 4, rgba32f) restrict uniform image2D indirect_illumination;
 
 subroutine void Trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size);
 subroutine uniform Trace trace;
@@ -406,7 +406,7 @@ void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     imageStore(per_pixel_indices, pix, ivec4(vert_indices,1));
     imageStore(scene_barycentric_coordinates, pix, vec4(barycentric_coordinates, 1.0f));
     imageStore(direct_illumination, pix, col);
-    // imageStore(normals, pix, norms);
+    imageStore(indirect_illumination, pix, vec4(0.0f));
 
     mesh_indices[pix.x+pix.y*size.x] = vert.mesh_index;
 }
@@ -498,13 +498,13 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
         MaterialData sample_material_data = get_material_data(sample_material, vert.tex_coord);
         new_col = shade(vert.position.xyz, vert.normal.xyz, normalize(sample_dir), sample_material_data).rgb;
     }
-    clamp(new_col, 0.0f.xxx, 5.0f.xxx);
+    // clamp(new_col, 0.0f.xxx, 5.0f.xxx);
     Light light_ray = Light(sample_dir, new_col, 0.1f);
     vec3 light_influence = calculate_light(pos.xyz, normal, normalize(ray_dir), material_data, light_ray);
 
     vec3 direct_illum = imageLoad(direct_illumination, pix).rgb;
     vec3 indirect_illum = imageLoad(indirect_illumination, pix).rgb;
-    indirect_illum = mix(indirect_illum, light_influence, 1.0f/(nr_iterations_done+1));
+    indirect_illum = mix(indirect_illum, light_influence*TWO_PI, 1.0f/(nr_iterations_done+1));
     
     imageStore(framebuffer, pix, vec4(direct_illum+indirect_illum, 1.0f));
     imageStore(indirect_illumination, pix, vec4(indirect_illum, 1.0f));
