@@ -44,6 +44,9 @@ private slots:
     inline void on_moveZInput_valueChanged(double value) { position_z = (float)value; update_transformation(); }
 
 private:
+    /**
+     * @brief resource_initialization Inits models and materials for rendering.
+     */
     void resource_initialization();
     void main_loop();
 

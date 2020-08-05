@@ -65,6 +65,7 @@ void MainWindow::resource_initialization() {
     update_rotation();
     scene.add_root_node(sliced_node);
 
+    // Load mats into material manager object
     MaterialManager& material_manager = scene.get_material_manager();
     Material mat(glm::vec4(0.0f,1.0f,0.0f,1.0f));
     mat.metalness = 1.0f;
