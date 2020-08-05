@@ -47,6 +47,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), model_rotation(1.
     modelLabel->setText(truncate_path(model_path));
     settings3D = new Settings3D(this);
 
+    QDockWidget* dock = findChild<QDockWidget*>("dockWidget");
+    QWidget* dockTitle = new QWidget;
+    dock->setTitleBarWidget(dockTitle);
+
     show();
 
     connect(&timer, &QTimer::timeout, this, &MainWindow::main_loop);
