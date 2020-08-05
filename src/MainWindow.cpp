@@ -178,9 +178,9 @@ void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked) {
 }
 
 void MainWindow::on_fileButton_clicked() {
-    QString new_model_path = QFileDialog::getOpenFileName(this, "Load a model", ".", ("Model Files (*.obj *.ob4)"));
-    // If a file was selected and (if a file was selected) if the files are not the same
-    if (new_model_path.length() && new_model_path != model_path) {
+    QString new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "./resources/models/", ("Model Files (*.ob4)"));
+    // If a file was selected
+    if (new_model_path.length()) {
         modelLabel->setText(truncate_path(new_model_path));
         model_path = new_model_path;
 
