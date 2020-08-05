@@ -32,33 +32,35 @@ Texture::~Texture() {
         glDeleteTextures(1, &id);
 }
 
-void Texture::load(const char* path) {
+void Texture::load(const char* path, GLenum internal_format) {
     QImage img = QImage(path).convertToFormat(QImage::Format_RGBA8888).mirrored(false, true);
-    load(img);
+    load(img, internal_format);
 }
 
-void Texture::load(QImage img) {
+void Texture::load(QImage img, GLenum internal_format) {
     initializeOpenGLFunctions();
+    this->internal_format = internal_format;
 
     glGenTextures(1, &id);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, id);
 
-    set_params();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, img.width(), img.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
+    set_params(TextureOptions::default_2D_options());
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, img.width(), img.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
 }
 
-void Texture::create(unsigned int width, unsigned int height) {
+void Texture::create(unsigned int width, unsigned int height, GLenum internal_format) {
     initializeOpenGLFunctions();
+    this->internal_format = internal_format;
 
     glGenTextures(1, &id);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, id);
 
-    set_params();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)0);
+    set_params(TextureOptions::default_2D_options());
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)0);
 }
 
 void Texture::load_cube_map(const char* equirectangular_path, unsigned int size) {
@@ -74,7 +76,7 @@ void Texture::load_cube_map(const char* equirectangular_path, unsigned int size)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, equirectangular_map);
 
-    set_params(equirectangular_map);
+    set_params(TextureOptions::default_2D_options(), equirectangular_map);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGB, GL_FLOAT, data);
 
     stbi_image_free(data);
@@ -86,11 +88,8 @@ void Texture::load_cube_map(const char* equirectangular_path, unsigned int size)
     for (int i=0; i<6; i++) {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGBA32F, size, size, 0, GL_RGBA, GL_FLOAT, nullptr);
     }
-    glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(id, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
-    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    set_params(TextureOptions::default_3D_options());
 
     Shader eq_to_cubemap;
     ShaderStage eq_to_cubemap_compute{GL_COMPUTE_SHADER, "src/rendering/shaders/equirectangular_to_cube_map.glsl"};
@@ -118,24 +117,22 @@ void Texture::load_cube_map(const char* equirectangular_path, unsigned int size)
     glActiveTexture(GL_TEXTURE0);
 }
 
-void Texture::set_params(unsigned int tex_id) {
+void Texture::set_params(TextureOptions texture_options, unsigned int tex_id) {
     if (tex_id == 0) {
         tex_id = id;
     }
 
     glBindTexture(GL_TEXTURE_2D, tex_id);
 
-    glTextureParameteri(tex_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(tex_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTextureParameteri(tex_id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTextureParameteri(tex_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    for (auto options_pair : texture_options.options) {
+        glTextureParameteri(tex_id, options_pair.first, options_pair.second);
+    }
 }
 
 void Texture::resize(unsigned int width, unsigned int height) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)0);
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)0);
 }
 
 unsigned int Texture::get_id() {
