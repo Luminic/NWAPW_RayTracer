@@ -21,8 +21,6 @@
 #include "rendering/objects/Scene.hpp"
 
 #include "Settings3D.hpp"
-#include "Settings4D.hpp"
-
 
 class Viewport : public QWidget {
     Q_OBJECT;
