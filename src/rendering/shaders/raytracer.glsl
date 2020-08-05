@@ -195,7 +195,7 @@ float ray_plane_int(vec3 ray_origin, vec3 ray_dir, vec3 plane_point, vec3 plane_
 
     return numer/denom;
 }
-
+#define TRIANGLE_INTERSECTION_EPSILON 0.0001f
 vec4 get_barycentric_coordinates(vec3 point, vec3 tri0, vec3 tri1, vec3 tri2) {
     /*
     Returns the barycentric coordinates of point if the point is in the triangle
@@ -204,11 +204,11 @@ vec4 get_barycentric_coordinates(vec3 point, vec3 tri0, vec3 tri1, vec3 tri2) {
     float double_area_tri = length(cross(tri1-tri0, tri2-tri0));
 
     float area0 = length(cross(tri1-point, tri2-point)) / double_area_tri;
-    if (area0 > 1+EPSILON) return vec4(0, 0, 0, -1);
+    if (area0 > 1+TRIANGLE_INTERSECTION_EPSILON) return vec4(0, 0, 0, -1);
     float area1 = length(cross(tri0-point, tri2-point)) / double_area_tri;
-    if (area0+area1 > 1+EPSILON) return vec4(0, 0, 0, -1);
+    if (area0+area1 > 1+TRIANGLE_INTERSECTION_EPSILON) return vec4(0, 0, 0, -1);
     float area2 = length(cross(tri0-point, tri1-point)) / double_area_tri;
-    if (area0+area1+area2 > 1+EPSILON) return vec4(0, 0, 0, -1);
+    if (area0+area1+area2 > 1+TRIANGLE_INTERSECTION_EPSILON) return vec4(0, 0, 0, -1);
 
     return vec4(area0, area1, area2, 1);
 }
