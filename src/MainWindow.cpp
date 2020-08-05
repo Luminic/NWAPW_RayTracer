@@ -199,6 +199,7 @@ void MainWindow::on_fileButton_clicked() {
         sliced_node = dropper->drop(loaded_model, position_w);
         update_rotation();
         scene.add_root_node(sliced_node);
+        selected_node = sliced_node;
     }
 }
 
