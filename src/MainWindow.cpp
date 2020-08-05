@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), model_rotation(1.
     ui.setupUi(this);
 
     QDir dir;
-    model_path = dir.absoluteFilePath("resources/models/pentachoron.ob4");
+    model_path = dir.absoluteFilePath("resources/models/4D/pentachoron.ob4");
 
     loader = new ModelLoader(this);
     dropper = new DimensionDropper(this);
@@ -178,7 +178,8 @@ void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked) {
 }
 
 void MainWindow::on_fileButton_clicked() {
-    QString new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "./resources/models/", ("Model Files (*.ob4)"));
+    // Only 4D models are allowed to be loaded
+    QString new_model_path = QFileDialog::getOpenFileName(this, "Load a model", "./resources/models/4D/", ("Model Files (*.ob4)"));
     // If a file was selected
     if (new_model_path.length()) {
         modelLabel->setText(truncate_path(new_model_path));
