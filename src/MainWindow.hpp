@@ -17,7 +17,6 @@
 #include "rendering/DimensionDropper.hpp"
 
 #include "Settings3D.hpp"
-#include "Settings4D.hpp"
 #include "ui_MainWindow.h"
 
 class MainWindow : public QMainWindow {
@@ -44,6 +43,9 @@ private slots:
     inline void on_moveZInput_valueChanged(double value) { position_z = (float)value; update_transformation(); }
 
 private:
+    /**
+     * @brief resource_initialization Inits models and materials for rendering.
+     */
     void resource_initialization();
     void main_loop();
 

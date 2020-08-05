@@ -50,8 +50,7 @@ HEADERS += src/MainWindow.hpp \
            src/rendering/objects/Material.hpp \
            src/rendering/objects/MaterialManager.hpp \
            src/rendering/DimensionDropper.hpp \
-           src/Settings3D.hpp \
-           src/Settings4D.hpp
+           src/Settings3D.hpp
 
 SOURCES += src/main.cpp \
            src/MainWindow.cpp \
@@ -72,7 +71,6 @@ SOURCES += src/main.cpp \
            src/rendering/objects/Material.cpp \
            src/rendering/objects/MaterialManager.cpp \
            src/rendering/DimensionDropper.cpp \
-           src/Settings3D.cpp \
-           src/Settings4D.cpp
+           src/Settings3D.cpp
 
 FORMS +=   src/MainWindow.ui

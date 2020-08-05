@@ -54,34 +54,40 @@ int Viewport::get_selected_mesh_index() {
 }
 
 void Viewport::mousePressEvent(QMouseEvent *event) {
-    mouse_pressed = true;
-    // just to get rid of the warning, but not necessary
-    event->accept();
+    if (mouse_captured) {
+        mouse_pressed = true;
+        // just to get rid of the warning, but not necessary
+        event->accept();
+    }
 }
 
 void Viewport::keyPressEvent(QKeyEvent* event) {
-    switch (event->key()) {
-        case Qt::Key_Home:
-            QApplication::quit();
-            break;
-        case Qt::Key_Escape:
-            if (mouse_captured) release_mouse();
-            else capture_mouse();
-            break;
-        case Qt::Key_F2:
-            break;
-        case Qt::Key_F3:
-            break;
-        default:
-            cam_controller.key_event(event);
-            break;
+    if (mouse_captured || event->key() == Qt::Key_Escape) {
+        switch (event->key()) {
+            case Qt::Key_Home:
+                QApplication::quit();
+                break;
+            case Qt::Key_Escape:
+                if (mouse_captured) release_mouse();
+                else capture_mouse();
+                break;
+            case Qt::Key_F2:
+                break;
+            case Qt::Key_F3:
+                break;
+            default:
+                cam_controller.key_event(event);
+                break;
+        }
+        event->accept();
     }
-    event->accept();
 }
 
 void Viewport::keyReleaseEvent(QKeyEvent* event) {
-    cam_controller.key_event(event);
-    event->accept();
+    if (mouse_captured) {
+        cam_controller.key_event(event);
+        event->accept();
+    }
 }
 
 void Viewport::mouseMoveEvent(QMouseEvent* event) {
@@ -95,13 +101,14 @@ void Viewport::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void Viewport::wheelEvent(QWheelEvent* event) {
-    QPoint angle_delta = event->angleDelta() / 120;
+    if (mouse_captured) {
+        QPoint angle_delta = event->angleDelta() / 120;
 
-    if (!angle_delta.isNull() && mouse_captured) {
-        float fov_change = static_cast<float>(angle_delta.y()) / 5;
-        cam_controller.update_fov(fov_change);
+        if (!angle_delta.isNull() && mouse_captured) {
+            float fov_change = static_cast<float>(angle_delta.y()) / 5;
+            cam_controller.update_fov(fov_change);
+        }
     }
-
 }
 
 void Viewport::capture_mouse() {

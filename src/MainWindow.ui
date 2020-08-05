@@ -481,11 +481,13 @@
             <bool>true</bool>
            </property>
            <property name="plainText">
-            <string>Escape: Toggle viewport mouse focus
-WASD: Move horizontally
-Space: Move up
-Shift: Move down
-MWheel: Change field of view</string>
+            <string>Select the viewport by clicking on it, then you can toggle its focus with Escape.
+
+When the viewport is focused...
+    WASD: Move horizontally
+    Space: Move up
+    Shift: Move down
+    MWheel: Change field of view</string>
            </property>
           </widget>
          </item>
