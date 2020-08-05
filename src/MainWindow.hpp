@@ -77,6 +77,7 @@ private:
     float position_w = 0.0f;
 
     void update_transformation();
+    void update_model_rotation();
     void update_rotation();
 
     Node* selected_node = nullptr;

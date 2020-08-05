@@ -44,7 +44,7 @@
         <bool>true</bool>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tab3D">
         <property name="autoFillBackground">
@@ -141,7 +141,7 @@
               <enum>QSlider::TicksBelow</enum>
              </property>
              <property name="tickInterval">
-              <number>1000</number>
+              <number>900</number>
              </property>
             </widget>
            </item>
@@ -180,7 +180,7 @@
               <enum>QSlider::TicksBelow</enum>
              </property>
              <property name="tickInterval">
-              <number>1000</number>
+              <number>900</number>
              </property>
             </widget>
            </item>
@@ -283,7 +283,7 @@
               <enum>QSlider::TicksBelow</enum>
              </property>
              <property name="tickInterval">
-              <number>1000</number>
+              <number>900</number>
              </property>
             </widget>
            </item>
@@ -378,7 +378,7 @@
               <enum>QSlider::TicksBelow</enum>
              </property>
              <property name="tickInterval">
-              <number>1000</number>
+              <number>900</number>
              </property>
             </widget>
            </item>
@@ -417,7 +417,7 @@
               <enum>QSlider::TicksBelow</enum>
              </property>
              <property name="tickInterval">
-              <number>1000</number>
+              <number>900</number>
              </property>
             </widget>
            </item>
@@ -456,7 +456,7 @@
               <enum>QSlider::TicksBelow</enum>
              </property>
              <property name="tickInterval">
-              <number>1000</number>
+              <number>900</number>
              </property>
             </widget>
            </item>

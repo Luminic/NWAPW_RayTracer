@@ -30,7 +30,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), model_rotation(1.
     setWindowTitle("Ray Tracer");
     ui.setupUi(this);
 
-    model_path = "resources/models/two_pentachrons.ob4";
+    QDir dir;
+    model_path = dir.absoluteFilePath("resources/models/two_pentachrons.ob4");
 
     loader = new ModelLoader(this);
     dropper = new DimensionDropper(this);
@@ -60,10 +61,8 @@ void MainWindow::resource_initialization() {
     // Must convert file paths from QStrings to char*
     QByteArray char_model_path = model_path.toLocal8Bit();
     loaded_model = loader->load_model(char_model_path);
-
-    // TODO: this likely has to be done for dynamic file loading
-    // but have to remove node from scene?
-    sliced_node = dropper->drop(loaded_model, 0.0f);
+    sliced_node = dropper->drop(loaded_model, position_w);
+    update_rotation();
     scene.add_root_node(sliced_node);
 
     MaterialManager& material_manager = scene.get_material_manager();
@@ -149,7 +148,73 @@ void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
     viewport->main_loop(dt);
 
+    update_rotation();
+    update_model_rotation();
+
+    if (viewport->is_mouse_pressed()) {
+        // Reset input for next update
+        viewport->reset_pressed();
+
+        // Get the selected mesh and its parent node
+        AbstractMesh* selected_mesh = scene.get_mesh(viewport->get_selected_mesh_index());
+        qDebug() << "Selected Mesh" << selected_mesh;
+        selected_node = selected_mesh ? selected_mesh->get_node_parent() : nullptr;
+        update_transformation();
+    }
+}
+
+QString MainWindow::truncate_path(QString path) {
+    return path.section('/', -1);
+}
+
+void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked) {
+    settings3D->toggle_iterative_rendering(checked, viewport->get_renderer_3D_options());
+}
+
+void MainWindow::on_fileButton_clicked() {
+    QString new_model_path = QFileDialog::getOpenFileName(this, "Load a model", ".", ("Model Files (*.obj *.ob4)"));
+    // If a file was selected and (if a file was selected) if the files are not the same
+    if (new_model_path.length() && new_model_path != model_path) {
+        modelLabel->setText(truncate_path(new_model_path));
+        model_path = new_model_path;
+
+        // Remove the sliced node from the scene and delete it and its meshes
+        scene.remove_root_node(sliced_node);
+        for (auto mesh : sliced_node->meshes)
+            delete mesh;
+        delete sliced_node;
+
+        // Delete the loaded model and load the new model
+        delete loaded_model;
+        loaded_model = loader->load_model(model_path.toLocal8Bit());
+
+        // Slice the new model and add it to the scene
+        sliced_node = dropper->drop(loaded_model, position_w);
+        update_rotation();
+        scene.add_root_node(sliced_node);
+    }
+}
+
+void MainWindow::update_transformation() {
+    if (selected_node) {
+        selected_node->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(position_x, position_y, position_z));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_x), glm::vec3(1.0f, 0.0f, 0.0f));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_y), glm::vec3(0.0f, 1.0f, 0.0f));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_z), glm::vec3(0.0f, 0.0f, 1.0f));
+    }
+}
+
+void MainWindow::update_model_rotation() {
+    model_rotation = rotate(glm::radians(rotation_xw), 0, 3) *
+                     rotate(glm::radians(rotation_yw), 1, 3) *
+                     rotate(glm::radians(rotation_zw), 2, 3);
+}
+
+void MainWindow::update_rotation() {
     // 4D rotations must be applied before the model is sliced
+    // Since the loaded model should remain untouched, this means
+    // there must be an itermediate step in which the rotation
+    // is applied, then the result of that step is sliced
 
     // For every mesh in the model
     for (size_t i = 0; i < loaded_model->meshes.size(); i++) {
@@ -181,9 +246,6 @@ void MainWindow::main_loop() {
         Node* new_sliced_node = dropper->drop(rotated_model, position_w);
 
         // Get the old mesh's vertices and indices
-        // TODO: crashes here when a model is loaded with more meshes than the last one
-        // and when loading a model with fewer meshes than the last one, the extra ones stay behind
-        // the fix should go where the dynamic file loading is (down a bit)
         DynamicMesh* old_sliced_mesh = dynamic_cast<DynamicMesh*>(sliced_node->meshes[i]);
         std::vector<Vertex>& vertices = old_sliced_mesh->modify_vertices();
         std::vector<Index>& indices = old_sliced_mesh->modify_indices();
@@ -192,68 +254,18 @@ void MainWindow::main_loop() {
         vertices.clear();
         indices.clear();
 
-        // Slicing can return nullptr if there were no intersections with the hyperplane
-        if (new_sliced_node) {
-            // DimensionDropper always returns a node of dynamic meshs, so this is safe
-            // In this case, only one mesh went in, so only one* mesh comes out
-            DynamicMesh* new_sliced_mesh = dynamic_cast<DynamicMesh*>(new_sliced_node->meshes[0]);
+        // DimensionDropper always returns a node of dynamic meshs, so this is safe
+        // In this case, only one mesh went in, so only one mesh comes out
+        // Even if the 3D slice did not overlap with the shape, an empty mesh
+        // is added to the returned node
+        DynamicMesh* new_sliced_mesh = dynamic_cast<DynamicMesh*>(new_sliced_node->meshes[0]);
 
-            // Get the new vertices and indices
-            std::vector<Vertex>& new_sliced_mesh_vertices = new_sliced_mesh->modify_vertices();
-            std::vector<Index>& new_sliced_mesh_indices = new_sliced_mesh->modify_indices();
+        // Get the new vertices and indices
+        std::vector<Vertex>& new_sliced_mesh_vertices = new_sliced_mesh->modify_vertices();
+        std::vector<Index>& new_sliced_mesh_indices = new_sliced_mesh->modify_indices();
 
-            // Fill the old mesh's vertices and indices with the new ones
-            vertices.insert(vertices.begin(), new_sliced_mesh_vertices.begin(), new_sliced_mesh_vertices.end());
-            indices.insert(indices.begin(), new_sliced_mesh_indices.begin(), new_sliced_mesh_indices.end());
-        }
+        // Fill the old mesh's vertices and indices with the new ones
+        vertices.insert(vertices.begin(), new_sliced_mesh_vertices.begin(), new_sliced_mesh_vertices.end());
+        indices.insert(indices.begin(), new_sliced_mesh_indices.begin(), new_sliced_mesh_indices.end());
     }
-
-    if (viewport->is_mouse_pressed()) {
-        // Reset input for next update
-        viewport->reset_pressed();
-
-        // Get the selected mesh and its parent node
-        AbstractMesh* selected_mesh = scene.get_mesh(viewport->get_selected_mesh_index());
-        qDebug() << "Selected Mesh" << selected_mesh;
-        selected_node = selected_mesh ? selected_mesh->get_node_parent() : nullptr;
-        update_transformation();
-        update_rotation();
-    }
-}
-
-QString MainWindow::truncate_path(QString path) {
-    return path.section('/', -1);
-}
-
-void MainWindow::on_iterativeRenderCheckBox_toggled(bool checked) {
-    settings3D->toggle_iterative_rendering(checked, viewport->get_renderer_3D_options());
-}
-
-void MainWindow::on_fileButton_clicked() {
-    QString new_model_path = QFileDialog::getOpenFileName(this, "Load a model", ".", ("Model Files (*.obj *.ob4)"));
-    if (new_model_path != model_path) {
-        model_path = new_model_path;
-        QString truncated_path = truncate_path(model_path);
-
-        if (truncated_path.length()) {
-            modelLabel->setText(truncated_path);
-            delete loaded_model;
-            loaded_model = loader->load_model(model_path.toLocal8Bit());
-        }
-    }
-}
-
-void MainWindow::update_transformation() {
-    if (selected_node) {
-        selected_node->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(position_x, position_y, position_z));
-        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_x), glm::vec3(1.0f, 0.0f, 0.0f));
-        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_y), glm::vec3(0.0f, 1.0f, 0.0f));
-        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_z), glm::vec3(0.0f, 0.0f, 1.0f));
-    }
-}
-
-void MainWindow::update_rotation() {
-    model_rotation = rotate(glm::radians(rotation_xw), 0, 3) *
-                     rotate(glm::radians(rotation_yw), 1, 3) *
-                     rotate(glm::radians(rotation_zw), 2, 3);
 }

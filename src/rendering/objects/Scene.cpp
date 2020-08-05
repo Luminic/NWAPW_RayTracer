@@ -29,10 +29,8 @@ bool Scene::remove_root_node(Node* root_node) {
         return false;
     }
 
-    root_nodes.erase(root_node_it);
-
     remove_node_meshes(root_node);
-    root_nodes.push_back(root_node);
+    root_nodes.erase(root_node_it);
 
     QList<Node*> child_nodes = root_node->findChildren<Node*>();
     for (auto node : child_nodes) {
