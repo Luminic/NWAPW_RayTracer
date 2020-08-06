@@ -280,5 +280,9 @@ void MainWindow::update_rotation() {
         // Fill the old mesh's vertices and indices with the new ones
         vertices.insert(vertices.begin(), new_sliced_mesh_vertices.begin(), new_sliced_mesh_vertices.end());
         indices.insert(indices.begin(), new_sliced_mesh_indices.begin(), new_sliced_mesh_indices.end());
+
+        // Delete the temporary model and mesh to prevent memory leaks
+        delete rotated_model;
+        delete rotated_mesh;
     }
 }
