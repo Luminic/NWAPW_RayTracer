@@ -54,6 +54,7 @@ public:
     void load(const char* path, GLenum internal_format=GL_RGBA32F);
     void load(QImage img, GLenum internal_format=GL_RGBA32F);
     void create(unsigned int width, unsigned int height, GLenum internal_format=GL_RGBA32F, bool is_int_type=false);
+    void set_params(TextureOptions texture_options, unsigned int tex_id=0); // TODO: add sampler options and make public
 
     // Load eq rect map and convert to cubemap
     void load_cube_map(const char* equirectangular_path, unsigned int size);
@@ -68,7 +69,6 @@ public:
 private:
     GLenum internal_format;
     bool is_int_type = false;
-    void set_params(TextureOptions texture_options, unsigned int tex_id=0); // TODO: add sampler options and make public
 
     unsigned int id;
 };

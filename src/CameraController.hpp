@@ -44,6 +44,7 @@ public:
 
     void set_camera_3D(Camera3D* camera_3D);
 private:
+    float time=7.0f;
     Camera3D* camera_3D;
 
     float mouse_sensitivity;

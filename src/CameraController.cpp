@@ -40,6 +40,8 @@ void CameraController::main_loop(float dt) {
         current_movement.y -= 1.0f;
     }
     camera_3D->position += current_movement*speed*dt;
+    time += dt;
+    // camera_3D->position = glm::vec3(glm::cos(time/4.0f)*5.0f, 0.5f, glm::sin(time/4.0f)*5.0f);
 }
 
 void CameraController::mouse_moved(float dx, float dy) {

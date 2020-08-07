@@ -78,7 +78,7 @@ layout (std140, binding=5) buffer MeshBuffer {
     // ...
 };
 
-#define MAX_NR_TEXTURES 3
+#define MAX_NR_TEXTURES 6
 // From binding 1 (GL_TEXTURE1) to binding MAX_NR_TEXTURES (GL_TEXTURE1 + MAX_NR_TEXTURES)
 uniform sampler2D textures[MAX_NR_TEXTURES];
 
@@ -141,7 +141,7 @@ MaterialData get_material_data(Material material, vec2 tex_coord) {
         material_data.metalness = texture(textures[material.metalness_ti], tex_coord).g;
     }
     if (material.AO_ti != -1) {
-        material_data.AO = texture(textures[material.AO_ti], tex_coord).b;
+        material_data.AO = texture(textures[material.AO_ti], tex_coord).b*0.3f;
     }
     return material_data;
 }
@@ -396,8 +396,18 @@ void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     } else {
         Material material = materials[meshes[vert.mesh_index].material_index];
         MaterialData material_data = get_material_data(material, vert.tex_coord);
+        col = texture(textures[material.albedo_ti], vert.tex_coord);
+        // if (gl_GlobalInvocationID.x%16 < 8)
+        // col = mix(col, 1.0f.xxxx, 0.1);
+        // else
+        // col = mix(col, 0.0f.xxxx, 0.1);
 
-        col = shade(vert.position.xyz, vert.normal.xyz, normalize(ray_dir), material_data);
+        // if (gl_GlobalInvocationID.y%16 < 8)
+        // col = mix(col, 1.0f.xxxx, 0.1);
+        // else
+        // col = mix(col, 0.0f.xxxx, 0.1);
+
+        // col = shade(vert.position.xyz, vert.normal.xyz, normalize(ray_dir), material_data);
         // geom = vec4(vert.position.xyz, vert.tex_coord.x);
         // norms = vec4(normalize(vert.normal.xyz), vert.tex_coord.y);
     }
@@ -511,7 +521,7 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
 }
 
 
-layout (local_size_x = 8, local_size_y = 8) in;
+layout (local_size_x = 16, local_size_y = 16) in;
 
 void main() {
     ivec2 pix = ivec2(gl_GlobalInvocationID.xy);

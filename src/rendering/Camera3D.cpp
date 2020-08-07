@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 Camera3D::Camera3D(float aspect_ratio, float fov, QObject* parent) : QObject(parent), aspect_ratio(aspect_ratio), fov(fov) {
+    // position = glm::vec3(-0.5f,0.0f,5.0f);
     position = glm::vec3(0.0f,0.0f,5.0f);
     yaw_pitch_roll = glm::vec3(0.0f);
 
@@ -18,6 +19,7 @@ void Camera3D::update_perspective_matrix(float new_aspect_ratio, float new_fov) 
 void Camera3D::update_view_matrix() {
     CameraDirectionVectors cam_vecs = get_camera_direction_vectors();
     view = glm::lookAt(position, position + cam_vecs.front, cam_vecs.up);
+    // view = glm::lookAt(position, glm::vec3(0.0f), cam_vecs.up);
 }
 
 CameraDirectionVectors Camera3D::get_camera_direction_vectors() {

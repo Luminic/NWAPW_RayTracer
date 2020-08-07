@@ -36,7 +36,7 @@ private slots:
     inline void on_rotateZWSlider_sliderMoved(int position) { rotation_zw = position / 10.0f; update_rotation(); }
 
     // in: (int)[-10000,10000], out: (float)[-2,2]
-    inline void on_slice4DSlider_sliderMoved(int position) { position_w = position / 5000.0f; }
+    inline void on_slice4DSlider_valueChanged(int position) { position_w = position / 5000.0f; }
 
     inline void on_moveXInput_valueChanged(double value) { position_x = (float)value; update_transformation(); }
     inline void on_moveYInput_valueChanged(double value) { position_y = (float)value; update_transformation(); }
@@ -87,6 +87,9 @@ private:
     Settings3D* settings3D;
     QLabel* modelLabel;
     QString truncate_path(QString path);
+
+    float time=0.0f;
+    float total_time=0.0f;
 };
 
 #endif

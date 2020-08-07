@@ -27,11 +27,21 @@ int MaterialManager::add_material(Material material, bool new_mat) {
         auto it = std::find(materials.begin(), materials.end(), material);
         if (it != materials.end()) {
             // Return material index if it already exists
+            qDebug() << "end";
             return std::distance(materials.begin(), it);
         }
     }
     // Add new material to back of vector
     materials.push_back(material);
+    qDebug() << "Materials";
+    for (auto mat : materials) {
+        qDebug() << "mat";
+        qDebug() << "albedo" << mat.albedo.x << mat.albedo.y << mat.albedo.z;
+        qDebug() << "albedo ti" << mat.albedo_ti;
+        qDebug() << "roughness ti" << mat.roughness_ti;
+        qDebug() << "metalness ti" << mat.metalness_ti;
+        qDebug() << "AO ti" << mat.AO_ti;
+    }
     return materials.size()-1;
 }
 

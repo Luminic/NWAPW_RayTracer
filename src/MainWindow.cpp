@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), model_rotation(1.
     setWindowTitle("Ray Tracer");
 
     QDir dir;
-    model_path = dir.absoluteFilePath("resources/models/4D/pentachoron.ob4");
+    model_path = dir.absoluteFilePath("resources/models/4D/hexadecahedron.ob4");
 
     loader = new ModelLoader(this);
     dropper = new DimensionDropper(this);
@@ -67,12 +67,21 @@ void MainWindow::resource_initialization() {
     loaded_model = loader->load_model(char_model_path);
     sliced_node = dropper->drop(loaded_model, position_w);
     update_rotation();
-    scene.add_root_node(sliced_node);
+    // scene.add_root_node(sliced_node);
 
     // Load mats into material manager object
     MaterialManager& material_manager = scene.get_material_manager();
-    Material mat(glm::vec4(0.0f,1.0f,0.0f,1.0f));
-    mat.metalness = 1.0f;
+    TextureOptions texture_options = {
+        GL_TEXTURE_2D,
+        {
+            std::pair<GLenum, GLenum>(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE),
+            std::pair<GLenum, GLenum>(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE),
+            std::pair<GLenum, GLenum>(GL_TEXTURE_MIN_FILTER, GL_LINEAR),
+            std::pair<GLenum, GLenum>(GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        }
+    };
+
+    Material mat(glm::vec4(1.0f,1.0f,0.0f,1.0f));
     Texture* diffuse_texture = new Texture(&material_manager);
     diffuse_texture->load("resources/textures/Metal022_2K-JPG/Metal022_2K_Color.jpg");
     mat.albedo_ti = material_manager.add_texture(diffuse_texture);
@@ -84,10 +93,40 @@ void MainWindow::resource_initialization() {
     mat.metalness_ti = material_manager.add_texture(metalness_texture);
     int metal_material = material_manager.add_material(mat);
 
-//     Node* monkey = loader->load_model("resources/models/3D/monkey.obj");
-//     for (auto m : monkey->meshes)
-//         m->material_index = metal_material;
-//     scene.add_root_node(monkey);
+    Material mat2(glm::vec4(0.0f,1.0f,0.0f,1.0f));
+    mat2.metalness = 0.0f;
+    Texture* diffuse_texture2 = new Texture(&material_manager);
+    // diffuse_texture->load("resources/textures/RoughPlasterBrick/rough_plasterbrick_05_diff_4k.jpg");
+    diffuse_texture2->load("resources/textures/marble/marble_01_diff_4k.jpg");
+    // diffuse_texture2->load("resources/textures/dirt/dirt_aerial_03_diff_4k.jpg");
+    diffuse_texture2->set_params(texture_options);
+    mat2.albedo_ti = material_manager.add_texture(diffuse_texture2);
+    Texture* rougness_texture2 = new Texture(&material_manager);
+    // rougness_texture->load("resources/textures/RoughPlasterBrick/rough_plasterbrick_05_rough_4k.jpg");
+    rougness_texture2->load("resources/textures/marble/marble_01_rough_4k.jpg");
+    // rougness_texture2->load("resources/textures/dirt/dirt_aerial_03_rough_4k.jpg");
+    rougness_texture2->set_params(texture_options);
+    mat2.roughness_ti = material_manager.add_texture(rougness_texture2);
+    Texture* AO_texture = new Texture(&material_manager);
+    // AO_texture->load("resources/textures/RoughPlasterBrick/rough_plasterbrick_05_ao_4k.jpg");
+    AO_texture->load("resources/textures/marble/marble_01_AO_4k.jpg");
+    // AO_texture->load("resources/textures/dirt/dirt_aerial_03_ao_4k.jpg");
+    AO_texture->set_params(texture_options);
+    mat2.AO_ti = material_manager.add_texture(AO_texture);
+    int dirt_material = material_manager.add_material(mat2);
+
+    Node* monkey = loader->load_model("resources/models/3D/monkey.obj");
+    // monkey->transformation = glm::translate(glm::mat4(1.0f),glm::vec3(-2.0f,0.0f,0.0f));
+    for (auto m : monkey->meshes) {
+        m->material_index = dirt_material;
+    }
+    scene.add_root_node(monkey);
+
+    // Node* lp_obj = loader->load_model("resources/models/3D/lp_object.obj");
+    // for (auto m : lp_obj->meshes) {
+    //     m->material_index = metal_material;
+    // }
+    // scene.add_root_node(lp_obj);
 
     Vertex verts[8] = {
         // Floor
@@ -156,7 +195,17 @@ void MainWindow::resource_initialization() {
 
 void MainWindow::main_loop() {
     float dt = elapsedTimer.restart() / 1000.0f;
-    viewport->main_loop(dt);
+    total_time+=dt*3000;
+    // if (total_time>30000)
+        viewport->main_loop(dt);
+    // else 
+    //     viewport->main_loop(0);
+    time += dt*3000;
+    if (time >= 20000) time -= 20000;
+
+
+    QSlider* slice_slider = findChild<QSlider*>("slice4DSlider");
+    slice_slider->setValue(abs(time-10000)-5000);
 
     update_rotation();
     update_model_rotation();
