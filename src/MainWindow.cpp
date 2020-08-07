@@ -27,8 +27,8 @@ static void print_matrix(const glm::mat4& matrix) {
 }
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), model_rotation(1.0f) {
-    setWindowTitle("Ray Tracer");
     ui.setupUi(this);
+    setWindowTitle("Ray Tracer");
 
     QDir dir;
     model_path = dir.absoluteFilePath("resources/models/4D/pentachoron.ob4");
