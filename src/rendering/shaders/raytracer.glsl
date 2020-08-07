@@ -146,6 +146,17 @@ MaterialData get_material_data(Material material, vec2 tex_coord) {
     return material_data;
 }
 
+MaterialData get_material_data(Material material, int material_index, vec2 tex_coord) {
+    // For some reason acessing different textures within the same work group at the same time doesnt work
+    // Instead, one texture is returned for both, accesses even though it returns the wrong data
+    // So we instead of the clean following line, we have to offset when the texture offset happens with a faux loop
+    // MaterialData material_data = get_material_data(material, vert.tex_coord);
+    MaterialData material_data;
+    for (int i=0; i<=material_index; i++) {
+        if (i == material_index)
+            return material_data = get_material_data(material, tex_coord);
+    }
+}
 
 uniform vec3 eye;
 uniform vec3 ray00;
@@ -395,7 +406,7 @@ void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
         // norms = 0.0f.xxxx;
     } else {
         Material material = materials[meshes[vert.mesh_index].material_index];
-        MaterialData material_data = get_material_data(material, vert.tex_coord);
+        MaterialData material_data = get_material_data(material, meshes[vert.mesh_index].material_index, vert.tex_coord);
 
         col = shade(vert.position.xyz, vert.normal.xyz, normalize(ray_dir), material_data);
         // geom = vec4(vert.position.xyz, vert.tex_coord.x);
@@ -474,7 +485,7 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     }
     
     Material material = materials[meshes[mesh_index].material_index];
-    MaterialData material_data = get_material_data(material, tex_coord);
+    MaterialData material_data = get_material_data(material, meshes[vert.mesh_index].material_index, tex_coord);
 
     uint prev_rand = rand(nr_iterations_done);
     for (int i=0; i<nr_iterations_done%10; i++) {
@@ -495,7 +506,7 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
         new_col = texture(environment_map, sample_dir).rgb;
     } else {
         Material sample_material = materials[meshes[vert.mesh_index].material_index];
-        MaterialData sample_material_data = get_material_data(sample_material, vert.tex_coord);
+        MaterialData sample_material_data = get_material_data(sample_material, meshes[vert.mesh_index].material_index, vert.tex_coord);
         new_col = shade(vert.position.xyz, vert.normal.xyz, normalize(sample_dir), sample_material_data).rgb;
     }
     // clamp(new_col, 0.0f.xxx, 5.0f.xxx);
