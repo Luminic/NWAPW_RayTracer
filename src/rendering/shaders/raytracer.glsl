@@ -485,7 +485,7 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     }
     
     Material material = materials[meshes[mesh_index].material_index];
-    MaterialData material_data = get_material_data(material, meshes[vert.mesh_index].material_index, tex_coord);
+    MaterialData material_data = get_material_data(material, meshes[mesh_index].material_index, tex_coord);
 
     uint prev_rand = rand(nr_iterations_done);
     for (int i=0; i<nr_iterations_done%10; i++) {
