@@ -147,14 +147,13 @@ MaterialData get_material_data(Material material, vec2 tex_coord) {
 }
 
 MaterialData get_material_data(Material material, int material_index, vec2 tex_coord) {
-    // For some reason acessing different textures within the same work group at the same time doesnt work
+    // For some reason accessing different textures within the same work group at the same time doesnt work
     // Instead, one texture is returned for both, accesses even though it returns the wrong data
     // So we instead of the clean following line, we have to offset when the texture offset happens with a faux loop
     // MaterialData material_data = get_material_data(material, vert.tex_coord);
-    MaterialData material_data;
     for (int i=0; i<=material_index; i++) {
         if (i == material_index)
-            return material_data = get_material_data(material, tex_coord);
+            return get_material_data(material, tex_coord);
     }
 }
 
@@ -247,7 +246,7 @@ bool triangle_intersection(Vertex v0, Vertex v1, Vertex v2, vec3 ray_origin, vec
     return false;
 }
 
-Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir, float offset, float max_dist, out ivec3 indices, out vec3 barycentric_coordinates) {
+Vertex cast_ray(vec3 ray_origin, vec3 ray_dir, float offset, float max_dist, out ivec3 indices, out vec3 barycentric_coordinates) {
     /*
     Returns an interpolated vertex from the intersection between the ray and the
     nearest triangle it collides with
@@ -285,10 +284,10 @@ Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir, float offset, float max_di
     return vert;
 }
 
-Vertex get_vertex_data(vec3 ray_origin, vec3 ray_dir, float offset, float max_dist) {
+Vertex cast_ray(vec3 ray_origin, vec3 ray_dir, float offset, float max_dist) {
     ivec3 indices;
     vec3 barycentric_coordinates;
-    return get_vertex_data(ray_origin, ray_dir, offset, max_dist, indices, barycentric_coordinates);
+    return cast_ray(ray_origin, ray_dir, offset, max_dist, indices, barycentric_coordinates);
 }
 
 
@@ -355,7 +354,7 @@ uniform Light sunlight = Light(normalize(vec3(-0.2f, 1.0f, 0.2f)), vec3(3.0f), 0
 
 vec3 calculate_light(vec3 position, vec3 normal, vec3 ray_dir, MaterialData material, Light light) {
     #if SHADOWS
-        if (get_vertex_data(position, light.direction, BIAS, FAR_PLANE).mesh_index != -1) {
+        if (cast_ray(position, light.direction, BIAS, FAR_PLANE).mesh_index != -1) {
             return material.albedo.rgb * material.AO * light.ambient_multiplier;
         }
     #endif
@@ -395,22 +394,16 @@ subroutine uniform Trace trace;
 subroutine(Trace)
 void realtime_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     vec4 col;
-    // vec4 geom;
-    // vec4 norms;
     ivec3 vert_indices;
     vec3 barycentric_coordinates;
-    Vertex vert = get_vertex_data(ray_origin, ray_dir, NEAR_PLANE, FAR_PLANE, vert_indices, barycentric_coordinates);
+    Vertex vert = cast_ray(ray_origin, ray_dir, NEAR_PLANE, FAR_PLANE, vert_indices, barycentric_coordinates);
     if (vert.mesh_index == -1) {
         col = texture(environment_map, ray_dir);
-        // geom = vec4(normalize(ray_dir)*FAR_PLANE, 0.0f);
-        // norms = 0.0f.xxxx;
     } else {
         Material material = materials[meshes[vert.mesh_index].material_index];
         MaterialData material_data = get_material_data(material, meshes[vert.mesh_index].material_index, vert.tex_coord);
 
         col = shade(vert.position.xyz, vert.normal.xyz, normalize(ray_dir), material_data);
-        // geom = vec4(vert.position.xyz, vert.tex_coord.x);
-        // norms = vec4(normalize(vert.normal.xyz), vert.tex_coord.y);
     }
 
     imageStore(framebuffer, pix, col);
@@ -500,7 +493,7 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
     // orient the hemisphere to the normal
     sample_dir = rotate_a_to_b(vec3(0.0f,0.0f,1.0f), normal)*sample_dir;
 
-    Vertex vert = get_vertex_data(pos.xyz, sample_dir, BIAS, FAR_PLANE);
+    Vertex vert = cast_ray(pos.xyz, sample_dir, BIAS, FAR_PLANE);
     vec3 new_col;
     if (vert.mesh_index == -1) {
         new_col = texture(environment_map, sample_dir).rgb;
@@ -509,7 +502,9 @@ void offline_trace(vec3 ray_origin, vec3 ray_dir, ivec2 pix, ivec2 size) {
         MaterialData sample_material_data = get_material_data(sample_material, meshes[vert.mesh_index].material_index, vert.tex_coord);
         new_col = shade(vert.position.xyz, vert.normal.xyz, normalize(sample_dir), sample_material_data).rgb;
     }
+    // Can prevent light from getting over estimated but will bias the result
     // clamp(new_col, 0.0f.xxx, 5.0f.xxx);
+    
     Light light_ray = Light(sample_dir, new_col, 0.1f);
     vec3 light_influence = calculate_light(pos.xyz, normal, normalize(ray_dir), material_data, light_ray);
 
