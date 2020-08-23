@@ -1,107 +1,142 @@
 #include "ModelLoader.hpp"
-#include <QFile>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 #include <QDebug>
 #include <glm/glm.hpp>
 #include <QRegularExpression>
 #include "objects/DynamicMesh.hpp"
 
-bool operator==(const vert& vert1, const vert& vert2) {
-    return vert1.position_index  == vert2.position_index &&
-           vert1.normal_index    == vert2.normal_index   &&
-           vert1.tex_coord_index == vert2.tex_coord_index;
-}
+#define logError(error) { std::cerr << error; mesh4dIndices.clear(); mesh4dVertices.clear(); return nullptr; }
+#define addTetrahedron(p0, p1, p2, p3) { mesh4dIndices.push_back(p0); mesh4dIndices.push_back(p1); mesh4dIndices.push_back(p2); mesh4dIndices.push_back(p3); }
 
 // NOTE: this does NOT handle any malformed files
 Node* ModelLoader::load_model(const char* file_path) {
-    QFile file(file_path);
-
-    if (!file.open(QIODevice::ReadOnly)) {
+    // Try to open the file
+    std::ifstream file = std::ifstream(file_path);
+    if (!file.is_open()) {
         qDebug() << "Failed to open file:" << file_path;
         return nullptr;
-    }
+    } else {
+        std::vector<AbstractMesh*> meshes;
+        std::vector<Index> mesh4dIndices;
+        std::vector<Vertex> mesh4dVertices;
 
-    // all of the meshes in the file
-    std::vector<AbstractMesh*> meshes;
+        std::string line;
+        PrimitiveType type = PrimitiveType::None;
+        size_t lineNumber = 1;
 
-    // the actual data
-    std::vector<glm::vec4> positions;
-    std::vector<glm::vec4> normals;
-    std::vector<glm::vec2> tex_coords;
+        try {
+            while (!file.eof()) {
+                // Get the whole line
+                std::getline(file, line);
 
-    // mock vertices that store the indices into "the actual data"
-    std::vector<vert> verts;
+                // Remove comments
+                size_t commentIndex = line.find_first_of('#');
+                if (commentIndex != std::string::npos)
+                    line.erase(commentIndex);
 
-    std::vector<Index> indices;
-    Index face_indices = 0;
+                // If the line has any characters
+                if (line.size()) {
+                    if (!line.rfind("nm ", 0)) {
+                        // Finish previous mesh
+                        if (mesh4dIndices.size()) {
+                            meshes.push_back(new DynamicMesh(mesh4dVertices, mesh4dIndices));
+                            mesh4dVertices.clear();
+                            mesh4dIndices.clear();
+                        }
 
-    bool loading_file = true;
-    do {
-        // get the line and tokenize it
-        QString line(file.readLine().toStdString().c_str());
-        QRegularExpression regex("[ |\r|\n]"); // \\w+ doesn't work :P
-        QStringList tokens = line.split(regex);
+                        std::string primitiveType;
+                        std::stringstream ss(std::move(line));
+                        ss >> primitiveType >> primitiveType;
 
-        if (tokens[0] == "v") {
-            positions.emplace_back(tokens[1].toFloat(), tokens[2].toFloat(), tokens[3].toFloat(), tokens[4].toFloat());
-        } else if (tokens[0] == "vt") {
-            tex_coords.emplace_back(tokens[1].toFloat(), tokens[2].toFloat());
-        } else if (tokens[0] == "vn") {
-            normals.emplace_back(tokens[1].toFloat(), tokens[2].toFloat(), tokens[3].toFloat(), tokens[4].toFloat());
-        } else if (tokens[0] == "f") {
-            for (unsigned char i = 1; i < face_indices; i++) {
-                QStringList vertex_data = tokens[i].split('/');
+                        if (!primitiveType.rfind("tetrahedra", 0))
+                            type = PrimitiveType::Tetrahedron;
+                        else if (!primitiveType.rfind("hexahedra", 0))
+                            type = PrimitiveType::Hexahedron;
+                        else if (!primitiveType.rfind("octahedra", 0))
+                            type = PrimitiveType::Octahedron;
+                        else if (!primitiveType.rfind("dodecahedra", 0))
+                            type = PrimitiveType::Dodecahedron;
+                        else if (!primitiveType.rfind("icosahedra", 0))
+                            type = PrimitiveType::Icosahedron;
+                        else
+                            logError("Unknown primitive type: \"" << primitiveType << "\"\n");
+                    } else if (!line.rfind("v ", 0)) {
+                        // Convert the line into a std::stringstream to make parsing easier
+                        std::stringstream ss(std::move(line));
 
-                vert vertex{vertex_data[0].toUInt() - 1, 0, 0};
-                if (vertex_data.length() == 2 || (vertex_data.length() == 3 && vertex_data[1].length()))
-                    vertex.tex_coord_index = vertex_data[1].toUInt() - 1;
-                if (vertex_data.length() == 3)
-                    vertex.normal_index = vertex_data[2].toUInt() - 1;
+                        // This is to get rid of the "v "
+                        char junk;
+                        ss >> junk;
 
-                auto it = std::find(verts.begin(), verts.end(), vertex);
-                if (it != verts.end()) indices.push_back((Index)(it - verts.begin()));
-                else { indices.push_back((Index)verts.size()); verts.push_back(vertex); }
+                        // Move the indices into the vector
+                        glm::vec4 vertex;
+                        ss >> vertex.x;
+                        ss >> vertex.y;
+                        ss >> vertex.z;
+                        ss >> vertex.w;
+
+                        // If there was an error converting from strings to vertices
+                        if (!ss) logError("Failed to parse line " << lineNumber << ".\n");
+
+                        // Add the vertex to the mesh's vertices
+                        mesh4dVertices.emplace_back(vertex);
+                    }
+                    // I don't think it makes sense to support these two
+                    // Normals will be dynamically calculated on the gpu
+                    // 3D Texture coordinates for each cell?
+                    //else if (!line.rfind("vt ", 0)) {}
+                    //else if (!line.rfind("vn ", 0)) {}
+                    else if (!line.rfind("f ", 0)) {
+                        if (type == PrimitiveType::None)
+                            logError("No primitive type set.\n");
+
+                        // Create a vector with a size equal to the
+                        // number of indices in this mesh's faces
+                        std::vector<Index> indices(primitiveTypeCountMask & static_cast<size_t>(type));
+
+                        // Convert the line into a std::stringstream to make parsing easier
+                        std::stringstream ss(std::move(line));
+
+                        // This is to get rid of the "f "
+                        char junk;
+                        ss >> junk;
+
+                        // Move the indices into the vector
+                        for (auto& index : indices)
+                            ss >> index;
+
+                        // If there was an error converting from strings to indices
+                        if (!ss) logError("Failed to parse line " << lineNumber << ".\n");
+
+                        // Tetrahedralize the primitive
+                        Index count = (primitiveTypeIndexMask & static_cast<size_t>(type)) >> primitiveTypeIndexShift;
+                        const Index* inds = primitiveIndices[count];
+                        for (Index i = 0; i < primitiveIndexCounts[count]; i += 4)
+                            addTetrahedron(indices[inds[i + 0]] - 1, indices[inds[i + 1]] - 1, indices[inds[i + 2]] - 1, indices[inds[i + 3]] - 1);
+                    } else {
+                        // Keep only the command
+                        size_t spaceIndex = line.find_first_of(' ');
+                        if (spaceIndex != std::string::npos)
+                            line.erase(spaceIndex);
+
+                        logError("Unknown command: \"" << line << "\" on line " << lineNumber << ".\n");
+                    }
+                }
+
+                lineNumber++;
             }
-        } // new mesh
-        else if (tokens[0] == "nm") {
-            store_mesh(verts, indices, positions, normals, tex_coords, meshes);
-            verts.clear();
-            indices.clear();
-            positions.clear();
-            normals.clear();
-            tex_coords.clear();
-            face_indices = tokens[1].toUInt() + 1;
+
+            file.close();
+            meshes.push_back(new DynamicMesh(mesh4dVertices, mesh4dIndices));
+            return new Node(meshes, this);
+        } catch (...) {
+            file.close();
+            logError("Failed parsing on line " << lineNumber << ".\n");
         }
-
-        if (!line.size()) loading_file = false;
-    } while (loading_file);
-    file.close();
-
-    // get the last mesh in the file
-    store_mesh(verts, indices, positions, normals, tex_coords, meshes);
-    return new Node(meshes, this);
-}
-
-void ModelLoader::store_mesh(const std::vector<vert>& verts,
-                const std::vector<Index>& indices,
-                const std::vector<glm::vec4>& positions,
-                const std::vector<glm::vec4>& normals,
-                const std::vector<glm::vec2>& tex_coords,
-                std::vector<AbstractMesh*>& meshes) {
-    if (!indices.size())
-        return;
-
-    std::vector<Vertex> vertices;
-    vertices.reserve(verts.size());
-    for (const auto& vert : verts) {
-        if (normals.size() && tex_coords.size())
-            vertices.emplace_back(positions[vert.position_index], normals[vert.normal_index], tex_coords[vert.tex_coord_index]);
-        else if (normals.size())
-            vertices.emplace_back(positions[vert.position_index], normals[vert.normal_index]);
-        else if (tex_coords.size())
-            vertices.emplace_back(positions[vert.position_index], glm::vec4(0.0f), tex_coords[vert.tex_coord_index]);
-        else
-            vertices.emplace_back(positions[vert.position_index]);
     }
 
-    meshes.push_back(new DynamicMesh(vertices, indices, this));
+    // The file was not found
+    return nullptr;
 }
