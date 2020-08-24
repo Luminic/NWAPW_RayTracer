@@ -1,12 +1,12 @@
-nm tetrahedra
-v -1 0 0 0
-v 0 -1 0 0
-v 0 0 -1 0
-v 0 0 0 -1
-v 1 0 0 0
-v 0 1 0 0
-v 0 0 1 0
-v 0 0 0 1
+pt tetrahedra
+v -0.5  0    0    0
+v  0   -0.5  0    0
+v  0    0   -0.5  0
+v  0    0    0   -0.5
+v  0.5  0    0    0
+v  0    0.5  0    0
+v  0    0    0.5  0
+v  0    0    0    0.5
 
 # bottom half of negative w slices
 f 1 2 3 4

@@ -15,70 +15,74 @@ Node* ModelLoader::load_model(const char* file_path) {
     // Try to open the file
     std::ifstream file = std::ifstream(file_path);
     if (!file.is_open()) {
-        qDebug() << "Failed to open file:" << file_path;
+        qDebug() << "Failed to open file: " << file_path;
         return nullptr;
     } else {
         std::vector<AbstractMesh*> meshes;
         std::vector<Index> mesh4dIndices;
         std::vector<Vertex> mesh4dVertices;
 
-        std::string line;
         PrimitiveType type = PrimitiveType::None;
         size_t lineNumber = 1;
 
         try {
             while (!file.eof()) {
                 // Get the whole line
-                std::getline(file, line);
+                std::string fileLine;
+                std::getline(file, fileLine);
+                // TODO: think about having a "global-inside-the-while-loop"
+                // std::stringstream and change line to be token0.
 
                 // Remove comments
-                size_t commentIndex = line.find_first_of('#');
+                size_t commentIndex = fileLine.find_first_of('#');
                 if (commentIndex != std::string::npos)
-                    line.erase(commentIndex);
+                    fileLine.erase(commentIndex);
 
                 // If the line has any characters
-                if (line.size()) {
-                    if (!line.rfind("nm ", 0)) {
-                        // Finish previous mesh
+                if (fileLine.size()) {
+                    // Convert the line to a std::stringstream
+                    std::stringstream line(std::move(fileLine));
+
+                    // Get the first token
+                    std::string token0;
+                    line >> token0;
+
+                    if (token0 == "nm") {
+                        // If there's any mesh data
                         if (mesh4dIndices.size()) {
+                            // Finish previous mesh
                             meshes.push_back(new DynamicMesh(mesh4dVertices, mesh4dIndices));
                             mesh4dVertices.clear();
                             mesh4dIndices.clear();
                         }
-
+                    } else if (token0 == "pt") {
+                        // Get the primitive tyoe
                         std::string primitiveType;
-                        std::stringstream ss(std::move(line));
-                        ss >> primitiveType >> primitiveType;
+                        line >> primitiveType;
 
-                        if (!primitiveType.rfind("tetrahedra", 0))
+                        // Check which one it is
+                        if (primitiveType == "tetrahedra")
                             type = PrimitiveType::Tetrahedron;
-                        else if (!primitiveType.rfind("hexahedra", 0))
+                        else if (primitiveType == "hexahedra")
                             type = PrimitiveType::Hexahedron;
-                        else if (!primitiveType.rfind("octahedra", 0))
+                        else if (primitiveType == "octahedra")
                             type = PrimitiveType::Octahedron;
-                        else if (!primitiveType.rfind("dodecahedra", 0))
+                        else if (primitiveType == "dodecahedra")
                             type = PrimitiveType::Dodecahedron;
-                        else if (!primitiveType.rfind("icosahedra", 0))
+                        else if (primitiveType == "icosahedra")
                             type = PrimitiveType::Icosahedron;
                         else
-                            logError("Unknown primitive type: \"" << primitiveType << "\"\n");
-                    } else if (!line.rfind("v ", 0)) {
-                        // Convert the line into a std::stringstream to make parsing easier
-                        std::stringstream ss(std::move(line));
-
-                        // This is to get rid of the "v "
-                        char junk;
-                        ss >> junk;
-
+                            logError("Unknown primitive type: \"" << primitiveType << "\".\n");
+                    } else if (token0 == "v") {
                         // Move the indices into the vector
                         glm::vec4 vertex;
-                        ss >> vertex.x;
-                        ss >> vertex.y;
-                        ss >> vertex.z;
-                        ss >> vertex.w;
+                        line >> vertex.x;
+                        line >> vertex.y;
+                        line >> vertex.z;
+                        line >> vertex.w;
 
                         // If there was an error converting from strings to vertices
-                        if (!ss) logError("Failed to parse line " << lineNumber << ".\n");
+                        if (!line) logError("Failed to parse line " << lineNumber << ".\n");
 
                         // Add the vertex to the mesh's vertices
                         mesh4dVertices.emplace_back(vertex);
@@ -86,9 +90,9 @@ Node* ModelLoader::load_model(const char* file_path) {
                     // I don't think it makes sense to support these two
                     // Normals will be dynamically calculated on the gpu
                     // 3D Texture coordinates for each cell?
-                    //else if (!line.rfind("vt ", 0)) {}
-                    //else if (!line.rfind("vn ", 0)) {}
-                    else if (!line.rfind("f ", 0)) {
+                    //else if (token0 == "vt") {}
+                    //else if (token0 == "vn") {}
+                    else if (token0 == "f") {
                         if (type == PrimitiveType::None)
                             logError("No primitive type set.\n");
 
@@ -96,33 +100,20 @@ Node* ModelLoader::load_model(const char* file_path) {
                         // number of indices in this mesh's faces
                         std::vector<Index> indices(primitiveTypeCountMask & static_cast<size_t>(type));
 
-                        // Convert the line into a std::stringstream to make parsing easier
-                        std::stringstream ss(std::move(line));
-
-                        // This is to get rid of the "f "
-                        char junk;
-                        ss >> junk;
-
                         // Move the indices into the vector
                         for (auto& index : indices)
-                            ss >> index;
+                            line >> index;
 
                         // If there was an error converting from strings to indices
-                        if (!ss) logError("Failed to parse line " << lineNumber << ".\n");
+                        if (!line) logError("Failed to parse line " << lineNumber << ".\n");
 
                         // Tetrahedralize the primitive
-                        Index count = (primitiveTypeIndexMask & static_cast<size_t>(type)) >> primitiveTypeIndexShift;
+                        Index count = (primitiveTypeIndexMask & static_cast<Index>(type)) >> primitiveTypeIndexShift;
                         const Index* inds = primitiveIndices[count];
                         for (Index i = 0; i < primitiveIndexCounts[count]; i += 4)
                             addTetrahedron(indices[inds[i + 0]] - 1, indices[inds[i + 1]] - 1, indices[inds[i + 2]] - 1, indices[inds[i + 3]] - 1);
-                    } else {
-                        // Keep only the command
-                        size_t spaceIndex = line.find_first_of(' ');
-                        if (spaceIndex != std::string::npos)
-                            line.erase(spaceIndex);
-
-                        logError("Unknown command: \"" << line << "\" on line " << lineNumber << ".\n");
-                    }
+                    } else
+                        logError("Unknown command: \"" << token0 << "\" on line " << lineNumber << ".\n");
                 }
 
                 lineNumber++;

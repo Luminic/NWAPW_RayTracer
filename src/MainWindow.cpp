@@ -89,57 +89,60 @@ void MainWindow::resource_initialization() {
 //         m->material_index = metal_material;
 //     scene.add_root_node(monkey);
 
-    Vertex verts[8] = {
+    Vertex verts[4] = {
         // Floor
-        Vertex(glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)),
-        Vertex(glm::vec4(-1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec4(-2.0f,-1.0f,-2.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec4( 0.0f,-1.0f,-2.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.5f, 0.0f)),
+        Vertex(glm::vec4( 0.0f,-1.0f, 2.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.5f, 1.0f)),
+        Vertex(glm::vec4(-2.0f,-1.0f, 2.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)),
 
-        // Ceiling
-        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f, 2.0f, 1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(1.0f, 1.0f)),
-        Vertex(glm::vec4(-1.0f, 2.0f, 1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(0.0f, 1.0f))
+//        // Ceiling
+//        Vertex(glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(0.0f, 0.0f)),
+//        Vertex(glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(1.0f, 0.0f)),
+//        Vertex(glm::vec4( 1.0f, 2.0f, 1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(1.0f, 1.0f)),
+//        Vertex(glm::vec4(-1.0f, 2.0f, 1.0f, 1.0f), glm::vec4(0.0f,-1.0f, 0.5f, 1.0f), glm::vec2(0.0f, 1.0f))
     };
-    Index inds[12] = {
+    Index inds[6] = {
         0, 1, 2,
         2, 3, 0,
 
-        4, 5, 6,
-        6, 7, 4
+//        4, 5, 6,
+//        6, 7, 4
     };
-    StaticMesh<8, 12>* mesh = new StaticMesh<8, 12>(verts, inds, this);
+    StaticMesh<4, 6>* mesh = new StaticMesh<4, 6>(verts, inds, this);
     mesh->material_index = metal_material;
 
-    Vertex verts1[4] = {
-        Vertex{glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f, 0.0f)},
-        Vertex{glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f, 0.0f)},
-        Vertex{glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f, 1.0f)},
-        Vertex{glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f, 1.0f)}
-    };
-    Index inds1[6] = {
-        0, 1, 2,
-        2, 3, 0
-    };
-    StaticMesh<4, 6>* mesh1 = new StaticMesh<4, 6>(verts1, inds1, this);
-    mesh1->material_index = metal_material;
+//    Vertex verts1[4] = {
+//        Vertex{glm::vec4(-1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f, 0.0f)},
+//        Vertex{glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f, 0.0f)},
+//        Vertex{glm::vec4( 1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(1.0f, 1.0f)},
+//        Vertex{glm::vec4(-1.0f, 1.0f,-1.0f, 1.0f), glm::vec4(0.0f,0.0f,1.0f,1.0f), glm::vec2(0.0f, 1.0f)}
+//    };
+//    Index inds1[6] = {
+//        0, 1, 2,
+//        2, 3, 0
+//    };
+//    StaticMesh<4, 6>* mesh1 = new StaticMesh<4, 6>(verts1, inds1, this);
+//    mesh1->material_index = metal_material;
 
-    std::vector<Vertex> verts2 {
-        // Floor 2
-        Vertex(glm::vec4(-1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec4( 1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 1.0f)),
-    };
-    std::vector<Index> inds2 { 0, 1, 2 };
-    DynamicMesh* mesh2 = new DynamicMesh(verts2, inds2, this);
-    mesh2->material_index = metal_material;
+//    std::vector<Vertex> verts2 {
+//        // Floor 2
+//        Vertex(glm::vec4(-1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(0.0f, 0.0f)),
+//        Vertex(glm::vec4( 1.0f,-2.0f,-1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
+//        Vertex(glm::vec4( 1.0f,-2.0f, 1.0f,1.0f), glm::vec4(0.0f,1.0f,0.0f,1.0f), glm::vec2(1.0f, 1.0f)),
+//    };
+//    std::vector<Index> inds2 { 0, 1, 2 };
+//    DynamicMesh* mesh2 = new DynamicMesh(verts2, inds2, this);
+//    mesh2->material_index = metal_material;
+
+    // Not only does there have to be at least one static mesh, there
+    // also has to be at least one dynamic mesh for the same reason
 
     std::vector<Vertex> verts3 {
-       Vertex(glm::vec4( 1.0f,-2.0f,-1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f, 0.0f)),
-       Vertex(glm::vec4( 1.0f,-1.0f,-1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(1.0f, 0.0f)),
-       Vertex(glm::vec4( 1.0f,-1.0f, 1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(1.0f, 1.0f)),
-       Vertex(glm::vec4( 1.0f,-2.0f, 1.0f, 1.0f), glm::vec4(-1.0f,0.0f,0.0f,1.0f), glm::vec2(0.0f, 1.0f))
+        Vertex(glm::vec4( 0.0f,-1.0f,-2.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.5f, 0.0f)),
+        Vertex(glm::vec4( 2.0f,-1.0f,-2.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec4( 2.0f,-1.0f, 2.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec4( 0.0f,-1.0f, 2.0f, 1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec2(0.5f, 1.0f)),
     };
     std::vector<Index> inds3 {
         0, 1, 2,
@@ -149,8 +152,8 @@ void MainWindow::resource_initialization() {
     mesh3->material_index = metal_material;
 
     scene.add_static_mesh((AbstractMesh*)mesh);
-    scene.add_static_mesh((AbstractMesh*)mesh1);
-    scene.add_dynamic_mesh((AbstractMesh*)mesh2);
+//    scene.add_static_mesh((AbstractMesh*)mesh1);
+//    scene.add_dynamic_mesh((AbstractMesh*)mesh2);
     scene.add_dynamic_mesh((AbstractMesh*)mesh3);
 }
 
@@ -189,21 +192,27 @@ void MainWindow::on_fileButton_clicked() {
         modelLabel->setText(truncate_path(new_model_path));
         model_path = new_model_path;
 
-        // Remove the sliced node from the scene and delete it and its meshes
-        scene.remove_root_node(sliced_node);
-        for (auto mesh : sliced_node->meshes)
-            delete mesh;
-        delete sliced_node;
+        // Load the new model
+        Node* new_model = loader->load_model(model_path.toLocal8Bit());
 
-        // Delete the loaded model and load the new model
-        delete loaded_model;
-        loaded_model = loader->load_model(model_path.toLocal8Bit());
+        // If the model was successfully loaded
+        if (new_model) {
+            // Remove the sliced node from the scene and delete it and its meshes
+            scene.remove_root_node(sliced_node);
+            for (auto mesh : sliced_node->meshes)
+                delete mesh;
+            delete sliced_node;
 
-        // Slice the new model and add it to the scene
-        sliced_node = dropper->drop(loaded_model, position_w);
-        update_rotation();
-        scene.add_root_node(sliced_node);
-        selected_node = sliced_node;
+            // Delete the loaded model and load the new model
+            delete loaded_model;
+            loaded_model = new_model;
+
+            // Slice the new model and add it to the scene
+            sliced_node = dropper->drop(loaded_model, position_w);
+            update_rotation();
+            scene.add_root_node(sliced_node);
+            selected_node = sliced_node;
+        }
     }
 }
 
