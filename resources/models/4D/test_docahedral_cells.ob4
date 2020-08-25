@@ -1,3 +1,10 @@
+# The best way I found to see this is to do the following:
+#  - Rotate XW = 45 deg
+#  - 3D Slice = about 0.1
+#  - load this model
+#  - move to the left or right to select this model, then move back
+#  - play around with 3D Slice, move around
+
 pt dodecahedra
 # the cube vertices
 v -0.577350 -0.577350 -0.577350 0.000000

@@ -6,24 +6,24 @@
 
 constexpr Index tetrahedronIndices[]
 {
-    0, 1, 2, 3
+     0,  1,  2,  3
 };
 
 constexpr Index hexahedronIndices[]
 {
-    0, 1, 2, 4,
-    1, 4, 5, 7,
-    2, 4, 6, 7,
-    1, 2, 3, 7,
-    1, 2, 4, 7
+     0,  1,  2,  4,
+     1,  4,  5,  7,
+     2,  4,  6,  7,
+     1,  2,  3,  7,
+     1,  2,  4,  7
 };
 
 constexpr Index octahedronIndices[]
 {
-    0, 1, 2, 5,
-    0, 4, 2, 5,
-    3, 1, 2, 5,
-    3, 4, 2, 5
+     0,  1,  2,  5,
+     0,  4,  2,  5,
+     3,  1,  2,  5,
+     3,  4,  2,  5
 };
 
 // You do not want to know the pain
@@ -57,9 +57,29 @@ constexpr Index dodecahedronIndices[]
      1,  4,  5, 19
 };
 
-constexpr Index icosahedronIndices[1]
+// Same thing here but less so
+constexpr Index icosahedronIndices[]
 {
-
+     6,  7,  9, 11,
+     0,  1,  6,  9,
+     0,  4,  8,  9,
+     2,  5,  8,  9,
+     2,  3,  7,  9,
+     3,  7, 10, 11,
+     2,  3,  5, 10,
+     4,  5,  8, 10,
+     0,  1,  4, 10,
+     1,  6, 10, 11,
+     7,  9, 10, 11,
+     6,  9, 10, 11,
+     1,  6,  9, 10,
+     3,  7,  9, 10,
+     4,  8,  9, 10,
+     5,  8,  9, 10,
+     0,  4,  9, 10,
+     2,  5,  9, 10,
+     0,  1,  9, 10,
+     2,  3,  9, 10
 };
 
 constexpr const Index* primitiveIndices[]
@@ -72,11 +92,11 @@ constexpr const Index* primitiveIndices[]
 };
 constexpr Index primitiveIndexCounts[]
 {
-    sizeof(tetrahedronIndices)  / sizeof(Index),
-    sizeof(hexahedronIndices)   / sizeof(Index),
-    sizeof(octahedronIndices)   / sizeof(Index),
-    sizeof(dodecahedronIndices) / sizeof(Index),
-    sizeof(icosahedronIndices)  / sizeof(Index)
+    sizeof(tetrahedronIndices)  / sizeof(Index), //   4 indices ->  1 tetrahedron
+    sizeof(hexahedronIndices)   / sizeof(Index), //  20 indices ->  5 tetrahedra
+    sizeof(octahedronIndices)   / sizeof(Index), //  16 indices ->  4 tetrahedra
+    sizeof(dodecahedronIndices) / sizeof(Index), // 100 indices -> 25 tetrahedra
+    sizeof(icosahedronIndices)  / sizeof(Index)  //  80 indices -> 20 tetrahedra
 };
 
 constexpr unsigned char primitiveTypeCountMask = 0b00011111;
@@ -86,9 +106,9 @@ constexpr unsigned char primitiveTypeIndexShift = 5;
 enum class PrimitiveType : unsigned char
 {
     None         = 0,
-    Tetrahedron  = (0 << primitiveTypeIndexShift) | 4,
-    Hexahedron   = (1 << primitiveTypeIndexShift) | 8,
-    Octahedron   = (2 << primitiveTypeIndexShift) | 6,
+    Tetrahedron  = (0 << primitiveTypeIndexShift) |  4,
+    Hexahedron   = (1 << primitiveTypeIndexShift) |  8,
+    Octahedron   = (2 << primitiveTypeIndexShift) |  6,
     Dodecahedron = (3 << primitiveTypeIndexShift) | 20,
     Icosahedron  = (4 << primitiveTypeIndexShift) | 12
 };
