@@ -25,6 +25,10 @@ Node* ModelLoader::load_model(const char* file_path) {
         PrimitiveType type = PrimitiveType::None;
         size_t lineNumber = 1;
 
+        // Stuff to do with custom primitives
+        std::vector<Index> customIndices;
+        Index customIndexCount;
+
         try {
             while (!file.eof()) {
                 // Get the whole line
@@ -71,8 +75,35 @@ Node* ModelLoader::load_model(const char* file_path) {
                             type = PrimitiveType::Dodecahedron;
                         else if (primitiveType == "icosahedra")
                             type = PrimitiveType::Icosahedron;
-                        else
+                        else if (primitiveType == "custom") {
+                            type = PrimitiveType::Custom;
+                            customIndices.clear();
+                        } else
                             logError("Unknown primitive type: \"" << primitiveType << "\".\n");
+                    } else if (token0 == "cc") {
+                        // This is the "Custom Count" command
+                        // It gives the parser how many indices there are in this custom type
+
+                        if (type != PrimitiveType::Custom)
+                            logError("Cannot use ci for non-custom primitives.\n");
+
+                        Index customTetrahedronCount;
+                        line >> customTetrahedronCount;
+                        line >> customIndexCount;
+                        customIndices.reserve(customTetrahedronCount * 4);
+                    } else if (token0 == "ci") {
+                        // This is the "Custom Index" command
+                        // This supplies the parser with a custom index
+
+                        if (type != PrimitiveType::Custom)
+                            logError("Cannot use ci for non-custom primitives.\n");
+
+                        Index i0, i1, i2, i3;
+                        line >> i0 >> i1 >> i2 >> i3;
+                        customIndices.push_back(i0 - 1);
+                        customIndices.push_back(i1 - 1);
+                        customIndices.push_back(i2 - 1);
+                        customIndices.push_back(i3 - 1);
                     } else if (token0 == "v") {
                         // Move the indices into the vector
                         glm::vec4 vertex;
@@ -95,10 +126,13 @@ Node* ModelLoader::load_model(const char* file_path) {
                     else if (token0 == "f") {
                         if (type == PrimitiveType::None)
                             logError("No primitive type set.\n");
+                        if (type == PrimitiveType::Custom && !customIndices.size())
+                            logError("No custom primitive data set.\n");
 
                         // Create a vector with a size equal to the
                         // number of indices in this mesh's faces
-                        std::vector<Index> indices(primitiveTypeCountMask & static_cast<size_t>(type));
+                        Index indexCount = type == PrimitiveType::Custom ? customIndexCount : primitiveTypeCountMask & static_cast<PrimitiveTypeType>(type);
+                        std::vector<Index> indices(indexCount);
 
                         // Move the indices into the vector
                         for (auto& index : indices)
@@ -107,11 +141,17 @@ Node* ModelLoader::load_model(const char* file_path) {
                         // If there was an error converting from strings to indices
                         if (!line) logError("Failed to parse line " << lineNumber << ".\n");
 
-                        // Tetrahedralize the primitive
-                        Index count = (primitiveTypeIndexMask & static_cast<Index>(type)) >> primitiveTypeIndexShift;
-                        const Index* inds = primitiveIndices[count];
-                        for (Index i = 0; i < primitiveIndexCounts[count]; i += 4)
-                            addTetrahedron(indices[inds[i + 0]] - 1, indices[inds[i + 1]] - 1, indices[inds[i + 2]] - 1, indices[inds[i + 3]] - 1);
+                        // Handle the custom primitive case
+                        if (type == PrimitiveType::Custom) {
+                            for (Index i = 0; i < customIndices.size(); i++)
+                                mesh4dIndices.push_back(indices[customIndices[i]] - 1);
+                        } else {
+                            // Tetrahedralize the primitive
+                            Index count = (primitiveTypeIndexMask & static_cast<PrimitiveTypeType>(type)) >> primitiveTypeIndexShift;
+                            const Index* inds = primitiveIndices[count];
+                            for (Index i = 0; i < primitiveIndexCounts[count]; i++)
+                                mesh4dIndices.push_back(indices[inds[i]] - 1);
+                        }
                     } else
                         logError("Unknown command: \"" << token0 << "\" on line " << lineNumber << ".\n");
                 }

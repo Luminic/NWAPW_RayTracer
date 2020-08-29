@@ -99,13 +99,18 @@ constexpr Index primitiveIndexCounts[]
     sizeof(icosahedronIndices)  / sizeof(Index)  //  80 indices -> 20 tetrahedra
 };
 
-constexpr unsigned char primitiveTypeCountMask = 0b00011111;
-constexpr unsigned char primitiveTypeIndexMask = 0b11100000;
-constexpr unsigned char primitiveTypeIndexShift = 5;
+typedef unsigned int PrimitiveTypeType;
+typedef signed int SPrimitiveTypeType; // avoids a compiler warning
 
-enum class PrimitiveType : unsigned char
+constexpr PrimitiveTypeType primitiveTypeIndexShift = sizeof(PrimitiveTypeType) * 4;
+constexpr PrimitiveTypeType primitiveTypeCountMask = (1 << primitiveTypeIndexShift) - 1;
+constexpr PrimitiveTypeType primitiveTypeIndexMask = (PrimitiveTypeType)(-1 - (SPrimitiveTypeType)primitiveTypeCountMask);
+
+
+enum class PrimitiveType : PrimitiveTypeType
 {
     None         = 0,
+    Custom       = 1,
     Tetrahedron  = (0 << primitiveTypeIndexShift) |  4,
     Hexahedron   = (1 << primitiveTypeIndexShift) |  8,
     Octahedron   = (2 << primitiveTypeIndexShift) |  6,

@@ -1,5 +1,6 @@
 #include "DimensionDropper.hpp"
 #include <glm/glm.hpp>
+#include <glm/gtx/compatibility.hpp>
 #include <QDebug>
 #include "objects/DynamicMesh.hpp"
 #include <QMatrix3x3>
@@ -9,6 +10,9 @@
 // a big enough difference to not be equal
 //
 // https://stackoverflow.com/questions/14322299/c-stdfind-with-a-custom-comparator
+
+static constexpr float epsilon = 0.000001f;
+
 struct compare_vec3s : public std::unary_function<glm::vec3, bool> {
     compare_vec3s(const glm::vec3& v1) : v1(v1) {}
 
@@ -19,8 +23,6 @@ struct compare_vec3s : public std::unary_function<glm::vec3, bool> {
     }
 
     glm::vec3 v1;
-
-    static constexpr float epsilon = 0.000001f;
 };
 
 Node* DimensionDropper::drop(Node* node4d, float slice) {
@@ -69,7 +71,7 @@ Node* DimensionDropper::drop(Node* node4d, float slice) {
                         // the edge intersects
                         float t = a.w / (a.w - b.w);
 
-                        glm::vec3 intersection((1.0f - t) * a.x + t * b.x, (1.0f - t) * a.y + t * b.y, (1.0f - t) * a.z + t * b.z);
+                        glm::vec3 intersection = glm::lerp(a, b, t);
                         triIntersections.push_back(intersection);
                     }
                 }
