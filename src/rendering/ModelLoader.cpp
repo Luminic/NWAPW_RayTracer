@@ -31,19 +31,19 @@ Node* ModelLoader::load_model(const char* file_path) {
         AddPrimitive(TriangularPrism,  6);
         AddPrimitive(PentagonalPrism, 10);
 
-        const std::string None = "None";
         const std::string Custom = "Custom";
         primitives[Custom] = Primitive();
-        std::string type = None;
+        std::string type = "Tetrahedron";
         size_t lineNumber = 1;
 
         // Stuff to do with custom primitives
-        std::string customName = None;
+        std::string customName;
         Index customTetrahedronCount = 0;
         // This primitive's data is overriden
         // every time the file contains a
         // nameless custom primitive
         Primitive* const customPrimitive = &primitives[Custom];
+        Primitive* currentCustomPrimitive = customPrimitive;
 
         try {
             while (!file.eof()) {
@@ -80,28 +80,36 @@ Node* ModelLoader::load_model(const char* file_path) {
                         line >> type;
 
                         if (type == "Custom") {
+                            Index vertexCount;
+                            line >> customTetrahedronCount >> vertexCount;
+                            bool failedToReadCounts = !line;
+
                             std::string oldCustomName = customName;
                             line >> customName;
 
                             if (!line) {
                                 customName = Custom;
-                                if (oldCustomName != customName)
-                                    customPrimitive->indices.clear();
-                            } else if (primitives.find(customName) != primitives.end())
+                                if (oldCustomName != customName) {
+                                    if (failedToReadCounts) LogError("No tetrahedron count or vertex count specified on line " << lineNumber << ".\n");
+
+                                    currentCustomPrimitive = customPrimitive;
+                                    currentCustomPrimitive->indices.clear();
+                                    currentCustomPrimitive->indices.reserve(customTetrahedronCount * 4);
+                                    currentCustomPrimitive->vertexCount = vertexCount;
+                                }
+                            } else if (primitives.find(customName) == primitives.end()) {
+                                primitives[customName] = Primitive();
+                                currentCustomPrimitive = &primitives[customName];
+
+                                currentCustomPrimitive->indices.reserve(customTetrahedronCount * 4);
+                                currentCustomPrimitive->vertexCount = vertexCount;
+                            }
+                            else
                                 LogError("Redeclared or reference to undeclared primitive \"" << customName << "\" on line " << lineNumber << ".\n");
                         }
                         // If the type was not found
                         else if (primitives.find(type) == primitives.end())
                             LogError("Unknown primitive type: \"" << type << "\" on line " << lineNumber << ".\n");
-                    } else if (token0 == "cc") {
-                        // This is the "Custom Count" command
-                        // It gives the parser how many indices there are in this custom type
-
-                        if (type != Custom)
-                            LogError("Cannot use cc for non-custom primitives on line " << lineNumber << ".\n");
-
-                        line >> customTetrahedronCount >> customPrimitive->vertexCount;
-                        customPrimitive->indices.reserve(customTetrahedronCount * 4);
                     } else if (token0 == "ci") {
                         // This is the "Custom Index" command
                         // This supplies the parser with a custom index
@@ -111,10 +119,10 @@ Node* ModelLoader::load_model(const char* file_path) {
 
                         Index i0, i1, i2, i3;
                         line >> i0 >> i1 >> i2 >> i3;
-                        customPrimitive->indices.push_back(i0 - 1);
-                        customPrimitive->indices.push_back(i1 - 1);
-                        customPrimitive->indices.push_back(i2 - 1);
-                        customPrimitive->indices.push_back(i3 - 1);
+                        currentCustomPrimitive->indices.push_back(i0 - 1);
+                        currentCustomPrimitive->indices.push_back(i1 - 1);
+                        currentCustomPrimitive->indices.push_back(i2 - 1);
+                        currentCustomPrimitive->indices.push_back(i3 - 1);
 
                         customTetrahedronCount--;
 
@@ -134,20 +142,13 @@ Node* ModelLoader::load_model(const char* file_path) {
                         // Add the vertex to the mesh's vertices
                         mesh4dVertices.emplace_back(vertex);
                     }
-                    // I don't think it makes sense to support these two
-                    // Normals will be dynamically calculated on the gpu
-                    // 3D Texture coordinates for each cell?
-                    //else if (token0 == "vt") {}
-                    //else if (token0 == "vn") {}
                     else if (token0 == "f") {
-                        if (type == None)
-                            LogError("No primitive type set on line " << lineNumber << ".\n");
-                        if (type == Custom && !customPrimitive->indices.size())
+                        if (type == Custom && !currentCustomPrimitive->indices.size())
                             LogError("No custom primitive data set on line " << lineNumber << ".\n");
 
                         // Create a vector with a size equal to the
                         // number of indices in this mesh's faces
-                        Index indexCount = (type == Custom ? *customPrimitive : primitives[type]).vertexCount;
+                        Index indexCount = (type == Custom ? *currentCustomPrimitive : primitives[type]).vertexCount;
                         std::vector<Index> faceIndices(indexCount);
 
                         // Move the indices into the vector
@@ -159,8 +160,8 @@ Node* ModelLoader::load_model(const char* file_path) {
 
                         // Handle the custom primitive case
                         if (type == Custom) {
-                            for (Index i = 0; i < customPrimitive->indices.size(); i++)
-                                mesh4dIndices.push_back(faceIndices[customPrimitive->indices[i]] - 1);
+                            for (Index i = 0; i < currentCustomPrimitive->indices.size(); i++)
+                                mesh4dIndices.push_back(faceIndices[currentCustomPrimitive->indices[i]] - 1);
                         } else {
                             // Tetrahedralize the primitive
                             const auto& indices = primitives[type].indices;
