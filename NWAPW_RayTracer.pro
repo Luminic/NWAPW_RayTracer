@@ -34,6 +34,7 @@ HEADERS += src/MainWindow.hpp \
            src/Viewport.hpp \
            src/CameraController.hpp \
            src/rendering/ModelLoader.hpp \
+           src/rendering/ModelLoaderData.hpp \
            src/rendering/OpenGLWidget.hpp \
            src/rendering/Shader.hpp \
            src/rendering/Texture.hpp \

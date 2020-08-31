@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), model_rotation(1.
     setWindowTitle("Ray Tracer");
 
     QDir dir;
-    model_path = dir.absoluteFilePath("resources/models/4D/pentachoron.ob4");
+    model_path = dir.absoluteFilePath("resources/models/4D/Platonic Solids/pentachoron.ob4");
 
     loader = new ModelLoader(this);
     dropper = new DimensionDropper(this);

@@ -1,0 +1,29 @@
+# outer octahedron
+v -1  0  0 -0.5 # left
+v  0 -1  0 -0.5 # bottom
+v  0  0 -1 -0.5 # back
+v  1  0  0 -0.5 # right
+v  0  1  0 -0.5 # top
+v  0  0  1 -0.5 # front
+
+# inner octahedron
+v -1  0  0  0.5 # left
+v  0 -1  0  0.5 # bottom
+v  0  0 -1  0.5 # back
+v  1  0  0  0.5 # right
+v  0  1  0  0.5 # top
+v  0  0  1  0.5 # front
+
+pt Octahedron
+f  1  2  3   4  5  6
+f  7  8  9  10 11 12
+
+pt TriangularPrism
+f  1  2  3   7  8  9 # bottom left  back
+f  1  6  2   7 12  8 # bottom left  front
+f  2  4  3   8 10  9 # bottom right back
+f  2  6  4   8 12 10 # bottom right front
+f  1  3  5   7  9 11 # top    left  back
+f  1  5  6   7 11 12 # top    left  front
+f  3  4  5   9 10 11 # top    right back
+f  4  6  5  10 12 11 # top    right front

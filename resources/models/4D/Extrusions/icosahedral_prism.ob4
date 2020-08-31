@@ -1,0 +1,53 @@
+# outer icosahedron
+v -0.850651  0        -0.525731  0.5 # left back
+v -0.850651  0         0.525731  0.5 # left front
+v  0.850651  0        -0.525731  0.5 # right back
+v  0.850651  0         0.525731  0.5 # right front
+v -0.525731 -0.850651  0         0.5 # left bottom
+v  0.525731 -0.850651  0         0.5 # right bottom
+v -0.525731  0.850651  0         0.5 # left top
+v  0.525731  0.850651  0         0.5 # right top
+v  0        -0.525731 -0.850651  0.5 # back bottom
+v  0         0.525731 -0.850651  0.5 # back top
+v  0        -0.525731  0.850651  0.5 # front bottom
+v  0         0.525731  0.850651  0.5 # front top
+
+# inner icosahedron
+v -0.850651  0        -0.525731 -0.5 # left back
+v -0.850651  0         0.525731 -0.5 # left front
+v  0.850651  0        -0.525731 -0.5 # right back
+v  0.850651  0         0.525731 -0.5 # right front
+v -0.525731 -0.850651  0        -0.5 # left bottom
+v  0.525731 -0.850651  0        -0.5 # right bottom
+v -0.525731  0.850651  0        -0.5 # left top
+v  0.525731  0.850651  0        -0.5 # right top
+v  0        -0.525731 -0.850651 -0.5 # back bottom
+v  0         0.525731 -0.850651 -0.5 # back top
+v  0        -0.525731  0.850651 -0.5 # front bottom
+v  0         0.525731  0.850651 -0.5 # front top
+
+pt Icosahedron
+f  1  2  3  4  5  6  7  8  9 10 11 12
+f 13 14 15 16 17 18 19 20 21 22 23 24
+
+pt TriangularPrism
+f  1  2  5  13 14 17 # left   bottom
+f  1  7  2  13 19 14 # left   top
+f  3  6  4  15 18 16 # right  bottom
+f  3  4  8  15 16 20 # right  top
+f  5  6  9  17 18 21 # bottom back
+f  5 11  6  17 23 18 # bottom front
+f  7 10  8  19 22 20 # top    back
+f  7  8 12  19 20 24 # top    front
+f  1  9 10  13 21 22 # back   left
+f  3 10  9  15 22 21 # back   right
+f  2 12 11  14 24 23 # front  left
+f  4 11 12  16 23 24 # front  right
+f  1  5  9  13 17 21 # back   bottom left
+f  3  9  6  15 21 18 # back   bottom right
+f  1 10  7  13 22 19 # back   top    left
+f  3  8 10  15 20 22 # back   top    right
+f  2 11  5  14 23 17 # front  bottom left
+f  4  6 11  16 18 23 # front  bottom right
+f  2  7 12  14 19 24 # front  top    left
+f  4 12  8  16 24 20 # front  top    right
