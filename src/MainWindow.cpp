@@ -220,9 +220,9 @@ void MainWindow::update_transformation() {
     if (selected_node) {
         // This translation should happen before the 4D rotation in update_rotation (where note 1 is) but only for 4D nodes
         selected_node->transformation = glm::translate(glm::mat4(1.0f), glm::vec3(position_x, position_y, position_z));
-        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_x), glm::vec3(1.0f, 0.0f, 0.0f));
-        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_y), glm::vec3(0.0f, 1.0f, 0.0f));
-        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_z), glm::vec3(0.0f, 0.0f, 1.0f));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_x), glm::vec3(0.0f, 0.0f, 1.0f));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_y), glm::vec3(1.0f, 0.0f, 0.0f));
+        selected_node->transformation = glm::rotate(selected_node->transformation, glm::radians(rotation_z), glm::vec3(0.0f, 1.0f, 0.0f));
     }
 }
 

@@ -1,0 +1,39 @@
+v -0.577350 -0.577350 -0.577350 -0.5 # back   bottom left
+v  0.577350 -0.577350 -0.577350 -0.5 # back   bottom right
+v -0.577350  0.577350 -0.577350 -0.5 # back   top    left
+v  0.577350  0.577350 -0.577350 -0.5 # back   top    right
+v -0.577350 -0.577350  0.577350 -0.5 # front  bottom left
+v  0.577350 -0.577350  0.577350 -0.5 # front  bottom right
+v -0.577350  0.577350  0.577350 -0.5 # front  top    left
+v  0.577350  0.577350  0.577350 -0.5 # front  top    right
+v -0.934172 -0.356822  0        -0.5 # left   bottom
+v -0.934172  0.356822  0        -0.5 # left   top
+v  0.934172 -0.356822  0        -0.5 # right  bottom
+v  0.934172  0.356822  0        -0.5 # right  top
+v  0        -0.934172 -0.356822 -0.5 # bottom back
+v  0        -0.934172  0.356822 -0.5 # bottom front
+v  0         0.934172 -0.356822 -0.5 # top    back
+v  0         0.934172  0.356822 -0.5 # top    front
+v -0.356822  0        -0.934172 -0.5 # back   left
+v  0.356822  0        -0.934172 -0.5 # back   right
+v -0.356822  0         0.934172 -0.5 # front  left
+v  0.356822  0         0.934172 -0.5 # front  right
+v  0.0  0.0  0.0  0.5 # top of pyramid
+
+# "base" of the pyramid
+pt Dodecahedron
+f  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+
+pt PentagonalPyramid
+f  9  1 17  3 10 21 # left   back
+f  5  9 10  7 19 21 # left   front
+f  2 11 12  4 18 21 # right  back
+f  6 20  8 12 11 21 # right  front
+f  1 13  2 18 17 21 # back   bottom
+f 17 18  4 15  3 21 # back   top
+f  5 19 20  6 14 21 # front  bottom
+f  7 16  8 20 19 21 # front  top
+f  1  9  5 14 13 21 # bottom left
+f  2 13 14  6 11 21 # bottom right
+f  3 15 16  7 10 21 # top    left
+f  4 12  8 16 15 21 # top    right

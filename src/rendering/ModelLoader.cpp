@@ -23,13 +23,15 @@ Node* ModelLoader::load_model(const char* file_path) {
         std::vector<Vertex> mesh4dVertices;
 
         std::unordered_map<std::string, Primitive> primitives;
-        AddPrimitive(Tetrahedron,      4);
-        AddPrimitive(Hexahedron,       8);
-        AddPrimitive(Octahedron,       6);
-        AddPrimitive(Dodecahedron,    20);
-        AddPrimitive(Icosahedron,     12);
-        AddPrimitive(TriangularPrism,  6);
-        AddPrimitive(PentagonalPrism, 10);
+        AddPrimitive(Tetrahedron,       4);
+        AddPrimitive(Hexahedron,        8);
+        AddPrimitive(Octahedron,        6);
+        AddPrimitive(Dodecahedron,     20);
+        AddPrimitive(Icosahedron,      12);
+        AddPrimitive(TriangularPrism,   6);
+        AddPrimitive(PentagonalPrism,  10);
+        AddPrimitive(TetragonalPyramid, 5);
+        AddPrimitive(PentagonalPyramid, 6);
 
         const std::string Custom = "Custom";
         primitives[Custom] = Primitive();

@@ -1,0 +1,39 @@
+v -0.850651  0        -0.525731 -0.5 # left back
+v -0.850651  0         0.525731 -0.5 # left front
+v  0.850651  0        -0.525731 -0.5 # right back
+v  0.850651  0         0.525731 -0.5 # right front
+v -0.525731 -0.850651  0        -0.5 # left bottom
+v  0.525731 -0.850651  0        -0.5 # right bottom
+v -0.525731  0.850651  0        -0.5 # left top
+v  0.525731  0.850651  0        -0.5 # right top
+v  0        -0.525731 -0.850651 -0.5 # back bottom
+v  0         0.525731 -0.850651 -0.5 # back top
+v  0        -0.525731  0.850651 -0.5 # front bottom
+v  0         0.525731  0.850651 -0.5 # front top
+v  0         0         0         0.5 # top of pyramid
+
+# "base" of the pyramid
+pt Icosahedron
+f  1  2  3  4  5  6  7  8  9 10 11 12
+
+pt Tetrahedron
+f  1  2  5 13 # left   bottom
+f  1  7  2 13 # left   top
+f  3  6  4 13 # right  bottom
+f  3  4  8 13 # right  top
+f  5  6  9 13 # bottom back
+f  5 11  6 13 # bottom front
+f  7 10  8 13 # top    back
+f  7  8 12 13 # top    front
+f  1  9 10 13 # back   left
+f  3 10  9 13 # back   right
+f  2 12 11 13 # front  left
+f  4 11 12 13 # front  right
+f  1  5  9 13 # back   bottom left
+f  3  9  6 13 # back   bottom right
+f  1 10  7 13 # back   top    left
+f  3  8 10 13 # back   top    right
+f  2 11  5 13 # front  bottom left
+f  4  6 11 13 # front  bottom right
+f  2  7 12 13 # front  top    left
+f  4 12  8 13 # front  top    right
